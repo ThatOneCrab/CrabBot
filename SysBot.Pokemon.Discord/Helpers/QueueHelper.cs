@@ -33,43 +33,14 @@ public static class QueueHelper<T> where T : PKM, new()
 
     private static readonly Dictionary<int, string> MilestoneImages = new()
     {
-        { 1, "https://raw.githubusercontent.com//Havokx89/Bot-Sprite-Images/main/001.png" },
-        { 50, "https://raw.githubusercontent.com//Havokx89/Bot-Sprite-Images/main/050.png" },
-        { 100, "https://raw.githubusercontent.com//Havokx89/Bot-Sprite-Images/main/100.png" },
-        { 150, "https://raw.githubusercontent.com//Havokx89/Bot-Sprite-Images/main/150.png" },
-        { 200, "https://raw.githubusercontent.com//Havokx89/Bot-Sprite-Images/main/200.png" },
-        { 250, "https://raw.githubusercontent.com//Havokx89/Bot-Sprite-Images/main/250.png" },
-        { 300, "https://raw.githubusercontent.com//Havokx89/Bot-Sprite-Images/main/300.png" },
-        { 350, "https://raw.githubusercontent.com//Havokx89/Bot-Sprite-Images/main/350.png" },
-        { 400, "https://raw.githubusercontent.com//Havokx89/Bot-Sprite-Images/main/400.png" },
-        { 450, "https://raw.githubusercontent.com//Havokx89/Bot-Sprite-Images/main/450.png" },
-        { 500, "https://raw.githubusercontent.com//Havokx89/Bot-Sprite-Images/main/500.png" },
-        { 550, "https://raw.githubusercontent.com//Havokx89/Bot-Sprite-Images/main/550.png" },
-        { 600, "https://raw.githubusercontent.com//Havokx89/Bot-Sprite-Images/main/600.png" },
-        { 650, "https://raw.githubusercontent.com//Havokx89/Bot-Sprite-Images/main/650.png" },
-        { 700, "https://raw.githubusercontent.com//Havokx89/Bot-Sprite-Images/main/700.png" }
+       
     };
 
     private static string GetMilestoneDescription(int tradeCount)
     {
         return tradeCount switch
         {
-            1 => "Congratulations on your first trade!\n**Status:** Newbie Trainer.",
-            50 => "You've reached 50 trades!\n**Status:** Novice Trainer.",
-            100 => "You've reached 100 trades!\n**Status:** Pokémon Professor.",
-            150 => "You've reached 150 trades!\n**Status:** Pokémon Specialist.",
-            200 => "You've reached 200 trades!\n**Status:** Pokémon Champion.",
-            250 => "You've reached 250 trades!\n**Status:** Pokémon Hero.",
-            300 => "You've reached 300 trades!\n**Status:** Pokémon Elite.",
-            350 => "You've reached 350 trades!\n**Status:** Pokémon Trader.",
-            400 => "You've reached 400 trades!\n**Status:** Pokémon Sage.",
-            450 => "You've reached 450 trades!\n**Status:** Pokémon Legend.",
-            500 => "You've reached 500 trades!\n**Status:** Region Master.",
-            550 => "You've reached 550 trades!\n**Status:** Trade Master.",
-            600 => "You've reached 600 trades!\n**Status:** World Famous.",
-            650 => "You've reached 650 trades!\n**Status:** Pokémon Master.",
-            700 => "You've reached 700 trades!\n**Status:** Pokémon God.",
-            _ => $"Congratulations on reaching {tradeCount} trades! Keep it going!"
+        
         };
     }
 
@@ -165,12 +136,12 @@ public static class QueueHelper<T> where T : PKM, new()
         {
             (string embedImageUrl, DiscordColor embedColor) = await PrepareEmbedDetails(pk);
 
-            embedData.EmbedImageUrl = isMysteryMon ? "https://i.imgur.com/FdESYAv.png" :
-                                      isMysteryEgg ? "https://raw.githubusercontent.com/Havokx89/sprites/main/mysteryegg3.png" :
-                                       type == PokeRoutineType.Dump ? "https://raw.githubusercontent.com/Havokx89/sprites/main/AltBallImg/128x128/dumpball.png" :
+            embedData.EmbedImageUrl = isMysteryMon ? "https://media.discordapp.net/attachments/1234791557396172874/1387499974044029019/pm1091_00_00_00_big.png?ex=685d918c&is=685c400c&hm=9f6f6ba3a6d5b79253b2991f1e3a2dd8dfc465d37b8ed7bbb51edac5b776f665&=&format=webp&quality=lossless" :
+                                      isMysteryEgg ? "https://media.discordapp.net/attachments/1234791557396172874/1387499892158627972/pm0000_00_00_00_big.png?ex=685d9178&is=685c3ff8&hm=4b7308b5a2b1a8c1c06c8ab4f6a84cd9f865b96325e4163e7283bcb5ad0a8877&=&format=webp&quality=lossless" :
+                                       type == PokeRoutineType.Dump ? "https://media.discordapp.net/attachments/1234791557396172874/1387498742768472074/pokebox_list_box_in_00q.png?ex=685d9066&is=685c3ee6&hm=bb80acd828723cb325d1d6a00366d72ca813763b468c8085e95993b78fe4198a&=&format=webp&quality=lossless" :
                                        type == PokeRoutineType.Clone ? "https://raw.githubusercontent.com/Havokx89/sprites/main/clonepod.png" :
-                                       type == PokeRoutineType.SeedCheck ? "https://raw.githubusercontent.com/Havokx89/sprites/main/specialrequest.png" :
-                                       type == PokeRoutineType.FixOT ? "https://raw.githubusercontent.com/Havokx89/sprites/main/AltBallImg/128x128/rocketball.png" :
+                                       type == PokeRoutineType.SeedCheck ? "https://media.discordapp.net/attachments/1234791557396172874/1387497702132289657/sHtnqOm.gif?ex=685d8f6e&is=685c3dee&hm=a1301a22e4ee2b2b50b296fa841965f7af88837f56214c621da9be95d2d70974&=.gif" :
+                                       type == PokeRoutineType.FixOT ? "https://media.discordapp.net/attachments/1234791557396172874/1387498978630697080/emote_icon_pose_13s.png?ex=685d909e&is=685c3f1e&hm=6e63e8b471221de36e6326cf73d9b270d1081740bacd1c4d5b97ca51a6e91a27&=&format=webp&quality=lossless" :
                                        embedImageUrl;
 
             embedData.HeldItemUrl = string.Empty;
@@ -202,7 +173,7 @@ public static class QueueHelper<T> where T : PKM, new()
                 .WithAuthor(new EmbedAuthorBuilder()
                     .WithName(embedData.AuthorName)
                     .WithIconUrl(trader.GetAvatarUrl() ?? trader.GetDefaultAvatarUrl())
-                    .WithUrl("https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/refs/heads/main/FromTheHeart.png"));
+                    .WithUrl("https://media.discordapp.net/attachments/1234791557396172874/1387472253905801226/Banner_main.png?ex=685d77bb&is=685c263b&hm=743cf2beb927fb2bc33363dc933135fdc4c3fbf6066b0202eb176ebaeceee30a&=&format=webp&quality=lossless"));
 
             DetailsExtractor<T>.AddAdditionalText(embedBuilder);
 
@@ -226,26 +197,26 @@ public static class QueueHelper<T> where T : PKM, new()
                 if (homeTrack.HasTracker && isNonNative)
                 {
                     // Both Non-Native and has Home Tracker
-                    embedBuilder.Footer.IconUrl = "https://raw.githubusercontent.com/Havokx89/sprites/main/exclamation.gif";
+                    embedBuilder.Footer.IconUrl = "";
                     embedBuilder.AddField("**__Notice__**: **This Pokemon is Non-Native & Has Home Tracker.**", "*AutoOT not applied.*");
                 }
                 else if (homeTrack.HasTracker)
                 {
                     // Only has Home Tracker
-                    embedBuilder.Footer.IconUrl = "https://raw.githubusercontent.com/Havokx89/sprites/main/exclamation.gif";
+                    embedBuilder.Footer.IconUrl = "";
                     embedBuilder.AddField("**__Notice__**: **Home Tracker Detected.**", "*AutoOT not applied.*");
                 }
                 else if (isNonNative)
                 {
                     // Only Non-Native
-                    embedBuilder.Footer.IconUrl = "https://raw.githubusercontent.com/Havokx89/sprites/main/exclamation.gif";
+                    embedBuilder.Footer.IconUrl = "";
                     embedBuilder.AddField("**__Notice__**: **This Pokemon is Non-Native.**", "*Cannot enter HOME & AutoOT not applied.*");
                 }
             }
             else if (isNonNative)
             {
                 // Fallback for Non-Native Pokemon that don't implement IHomeTrack
-                embedBuilder.Footer.IconUrl = "https://raw.githubusercontent.com/Havokx89/sprites/main/exclamation.gif";
+                embedBuilder.Footer.IconUrl = "";
                 embedBuilder.AddField("**__Notice__**: **This Pokemon is Non-Native.**", "*Cannot enter HOME & AutoOT not applied.*");
             }
             DetailsExtractor<T>.AddThumbnails(embedBuilder, type == PokeRoutineType.Clone, type == PokeRoutineType.SeedCheck, embedData.HeldItemUrl);
@@ -298,7 +269,7 @@ public static class QueueHelper<T> where T : PKM, new()
         {
             var tradeCodeStorage = new TradeCodeStorage();
             int tradeCount = tradeCodeStorage.GetTradeCount(trader.Id);
-            _ = SendMilestoneEmbed(tradeCount, context.Channel, trader);
+           
         }
 
         return new TradeQueueResult(true);
@@ -616,20 +587,7 @@ public static class QueueHelper<T> where T : PKM, new()
         }
     }
 
-    private static async Task SendMilestoneEmbed(int tradeCount, ISocketMessageChannel channel, SocketUser user)
-    {
-        if (MilestoneImages.TryGetValue(tradeCount, out string? imageUrl))
-        {
-            var embed = new EmbedBuilder()
-                .WithTitle($"{user.Username}'s Milestone Medal")
-                .WithDescription(GetMilestoneDescription(tradeCount))
-                .WithColor(new DiscordColor(255, 215, 0)) // Gold color
-                .WithThumbnailUrl(imageUrl)
-                .Build();
-
-            await channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
-        }
-    }
+    
 
     public static async Task<(int R, int G, int B)> GetDominantColorAsync(string imagePath)
     {

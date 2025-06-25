@@ -35,6 +35,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
     /// <param name="trainerMention">Discord mention for the trainer.</param>
     /// <param name="pk">Pokémon data.</param>
     public static void AddNormalTradeFields(EmbedBuilder embedBuilder, EmbedData embedData, string trainerMention, T pk)
+
     {
         string leftSideContent = $"**Trainer:** {trainerMention}\n";
         leftSideContent +=
@@ -51,7 +52,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
         leftSideContent = leftSideContent.TrimEnd('\n');
         embedBuilder.AddField($"**{embedData.SpeciesName}{(string.IsNullOrEmpty(embedData.FormName) ? "" : $"-{embedData.FormName}")} {embedData.SpecialSymbols}**", leftSideContent, inline: true);
         embedBuilder.AddField("\u200B", "\u200B", inline: true);
-        embedBuilder.AddField("**Moves:**", embedData.MovesDisplay, inline: true);
+        embedBuilder.AddField("**Moves:**", embedData.MovesDisplay, inline: false);
     }
 
     /// <summary>
@@ -260,7 +261,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
     {
         ushort[] moves = new ushort[4];
         pk.GetMoves(moves.AsSpan());
-        List<int> movePPs = [pk.Move1_PP, pk.Move2_PP, pk.Move3_PP, pk.Move4_PP];
+        
         var moveNames = new List<string>();
 
         var typeEmojis = SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.CustomTypeEmojis
@@ -273,7 +274,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
             string moveName = strings.movelist[moves[i]];
             byte moveTypeId = MoveInfo.GetType(moves[i], default);
             PKHeX.Core.MoveType moveType = (PKHeX.Core.MoveType)moveTypeId;
-            string formattedMove = $"{moveName} ({movePPs[i]}pp)";
+            string formattedMove = $"{moveName} ";
             if (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.MoveTypeEmojis && typeEmojis.TryGetValue(moveType, out var moveEmoji))
             {
                 formattedMove = $"{moveEmoji} {formattedMove}";

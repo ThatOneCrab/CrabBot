@@ -1841,9 +1841,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
         }
     }
 
-    [Command("medals")]
-    [Alias("ml")]
-    [Summary("Shows your current trade count and medal status")]
+    
     public async Task ShowMedalsCommand()
     {
         var tradeCodeStorage = new TradeCodeStorage();

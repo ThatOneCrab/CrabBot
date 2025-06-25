@@ -103,12 +103,12 @@ public class TradeStartModule<T> : ModuleBase<SocketCommandContext> where T : PK
                 _ => speciesName
             };
 
-            string embedImageUrl = detail.IsMysteryMon ? "https://i.imgur.com/FdESYAv.png" : detail.IsMysteryEgg ? "https://raw.githubusercontent.com/Havokx89/sprites/main/mysteryegg3.png" : detail.Type switch
+            string embedImageUrl = detail.IsMysteryMon ? "https://media.discordapp.net/attachments/1234791557396172874/1387499974044029019/pm1091_00_00_00_big.png?ex=685d918c&is=685c400c&hm=9f6f6ba3a6d5b79253b2991f1e3a2dd8dfc465d37b8ed7bbb51edac5b776f665&=&format=webp&quality=lossless" : detail.IsMysteryEgg ? "https://media.discordapp.net/attachments/1234791557396172874/1387499892158627972/pm0000_00_00_00_big.png?ex=685d9178&is=685c3ff8&hm=4b7308b5a2b1a8c1c06c8ab4f6a84cd9f865b96325e4163e7283bcb5ad0a8877&=&format=webp&quality=lossless" : detail.Type switch
             {
                 PokeTradeType.Clone => "https://raw.githubusercontent.com/Havokx89/sprites/main/clonepod.png",
-                PokeTradeType.Dump => "https://raw.githubusercontent.com/Havokx89/sprites/main/AltBallImg/128x128/dumpball.png",
-                PokeTradeType.FixOT => "https://raw.githubusercontent.com/Havokx89/sprites/main/AltBallImg/128x128/rocketball.png",
-                PokeTradeType.Seed => "https://raw.githubusercontent.com/Havokx89/sprites/main/specialrequest.png",
+                PokeTradeType.Dump => "https://media.discordapp.net/attachments/1234791557396172874/1387498742768472074/pokebox_list_box_in_00q.png?ex=685d9066&is=685c3ee6&hm=bb80acd828723cb325d1d6a00366d72ca813763b468c8085e95993b78fe4198a&=&format=webp&quality=lossless",
+                PokeTradeType.FixOT => "https://media.discordapp.net/attachments/1234791557396172874/1387498978630697080/emote_icon_pose_13s.png?ex=685d909e&is=685c3f1e&hm=6e63e8b471221de36e6326cf73d9b270d1081740bacd1c4d5b97ca51a6e91a27&=&format=webp&quality=lossless",
+                PokeTradeType.Seed => "https://images-ext-1.discordapp.net/external/iXQxo7WsJHF-btiaSbeGD7Utu8NRsYbMwiukCBKfhJQ/https/i.imgur.com/sHtnqOm.gif?width=978&height=978.gif",
                 _ => detail.TradeData != null ? TradeExtensions<T>.PokeImg(detail.TradeData, false, true) : ""
             };
 

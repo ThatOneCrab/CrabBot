@@ -14,7 +14,7 @@ public static class EmbedHelper
             .WithTitle("Notice")
             .WithDescription(message)
             .WithTimestamp(DateTimeOffset.Now)
-            .WithThumbnailUrl("https://raw.githubusercontent.com/Havokx89/sprites/main/exclamation.gif")
+            .WithThumbnailUrl("")
             .WithColor(Color.Red)
             .Build();
 
@@ -27,7 +27,7 @@ public static class EmbedHelper
             .WithTitle("Your Trade was Canceled...")
             .WithDescription($"Your trade was canceled.\nPlease try again. If the issue persists, restart your switch and check your internet connection.\n\n**Reason**: {reason}")
             .WithTimestamp(DateTimeOffset.Now)
-            .WithThumbnailUrl("https://raw.githubusercontent.com/Havokx89/sprites/main/dmerror.gif")
+            .WithThumbnailUrl("")
             .WithColor(Color.Red)
             .Build();
 
@@ -40,7 +40,7 @@ public static class EmbedHelper
             .WithTitle("Here's your trade code!")
             .WithDescription($"# {code:0000 0000}")
             .WithTimestamp(DateTimeOffset.Now)
-            .WithThumbnailUrl("https://raw.githubusercontent.com/Havokx89/sprites/main/tradecode.gif")
+            .WithThumbnailUrl("")
             .WithColor(Color.Blue)
             .Build();
 
@@ -54,11 +54,11 @@ public static class EmbedHelper
 
         if (isMysteryEgg)
         {
-            thumbnailUrl = "https://raw.githubusercontent.com/Havokx89/sprites/main/mysteryegg3.png";
+            thumbnailUrl = "https://media.discordapp.net/attachments/1234791557396172874/1387499892158627972/pm0000_00_00_00_big.png?ex=685d9178&is=685c3ff8&hm=4b7308b5a2b1a8c1c06c8ab4f6a84cd9f865b96325e4163e7283bcb5ad0a8877&=&format=webp&quality=lossless";
         }
         else if (isMysteryMon)
         {
-            thumbnailUrl = "https://i.imgur.com/FdESYAv.png";
+            thumbnailUrl = "https://media.discordapp.net/attachments/1234791557396172874/1387499974044029019/pm1091_00_00_00_big.png?ex=685d918c&is=685c400c&hm=9f6f6ba3a6d5b79253b2991f1e3a2dd8dfc465d37b8ed7bbb51edac5b776f665&=&format=webp&quality=lossless";
         }
         else
         {
@@ -91,7 +91,7 @@ public static class EmbedHelper
             .WithTitle("Loading the Trade Portal...")
             .WithDescription($"**Pokemon**: {speciesName}\n**Trade Code**: {code:0000 0000}")
             .WithTimestamp(DateTimeOffset.Now)
-            .WithThumbnailUrl("https://raw.githubusercontent.com/Havokx89/sprites/main/initializing.gif")
+            .WithThumbnailUrl("")
             .WithColor(Color.Orange);
 
         if (!string.IsNullOrEmpty(message))
@@ -109,7 +109,7 @@ public static class EmbedHelper
             .WithTitle($"Now Searching for You, {trainerName}...")
             .WithDescription($"**Waiting for**: {trainerName}\n**My IGN**: {inGameName}")
             .WithTimestamp(DateTimeOffset.Now)
-            .WithThumbnailUrl("https://raw.githubusercontent.com/Havokx89/sprites/main/searching.gif")
+            .WithThumbnailUrl("")
             .WithColor(Color.Green);
 
         if (!string.IsNullOrEmpty(message))

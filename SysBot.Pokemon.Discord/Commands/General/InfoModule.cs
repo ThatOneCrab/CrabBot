@@ -16,10 +16,10 @@ namespace SysBot.Pokemon.Discord;
 // Copyright 2017, Christopher F. <foxbot@protonmail.com>
 public class InfoModule : ModuleBase<SocketCommandContext>
 {
-    private const string detail = "I am an open-source Discord bot powered by PKHeX.Core and other open-source software, edited by the Brother Dudes.";
+    private const string detail = "I am an open-source Discord bot powered by PKHeX.Core and other open-source software, edited by Crab.";
     private const string repo = "https://github.com/kwsch/SysBot.NET";
-    private const string fork = "https://github.com/Havokx89/DudeBot.NET";
-    private const string dcord = "https://chinchou.net";
+    private const string fork = "https://github.com/ThatOneCrab/CrabBot";
+    private const string dcord = "https://discord.gg/Q5kXzeBd4S";
 
 
     [Command("info")]
@@ -30,16 +30,18 @@ public class InfoModule : ModuleBase<SocketCommandContext>
 
         var builder = new EmbedBuilder
         {
+            Title = "Here's a bit about me!",
             Color = new Color(114, 137, 218),
+            ThumbnailUrl = "https://media.discordapp.net/attachments/1234791557396172874/1383064282748682313/72x72_pokeball.png?ex=684d6e7d&is=684c1cfd&hm=20b42111f140319c8ab3933670156cecba8a1f4a1c5e39159c1671b00d8f228f&=&format=webp&quality=lossless.png",
             Description = detail,
         };
 
         builder.AddField("Info",
             $"- {Format.Bold("Original Source")}: [SysBot.NET]({repo})\n" +
-            $"- {Format.Bold("Current Fork")}: [DudeBot.NET]({fork})\n" +
-            $"- {Format.Bold("Join the Discord for support!")}: [In Link We Trust]({dcord}) \n" +
-            $"- {Format.Bold("Owner")}: {app.Owner} ({app.Owner.Id})\n" +
-            $"- {Format.Bold("Build Version")}: DudeBot.NET {TradeBot.Version}\n" +
+            $"- {Format.Bold("Current Fork")}: [CrabBot]({fork})\n" +
+            $"- {Format.Bold("Join the Discord for support!")}: [Crab's Dev Server]({dcord}) \n" +
+            $"- {Format.Bold("Owner")}: {app.Owner} (<@{app.Owner.Id}>)\n" +
+            $"- {Format.Bold("Build Version")}: CrabBot {TradeBot.Version}\n" +
             $"- {Format.Bold("Library")}: Discord.Net ({DiscordConfig.Version})\n" +
             $"- {Format.Bold("Uptime")}: {GetUptime()}\n" +
             $"- {Format.Bold("Runtime")}: {RuntimeInformation.FrameworkDescription} {RuntimeInformation.ProcessArchitecture} " +
@@ -56,7 +58,7 @@ public class InfoModule : ModuleBase<SocketCommandContext>
             $"- {Format.Bold("Users")}: {Context.Client.Guilds.Sum(g => g.MemberCount)}\n"
         );
 
-        await ReplyAsync("Here's a bit about me!", embed: builder.Build()).ConfigureAwait(false);
+        await ReplyAsync("", embed: builder.Build()).ConfigureAwait(false);
     }
 
     private static string GetHeapSize() => Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2).ToString(CultureInfo.CurrentCulture);
