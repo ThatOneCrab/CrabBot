@@ -1,4 +1,4 @@
-# DudeBot.NET
+# CrabBot
 ![License](https://img.shields.io/badge/License-AGPLv3-blue.svg)
 
 ## Support Discord:
