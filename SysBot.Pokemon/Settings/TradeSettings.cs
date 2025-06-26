@@ -296,6 +296,7 @@ public class TradeSettings : IBotStateSettings, ICountSettings
                 ShowAbility = false;
                 ShowNature = false;
                 ShowIVs = false;
+                ShowLevel = false;
             }
         }
 
@@ -400,7 +401,8 @@ public class TradeSettings : IBotStateSettings, ICountSettings
 
         [Category(EmbedSettings), Description("Will show EVs in trade embed (Discord only)."), DisplayName("Show EVs")]
         public bool ShowEVs { get; set; } = true;
-        public bool HeldItem { get; set; }
+        [Category(EmbedSettings), Description("Will show held item in trade embed (Discord only)."), DisplayName("Held Item")]
+        public bool HeldItem { get; set; } = true;
     }
 
     [Category(VGCPastesConfig), TypeConverter(typeof(CategoryConverter<VGCPastesCategory>))]

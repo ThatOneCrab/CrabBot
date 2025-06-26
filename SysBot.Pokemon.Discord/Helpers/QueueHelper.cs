@@ -144,12 +144,7 @@ public static class QueueHelper<T> where T : PKM, new()
                                        type == PokeRoutineType.FixOT ? "https://media.discordapp.net/attachments/1234791557396172874/1387498978630697080/emote_icon_pose_13s.png?ex=685d909e&is=685c3f1e&hm=6e63e8b471221de36e6326cf73d9b270d1081740bacd1c4d5b97ca51a6e91a27&=&format=webp&quality=lossless" :
                                        embedImageUrl;
 
-            embedData.HeldItemUrl = string.Empty;
-            if (!string.IsNullOrWhiteSpace(embedData.HeldItem))
-            {
-                string heldItemName = embedData.HeldItem.ToLower().Replace(" ", "");
-                embedData.HeldItemUrl = $"https://serebii.net/itemdex/sprites/{heldItemName}.png";
-            }
+            
 
             embedData.IsLocalFile = File.Exists(embedData.EmbedImageUrl);
 
@@ -168,7 +163,7 @@ public static class QueueHelper<T> where T : PKM, new()
 
             var embedBuilder = new EmbedBuilder()
                 .WithColor(embedColor)
-                .WithImageUrl(embedData.IsLocalFile ? $"attachment://{Path.GetFileName(embedData.EmbedImageUrl)}" : embedData.EmbedImageUrl)
+                .WithThumbnailUrl(embedData.IsLocalFile ? $"attachment://{Path.GetFileName(embedData.EmbedImageUrl)}" : embedData.EmbedImageUrl)
                 .WithFooter(footerText)
                 .WithAuthor(new EmbedAuthorBuilder()
                     .WithName(embedData.AuthorName)
