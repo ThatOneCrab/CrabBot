@@ -200,14 +200,8 @@ public static class DetailsExtractor<T> where T : PKM, new()
             {
                 userDetailsText += $" | OT: {tradeDetails?.OT}";
             }
-            if (tradeDetails?.TID != null)
-            {
-                userDetailsText += $" | TID: {tradeDetails?.TID}";
-            }
-            if (tradeDetails?.TID != null)
-            {
-                userDetailsText += $" | SID: {tradeDetails?.SID}";
-            }
+            
+            
         }
         return userDetailsText;
     }
