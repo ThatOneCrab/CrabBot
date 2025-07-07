@@ -1,5 +1,7 @@
 # CrabBot
+
 ![License](https://img.shields.io/badge/License-AGPLv3-blue.svg)
+![Cyberklawf](https://github.com/user-attachments/assets/8d0fdac9-116f-4d20-93b9-91d41a660379)
 
 ## Support Discord:
 
