@@ -32,7 +32,7 @@ public class InfoModule : ModuleBase<SocketCommandContext>
         {
             Title = "Here's a bit about me!",
             Color = new Color(114, 137, 218),
-            ThumbnailUrl = "https://media.discordapp.net/attachments/1234791557396172874/1383064282748682313/72x72_pokeball.png?ex=684d6e7d&is=684c1cfd&hm=20b42111f140319c8ab3933670156cecba8a1f4a1c5e39159c1671b00d8f228f&=&format=webp&quality=lossless.png",
+            ThumbnailUrl = "https://cdn.discordapp.com/attachments/1390710105984466944/1391511965133836509/Cyberklawf.png?ex=68701e81&is=686ecd01&hm=f527449b4db2c99f3b4e6b0d70ba32489b0dbbe83d903a0950f5641f539f13c9&.png",
             Description = detail,
         };
 

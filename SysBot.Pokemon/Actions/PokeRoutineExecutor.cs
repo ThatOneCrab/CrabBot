@@ -191,7 +191,7 @@ public abstract class PokeRoutineExecutor<T>(IConsoleBotManaged<IConsoleConnecti
                         : "Detected same NID using different Discord accounts.\n";
 
                     msg += $"Previous: {previous.Name} (Discord ID: {previous.RemoteID})\n" +
-                           $"Current: {user.TrainerName} (Discord ID: {user.ID})";
+                           $"Current: {user.TrainerName} (Discord ID: (<@{user.ID}>) {user.ID})";
 
                     if (!string.IsNullOrWhiteSpace(AbuseSettings.MultiAbuseEchoMention))
                         msg = $"{AbuseSettings.MultiAbuseEchoMention} {msg}";
@@ -245,10 +245,10 @@ public abstract class PokeRoutineExecutor<T>(IConsoleBotManaged<IConsoleConnecti
                 if (delta < abuseExpiration)
                 {
                     var msg = AbuseSettings.EchoNintendoOnlineIDMultiRecipients
-                        ? $"Detected Discord ID: {user.ID} trading with different NIDs.\n" +
+                        ? $"Detected Discord ID: (<@{user.ID}>) {user.ID}  trading with different NIDs.\n" +
                           $"Previous NID: {previous_remote.NetworkID} (OT: {previous_remote.Name})\n" +
                           $"Current NID: {TrainerNID} (OT: {TrainerName})"
-                        : $"Detected Discord ID: {user.ID} trading with different in-game accounts.\n" +
+                        : $"Detected Discord ID: (<@{user.ID}>) {user.ID}  trading with different in-game accounts.\n" +
                           $"Previous OT: {previous_remote.Name}\n" +
                           $"Current OT: {TrainerName}";
 

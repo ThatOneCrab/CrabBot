@@ -124,7 +124,7 @@ namespace SysBot.Pokemon.WinForms
             // FLP_Bots
             // 
             FLP_Bots.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            FLP_Bots.BorderStyle = BorderStyle.FixedSingle;
+            FLP_Bots.BackgroundImageLayout = ImageLayout.Stretch;
             FLP_Bots.Location = new Point(0, 47);
             FLP_Bots.Margin = new Padding(0);
             FLP_Bots.Name = "FLP_Bots";

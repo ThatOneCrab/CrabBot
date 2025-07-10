@@ -27,6 +27,9 @@
     <Authors>Kaphotics, Link2026, Havokx</Authors>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="System.Resources.Extensions" Version="9.0.4" />
   </ItemGroup>
   <ItemGroup>
