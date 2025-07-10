@@ -205,14 +205,14 @@ public static class QueueHelper<T> where T : PKM, new()
                 {
                     // Only Non-Native
                     embedBuilder.Footer.IconUrl = "";
-                    embedBuilder.AddField("**__Notice__**: **This Pokemon is Non-Native.**", "*Cannot enter HOME & AutoOT not applied.*");
+                    embedBuilder.AddField("**__Notice__**: **This Pokemon may not enter Pokémon Home.**", "& AutoOT not applied.*");
                 }
             }
             else if (isNonNative)
             {
                 // Fallback for Non-Native Pokemon that don't implement IHomeTrack
                 embedBuilder.Footer.IconUrl = "";
-                embedBuilder.AddField("**__Notice__**: **This Pokemon is Non-Native.**", "*Cannot enter HOME & AutoOT not applied.*");
+                embedBuilder.AddField("**__Notice__**: **This Pokemon may not enter Pokémon Home.**", "*& AutoOT not applied.*");
             }
             DetailsExtractor<T>.AddThumbnails(embedBuilder, type == PokeRoutineType.Clone, type == PokeRoutineType.SeedCheck, embedData.HeldItemUrl);
 
