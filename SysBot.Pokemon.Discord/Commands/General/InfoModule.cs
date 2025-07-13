@@ -19,7 +19,7 @@ public class InfoModule : ModuleBase<SocketCommandContext>
     private const string detail = "I am an open-source Discord bot powered by PKHeX.Core and other open-source software, edited by Crab.";
     private const string repo = "https://github.com/kwsch/SysBot.NET";
     private const string fork = "https://github.com/ThatOneCrab/CrabBot";
-    private const string dcord = "https://discord.gg/Q5kXzeBd4S";
+    private const string dcord = "https://discord.gg/FnAGV4pb2k";
 
 
     [Command("info")]

@@ -84,14 +84,14 @@ public class TradeStartModule<T> : ModuleBase<SocketCommandContext> where T : PK
             if (user == null) { Console.WriteLine($"User not found for ID {detail.Trainer.ID}."); return; }
 
             string speciesName = detail.TradeData != null ? GameInfo.Strings.Species[detail.TradeData.Species] : "";
-            string ballImgUrl = "https://raw.githubusercontent.com/Havokx89/sprites/36e891cc02fe283cd70d9fc8fef2f3c490096d6c/imgs/difficulty.png";
+            string ballImgUrl = "https://raw.githubusercontent.com/ThatOneCrab/sprites/36e891cc02fe283cd70d9fc8fef2f3c490096d6c/imgs/difficulty.png";
 
             if (detail.TradeData != null && detail.Type != PokeTradeType.Clone && detail.Type != PokeTradeType.Dump && detail.Type != PokeTradeType.Seed && detail.Type != PokeTradeType.FixOT)
             {
                 var ballName = GameInfo.GetStrings("en").balllist[detail.TradeData.Ball]
                     .Replace(" ", "").Replace("(LA)", "").ToLower();
                 ballName = ballName == "pokéball" ? "pokeball" : (ballName.Contains("(la)") ? "la" + ballName : ballName);
-                ballImgUrl = $"https://raw.githubusercontent.com/Havokx89/sprites/main/AltBallImg/28x28/{ballName}.png";
+                ballImgUrl = $"https://raw.githubusercontent.com/ThatOneCrab/sprites/main/AltBallImg/28x28/{ballName}.png";
             }
 
             string tradeTitle = detail.IsMysteryMon ? "✨ Mystery Pokémon" : detail.IsMysteryEgg ? "✨ Mystery Egg" : detail.Type switch
@@ -103,10 +103,10 @@ public class TradeStartModule<T> : ModuleBase<SocketCommandContext> where T : PK
                 _ => speciesName
             };
 
-            string embedImageUrl = detail.IsMysteryMon ? "https://media.discordapp.net/attachments/1234791557396172874/1387499974044029019/pm1091_00_00_00_big.png?ex=685d918c&is=685c400c&hm=9f6f6ba3a6d5b79253b2991f1e3a2dd8dfc465d37b8ed7bbb51edac5b776f665&=&format=webp&quality=lossless" : detail.IsMysteryEgg ? "https://media.discordapp.net/attachments/1234791557396172874/1389388345708122163/Mystery_Egg.png?ex=6864703b&is=68631ebb&hm=befeec4cff4e25c1c16ebd5ed26e5fc875e2b0a06f6b140138551419b6225978&=" : detail.Type switch
+            string embedImageUrl = detail.IsMysteryMon ? "https://media.discordapp.net/attachments/1234791557396172874/1389388345708122163/Mystery_Egg.png?ex=6864703b&is=68631ebb&hm=befeec4cff4e25c1c16ebd5ed26e5fc875e2b0a06f6b140138551419b6225978&=" : detail.IsMysteryEgg ? "https://media.discordapp.net/attachments/1234791557396172874/1389388345708122163/Mystery_Egg.png?ex=6864703b&is=68631ebb&hm=befeec4cff4e25c1c16ebd5ed26e5fc875e2b0a06f6b140138551419b6225978&=" : detail.Type switch
             {
-                PokeTradeType.Clone => "https://raw.githubusercontent.com/Havokx89/sprites/main/clonepod.png",
-                PokeTradeType.Dump => "https://media.discordapp.net/attachments/1234791557396172874/1387498742768472074/pokebox_list_box_in_00q.png?ex=685d9066&is=685c3ee6&hm=bb80acd828723cb325d1d6a00366d72ca813763b468c8085e95993b78fe4198a&=&format=webp&quality=lossless",
+                PokeTradeType.Clone => "https://media.discordapp.net/attachments/1375740073814917242/1393818901112033290/7L5CfPt.png?ex=68748e81&is=68733d01&hm=1efdba0976c02751d971fee507710f296b4f8ef5d699b300d2e6a0971d2d3fa5&=&format=webp&quality=lossless&width=407&height=401",
+                PokeTradeType.Dump => "https://images-ext-1.discordapp.net/external/UHH02wZLmQbmM-U6fU9-nslUQyRFlP_hC0ViqXl7XMA/https/i.imgur.com/iwCCCAY.gif?width=980&height=971",
                 PokeTradeType.FixOT => "https://media.discordapp.net/attachments/1234791557396172874/1387498978630697080/emote_icon_pose_13s.png?ex=685d909e&is=685c3f1e&hm=6e63e8b471221de36e6326cf73d9b270d1081740bacd1c4d5b97ca51a6e91a27&=&format=webp&quality=lossless",
                 PokeTradeType.Seed => "https://images-ext-1.discordapp.net/external/iXQxo7WsJHF-btiaSbeGD7Utu8NRsYbMwiukCBKfhJQ/https/i.imgur.com/sHtnqOm.gif?width=978&height=978.gif",
                 _ => detail.TradeData != null ? TradeExtensions<T>.PokeImg(detail.TradeData, false, true) : ""

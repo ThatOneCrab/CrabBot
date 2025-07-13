@@ -4,8 +4,8 @@ using Discord.Net;
 using Discord.WebSocket;
 using PKHeX.Core;
 using SysBot.Base;
-using SysBot.Pokemon.Helpers;
 using SysBot.Pokemon.Discord.Helpers;
+using SysBot.Pokemon.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +13,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using static SysBot.Pokemon.TradeSettings.TradeSettingsCategory;
 
@@ -28,6 +29,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     private static readonly char[] separatorArray = [' '];
 
     private static readonly char[] separatorArray0 = [' '];
+    private byte finalLanguage;
 
     [Command("fixOT")]
     [Alias("fix", "f")]
@@ -370,7 +372,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
         bool isEgg = TradeExtensions<T>.IsEggCheck(content);
         // Normalize user-friendly aliases like "Size: 255" → ".Scale=255"
         content = BatchNormalizer.NormalizeBatchCommands(content);
-        byte detectedLanguage = TradeExtensions<T>.DetectShowdownLanguage(content);
+        
 
         string finalContent = content;
         List<string> initialCorrectionMessages = [];
@@ -401,7 +403,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
             }
         }
 
-        // Final validation
+
         if (set == null || set.Species == 0)
         {
             await ReplyAsync("Unable to parse Showdown set. Could not identify the Pokémon species.");
@@ -417,11 +419,12 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
             return;
         }
 
+        byte finalLanguage = LanguageHelper.GetFinalLanguage(content, set, (byte)Info.Hub.Config.Legality.GenerateLanguage, TradeExtensions<T>.DetectShowdownLanguage);
         _ = Task.Run(async () =>
         {
             try
             {
-                var sav = AutoLegalityWrapper.GetTrainerInfo<T>();
+                var sav = LanguageHelper.GetTrainerInfoWithLanguage<T>((LanguageID)finalLanguage);
                 var pkm = sav.GetLegal(template, out var result);
 
                 if (pkm == null)
@@ -476,6 +479,8 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
                         {
                             set = new ShowdownSet(secondaryCorrection);
                             template = AutoLegalityWrapper.GetTemplate(set);
+                            finalLanguage = LanguageHelper.GetFinalLanguage(secondaryCorrection, set, (byte)Info.Hub.Config.Legality.GenerateLanguage, TradeExtensions<T>.DetectShowdownLanguage);
+                            sav = LanguageHelper.GetTrainerInfoWithLanguage<T>((LanguageID)finalLanguage);
                             pkm = sav.GetLegal(template, out result);
                             la = new LegalityAnalysis(pkm);
                             setEdited = true;
@@ -523,14 +528,14 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
                     pk = (T)pkm;
                 }
 
-                // Show corrections if any were made
+                
                 if (allCorrectionMessages.Count > 0 && la.Valid)
                 {
                     var userName = Context.User.Mention;
                     var changesEmbed = new EmbedBuilder()
                         .WithTitle("Showdown Set Corrections")
                         .WithColor(Color.Orange)
-                        .WithThumbnailUrl("https://raw.githubusercontent.com/Havokx89/sprites/main/profoak.png")
+                        .WithThumbnailUrl("https://media.discordapp.net/attachments/1375740073814917242/1393820534835253269/n9nuReu.png?ex=68749007&is=68733e87&hm=15377c5dc7b7f094324bd4b1c4a91a2ef74dcc29d3ed5b6ff80c503dad5179d2&=&format=webp&quality=lossless&width=666&height=810")
                         .WithDescription(string.Join("\n", allCorrectionMessages))
                         .AddField("Corrected Showdown Set:", $"```{finalContent}```")
                         .Build();
@@ -543,7 +548,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
                 if (pk.WasEgg)
                     pk.EggMetDate = pk.MetDate;
 
-                pk.Language = detectedLanguage;
+                pk.Language = finalLanguage;
 
                 if (!set.Nickname.Equals(pk.Nickname) && string.IsNullOrEmpty(set.Nickname))
                 {
@@ -648,7 +653,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
         // Normalize user-friendly aliases like "Size: 255" → ".Scale=255"
         content = BatchNormalizer.NormalizeBatchCommands(content);
         bool isEgg = TradeExtensions<T>.IsEggCheck(content);
-        byte detectedLanguage = TradeExtensions<T>.DetectShowdownLanguage(content);
+        
 
         string finalContent = content;
         List<string> initialCorrectionMessages = [];
@@ -753,6 +758,9 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
                         {
                             set = new ShowdownSet(secondaryCorrection);
                             template = AutoLegalityWrapper.GetTemplate(set);
+                            // Recalculate language in case it changed
+                            finalLanguage = LanguageHelper.GetFinalLanguage(secondaryCorrection, set, (byte)Info.Hub.Config.Legality.GenerateLanguage, TradeExtensions<T>.DetectShowdownLanguage);
+                            sav = LanguageHelper.GetTrainerInfoWithLanguage<T>((LanguageID)finalLanguage);
                             pkm = sav.GetLegal(template, out result);
                             la = new LegalityAnalysis(pkm);
                             setEdited = true;
@@ -807,7 +815,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
                     var changesEmbed = new EmbedBuilder()
                         .WithTitle("Showdown Set Corrections")
                         .WithColor(Color.Orange)
-                        .WithThumbnailUrl("https://raw.githubusercontent.com/Havokx89/sprites/main/profoak.png")
+                        .WithThumbnailUrl("https://media.discordapp.net/attachments/1375740073814917242/1393820534835253269/n9nuReu.png?ex=68749007&is=68733e87&hm=15377c5dc7b7f094324bd4b1c4a91a2ef74dcc29d3ed5b6ff80c503dad5179d2&=&format=webp&quality=lossless&width=666&height=810")
                         .WithDescription(string.Join("\n", allCorrectionMessages))
                         .AddField("Corrected Showdown Set:", $"```{finalContent}```")
                         .Build();
@@ -820,7 +828,8 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
                 if (pk.WasEgg)
                     pk.EggMetDate = pk.MetDate;
 
-                pk.Language = detectedLanguage;
+                // Set the final language on the Pokemon
+                pk.Language = finalLanguage;
 
                 if (!set.Nickname.Equals(pk.Nickname) && string.IsNullOrEmpty(set.Nickname))
                 {
@@ -1084,7 +1093,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     {
         tradeContent = ReusableActions.StripCodeBlock(tradeContent);
         var ignoreAutoOT = tradeContent.Contains("OT:") || tradeContent.Contains("TID:") || tradeContent.Contains("SID:");
-        byte detectedLanguage = TradeExtensions<T>.DetectShowdownLanguage(tradeContent);
+        
 
         string finalContent = tradeContent;
         List<string> initialCorrectionMessages = [];
@@ -1121,7 +1130,8 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
             await ReplyAsync("Unable to parse Showdown set. Could not identify the Pokémon species.");
             return;
         }
-
+        // Determine the final language to use
+        byte finalLanguage = LanguageHelper.GetFinalLanguage(tradeContent, set, (byte)Info.Hub.Config.Legality.GenerateLanguage, TradeExtensions<T>.DetectShowdownLanguage);
         var template = AutoLegalityWrapper.GetTemplate(set);
 
         if (set.InvalidLines.Count != 0)
@@ -1135,7 +1145,8 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
         {
             try
             {
-                var sav = AutoLegalityWrapper.GetTrainerInfo<T>();
+                // Get trainer info with the correct language
+                var sav = LanguageHelper.GetTrainerInfoWithLanguage<T>((LanguageID)finalLanguage);
                 var pkm = sav.GetLegal(template, out var result);
                 if (pkm == null)
                 {
@@ -1162,6 +1173,9 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
                         {
                             set = new ShowdownSet(secondaryCorrection);
                             template = AutoLegalityWrapper.GetTemplate(set);
+                            // Recalculate language in case it changed
+                            finalLanguage = LanguageHelper.GetFinalLanguage(secondaryCorrection, set, (byte)Info.Hub.Config.Legality.GenerateLanguage, TradeExtensions<T>.DetectShowdownLanguage);
+                            sav = LanguageHelper.GetTrainerInfoWithLanguage<T>((LanguageID)finalLanguage);
                             pkm = sav.GetLegal(template, out result);
                             la = new LegalityAnalysis(pkm);
                             setEdited = true;
@@ -1217,7 +1231,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
                     var changesEmbed = new EmbedBuilder()
                         .WithTitle("Showdown Set Corrections")
                         .WithColor(Color.Orange)
-                        .WithThumbnailUrl("https://raw.githubusercontent.com/Havokx89/sprites/main/profoak.png")
+                        .WithThumbnailUrl("https://media.discordapp.net/attachments/1375740073814917242/1393820534835253269/n9nuReu.png?ex=68749007&is=68733e87&hm=15377c5dc7b7f094324bd4b1c4a91a2ef74dcc29d3ed5b6ff80c503dad5179d2&=&format=webp&quality=lossless&width=666&height=810")
                         .WithDescription(string.Join("\n", allCorrectionMessages))
                         .AddField("Corrected Showdown Set:", $"```{finalContent}```")
                         .Build();
@@ -1251,7 +1265,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
                 if (pkm.WasEgg)
                     pkm.EggMetDate = pkm.MetDate;
 
-                pk.Language = detectedLanguage;
+                pk.Language = finalLanguage;
 
                 if (!set.Nickname.Equals(pk.Nickname) && string.IsNullOrEmpty(set.Nickname))
                 {

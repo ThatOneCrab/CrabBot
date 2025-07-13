@@ -84,7 +84,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
     {
         if (isCloneRequest || isSpecialRequest)
         {
-            embedBuilder.WithThumbnailUrl("https://raw.githubusercontent.com/Havokx89/sprites/main/profoak.png");
+            embedBuilder.WithThumbnailUrl("https://media.discordapp.net/attachments/1375740073814917242/1393820534835253269/n9nuReu.png?ex=68749007&is=68733e87&hm=15377c5dc7b7f094324bd4b1c4a91a2ef74dcc29d3ed5b6ff80c503dad5179d2&=&format=webp&quality=lossless&width=666&height=810");
         }
         else if (!string.IsNullOrEmpty(heldItemUrl))
         {

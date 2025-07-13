@@ -39,4 +39,7 @@ public abstract class BaseConfig
 
     [Category(FeatureToggle), Description("When enabled, the bot will Enter Link Trade Code via Keyboard (faster).")]
     public bool UseKeyboard { get; set; } = true;
+
+    [Category(FeatureToggle), Description("When enabled, the bot will match the status color with LEDS.")]
+    public bool esp32leds { get; set; } = false;
 }

@@ -27,23 +27,23 @@ public static class AutoCorrectShowdown<T> where T : PKM, new()
             }
 
             LogUtil.LogInfo("[AutoCorrect] Detecting input language...", "AutoCorrect.Debug");
-            var (inputLocalization, detectedLanguage) = DetectInputLanguage(content);
+            var (inputLocalization, finalLanguage) = DetectInputLanguage(content);
             if (inputLocalization == null)
             {
                 LogUtil.LogInfo("[AutoCorrect] No language detected, using default", "AutoCorrect.Debug");
                 inputLocalization = BattleTemplateLocalization.Default;
-                detectedLanguage = BattleTemplateLocalization.DefaultLanguage;
+                finalLanguage = BattleTemplateLocalization.DefaultLanguage;
             }
             else
             {
-                LogUtil.LogInfo($"[AutoCorrect] Detected language: {detectedLanguage}", "AutoCorrect.Debug");
+                LogUtil.LogInfo($"[AutoCorrect] Detected language: {finalLanguage}", "AutoCorrect.Debug");
             }
 
-            var targetLocalization = string.IsNullOrEmpty(targetLanguage) || targetLanguage == detectedLanguage
+            var targetLocalization = string.IsNullOrEmpty(targetLanguage) || targetLanguage == finalLanguage
                 ? inputLocalization
                 : BattleTemplateLocalization.GetLocalization(targetLanguage);
 
-            LogUtil.LogInfo($"[AutoCorrect] Target language: {targetLanguage ?? detectedLanguage}", "AutoCorrect.Debug");
+            LogUtil.LogInfo($"[AutoCorrect] Target language: {targetLanguage ?? finalLanguage}", "AutoCorrect.Debug");
 
             PKM pk;
             LegalityAnalysis la;

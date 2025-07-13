@@ -417,7 +417,7 @@ public class OwnerModule<T> : SudoModule<T> where T : PKM, new()
             Description = message,
             Color = (DiscordColor?)Color.Gold,
             Timestamp = DateTimeOffset.Now,
-            ThumbnailUrl = "https://raw.githubusercontent.com/Havokx89/sprites/main/pikamail.png"
+            ThumbnailUrl = "https://raw.githubusercontent.com/ThatOneCrab/sprites/main/pikamail.png"
         };
 
         try
