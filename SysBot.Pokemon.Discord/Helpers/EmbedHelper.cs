@@ -25,7 +25,7 @@ public static class EmbedHelper
     {
         var embed = new EmbedBuilder()
             .WithTitle("Your Trade was Canceled...")
-            .WithDescription($"Your trade was canceled.\nPlease try again. If the issue persists, restart your switch and check your internet connection.\n\n**Reason**: {reason}")
+            .WithDescription($"Please try again. If the issue persists, restart your switch and check your internet connection.\n\n**Reason**: {reason}")
             .WithTimestamp(DateTimeOffset.Now)
             .WithThumbnailUrl("")
             .WithColor(Color.Red)
