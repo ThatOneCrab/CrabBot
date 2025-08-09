@@ -36,14 +36,6 @@ public static class QueueHelper<T> where T : PKM, new()
        
     };
 
-    private static string GetMilestoneDescription(int tradeCount)
-    {
-        return tradeCount switch
-        {
-        
-        };
-    }
-
     private static int GetOrCreateBatchId(ulong userId, int batchTradeNumber)
     {
         if (batchTradeNumber == 1)
@@ -57,7 +49,13 @@ public static class QueueHelper<T> where T : PKM, new()
     }
 
     public static async Task AddToQueueAsync(SocketCommandContext context, int code, string trainer, RequestSignificance sig, T trade, PokeRoutineType routine, PokeTradeType type, SocketUser trader, bool isBatchTrade = false, int batchTradeNumber = 1, int totalBatchTrades = 1, bool isHiddenTrade = false, bool isMysteryMon = false, bool isMysteryEgg = false, List<Pictocodes>? lgcode = null, bool ignoreAutoOT = false, bool setEdited = false, bool isNonNative = false)
+
     {
+        var queueCheck = new TradeQueueResult(true);
+        if (!queueCheck.Success)
+        {
+            return;
+        }
         if ((uint)code > MaxTradeCode)
         {
             await context.Channel.SendMessageAsync("Trade code should be 00000000-99999999!").ConfigureAwait(false);
@@ -121,7 +119,11 @@ public static class QueueHelper<T> where T : PKM, new()
             totalTradeCount = tradeCodeStorage.GetTradeCount(trader.Id);
             tradeDetails = tradeCodeStorage.GetTradeDetails(trader.Id);
         }
-
+        var queueCheck = new TradeQueueResult(true);
+        if (!queueCheck.Success)
+        {
+            return new TradeQueueResult(false);
+        }
         if (added == QueueResultAdd.AlreadyInQueue)
         {
             return new TradeQueueResult(false);
