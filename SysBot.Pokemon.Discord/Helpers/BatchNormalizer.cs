@@ -141,6 +141,36 @@ public static class BatchNormalizer
         var lines = content.Split('\n');
         for (int i = 0; i < lines.Length; i++)
         {
+            // Alcremie forms can now add a topping to the flavor without batch command //
+            // For example, it accepts: Alcremie-Caramel-Swirl-Ribbon //
+            // Just affix the topping name to the end of Alcremie's name after its flavor //
+            // This code injects FormArgument/Topping for Alcremie based on Showdown Format nickname //
+            if (content.Contains("Alcremie", StringComparison.OrdinalIgnoreCase))
+            {
+                var match = Regex.Match(content, @"Alcremie[-\s]?([a-zA-Z]+[-]?[a-zA-Z]+)?[-]?(Strawberry|Berry|Love|Star|Clover|Flower|Ribbon)", RegexOptions.IgnoreCase);
+
+                if (match.Success)
+                {
+                    string topping = match.Groups[2].Value.ToLowerInvariant();
+
+                    var toppingMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "Strawberry", 0 },
+                { "Berry", 1 },
+                { "Love", 2 },
+                { "Star", 3 },
+                { "Clover", 4 },
+                { "Flower", 5 },
+                { "Ribbon", 6 }
+            };
+
+                    if (toppingMap.TryGetValue(topping, out int formArg))
+                    {
+                        if (!content.Contains(".FormArgument=", StringComparison.OrdinalIgnoreCase))
+                            content += $"\n.FormArgument={formArg}";
+                    }
+                }
+            }
             string line = lines[i].Trim();
 
             foreach (var (alias, key) in BatchCommandAliasMap)
