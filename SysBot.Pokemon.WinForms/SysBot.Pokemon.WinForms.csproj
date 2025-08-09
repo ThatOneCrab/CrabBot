@@ -24,7 +24,7 @@
     <EmbedAllSources>true</EmbedAllSources>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <PublishTrimmed>false</PublishTrimmed>
-    <Authors>Kaphotics, Link2026, Havokx</Authors>
+    <Authors>Crab</Authors>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
