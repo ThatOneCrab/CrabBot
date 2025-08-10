@@ -78,12 +78,5 @@ public sealed class PokeTradeHubConfig : BaseConfig
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public TradeAbuseSettings TradeAbuse { get; set; } = new();
 
-    // Integration
-    [Category(Integration)]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
-    public TwitchSettings Twitch { get; set; } = new();
-
-    [Category(Integration)]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
-    public YouTubeSettings YouTube { get; set; } = new();
+    
 }

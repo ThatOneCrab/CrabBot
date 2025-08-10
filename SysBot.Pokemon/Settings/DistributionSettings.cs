@@ -40,7 +40,7 @@ public class DistributionSettings : ISynchronizationSetting
     public double SynchronizeTimeout { get; set; } = 90;
 
     [Category(Distribute), Description("Distribution Trade Link Code.")]
-    public int TradeCode { get; set; } = 7196;
+    public int TradeCode { get; set; } = 11111111;
 
     public override string ToString() => "Distribution Trade Settings";
 }

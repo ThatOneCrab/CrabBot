@@ -66,6 +66,7 @@ namespace SysBot.Pokemon.Discord
 
         private static readonly Dictionary<ulong, EchoChannel> AbuseChannels = [];
 
+
         public static void RestoreChannels(DiscordSocketClient discord, DiscordSettings cfg)
         {
             Settings = cfg;

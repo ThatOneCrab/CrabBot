@@ -9,9 +9,6 @@
     <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="TwitchLib.Client" Version="3.3.1" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\SysBot.Base\SysBot.Base.csproj" />
     <ProjectReference Include="..\SysBot.Pokemon\SysBot.Pokemon.csproj" />
   </ItemGroup>
@@ -19,5 +16,8 @@
     <Reference Include="PKHeX.Core">
       <HintPath>..\SysBot.Pokemon\deps\PKHeX.Core.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Helpers\" />
   </ItemGroup>
 </Project>
