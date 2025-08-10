@@ -7,6 +7,9 @@ public class TradeAbuseSettings
     private const string Monitoring = nameof(Monitoring);
     public override string ToString() => "Trade Abuse Monitoring Settings";
 
+    [Category(Monitoring), Description("If set to True, bot will allow multiple OT's or game profiles. If False, users will get SuspiciousActivity.")]
+    public bool AllowMultiGame { get; set; } = true;
+
     [Category(Monitoring), Description("When a person appears again in less than this setting's value (minutes), a notification will be sent.")]
     public double TradeCooldown { get; set; }
 
