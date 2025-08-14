@@ -134,6 +134,7 @@ public class OwnerModule<T> : SudoModule<T> where T : PKM, new()
     }
 
     [Command("addChannel")]
+    [Alias("ac")]
     [Summary("Adds a channel to the list of channels that are accepting commands.")]
     [RequireOwner]
     public async Task AddChannel()
