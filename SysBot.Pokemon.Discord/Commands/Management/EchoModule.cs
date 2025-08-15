@@ -36,7 +36,7 @@ namespace SysBot.Pokemon.Discord
     {
         private static DiscordSettings? Settings { get; set; }
 
-        private class EchoChannel(ulong channelId, string channelName, Action<string> action, Action<byte[], string, EmbedBuilder> raidAction)
+        private class EchoChannel(ulong channelId, string channelName, Action<string> action, Action<byte[], string, EmbedBuilder>? raidAction)
         {
             public readonly ulong ChannelID = channelId;
 
@@ -49,13 +49,13 @@ namespace SysBot.Pokemon.Discord
             public string EmbedResult = string.Empty;
         }
 
-        private class EncounterEchoChannel(ulong channelId, string channelName, Action<string, Embed> embedaction)
+        private class EncounterEchoChannel(ulong channelId, string channelName, Action<string, Embed>? embedaction)
         {
             public readonly ulong ChannelID = channelId;
 
             public readonly string ChannelName = channelName;
 
-            public readonly Action<string, Embed> EmbedAction = embedaction;
+            public readonly Action<string, Embed>? EmbedAction = embedaction;
 
             public string EmbedResult = string.Empty;
         }

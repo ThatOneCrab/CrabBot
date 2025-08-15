@@ -57,6 +57,8 @@ namespace SysBot.Pokemon
 
         public readonly int UniqueTradeID;
 
+        public string? MetDate { get; set; }
+
         public bool IsCanceled { get; set; }
 
         public bool IsMysteryEgg { get; }

@@ -311,7 +311,11 @@ public static class QueueHelper<T> where T : PKM, new()
         {
             const string eggImageUrl = "https://raw.githubusercontent.com/ThatOneCrab/sprites/main/egg.png";
             speciesImageUrl = TradeExtensions<T>.PokeImg(pk, false, true, null);
-            System.Drawing.Image combinedImage = await OverlaySpeciesOnEgg(eggImageUrl, speciesImageUrl);
+            System.Drawing.Image? combinedImage = await OverlaySpeciesOnEgg(eggImageUrl, speciesImageUrl);
+            if (combinedImage != null)
+                embedImageUrl = SaveImageLocally(combinedImage);
+            else
+                embedImageUrl = speciesImageUrl;
             embedImageUrl = SaveImageLocally(combinedImage);
         }
         else
@@ -434,7 +438,7 @@ public static class QueueHelper<T> where T : PKM, new()
         Size newSize = new Size((int)(speciesImage.Width * scaleRatio), (int)(speciesImage.Height * scaleRatio));
 #pragma warning restore CA1416 // Validate platform compatibility
 #pragma warning disable CA1416 // Validate platform compatibility
-        System.Drawing.Image resizedSpeciesImage = new Bitmap(speciesImage, newSize);
+        System.Drawing.Image? resizedSpeciesImage = new Bitmap(speciesImage, newSize);
 #pragma warning restore CA1416 // Validate platform compatibility
 #pragma warning disable CA1416 // Validate platform compatibility
         using (Graphics g = Graphics.FromImage(eggImage))
@@ -708,7 +712,7 @@ public static class QueueHelper<T> where T : PKM, new()
         foreach (Pictocodes cd in lgcode)
         {
             var showdown = new ShowdownSet(cd.ToString());
-            var sav = SaveUtil.GetBlankSAV(EntityContext.Gen7b, "pip");
+            var sav = BlankSaveFile.Get(EntityContext.Gen7b, "pip");
             PKM pk = sav.GetLegalFromSet(showdown).Created;
 #pragma warning disable CA1416 // Validate platform compatibility
             System.Drawing.Image png = pk.Sprite();
