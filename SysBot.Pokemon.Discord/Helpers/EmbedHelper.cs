@@ -39,6 +39,7 @@ public static class EmbedHelper
         var embed = new EmbedBuilder()
             .WithTitle("Here's your trade code!")
             .WithDescription($"# {code:0000 0000}")
+            .WithFields(new EmbedFieldBuilder { Name = "Instructions", Value = "1. Connect to the internet.\n2. Open the Poke Portal on your Nintendo Switch.\n3. Select Link Trade.\n4. Enter the trade code above to connect with the bot.\n5. Wait here for the next message to continue the trade." })
             .WithTimestamp(DateTimeOffset.Now)
             .WithThumbnailUrl("")
             .WithColor(Color.Blue)
