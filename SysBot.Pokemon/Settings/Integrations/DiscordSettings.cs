@@ -144,6 +144,9 @@ public class DiscordSettings
     [Category(Channels), Description("Channels that will echo the log bot data.")]
     public RemoteControlAccessList LoggingChannels { get; set; } = new();
 
+    [Category(Channels), Description("User ID or Channel ID to forward bot DMs to. Leave empty to disable.")]
+    public string UserDMsToBotForwarder { get; set; } = string.Empty;
+
     // Roles
 
     [Category(Roles), Description("Users with this role are allowed to enter the Trade queue.")]
