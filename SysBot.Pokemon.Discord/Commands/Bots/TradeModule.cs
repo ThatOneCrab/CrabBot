@@ -254,7 +254,6 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     [Command("tradeList")]
     [Alias("tl")]
     [Summary("Prints the users in the trade queues.")]
-    [RequireSudo]
     public async Task GetTradeListAsync()
     {
         string msg = Info.GetTradeList(PokeRoutineType.LinkTrade);

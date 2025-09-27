@@ -179,19 +179,25 @@ namespace SysBot.Pokemon.Helpers
 
             pk.IsEgg = true;
             pk.EggLocation = pk switch
+
             {
                 PB8 => 60010,
                 PK9 => 30023,
                 _ => 60002, //PK8
             };
 
+            
             pk.MetDate = DateOnly.FromDateTime(DateTime.Now);
             pk.EggMetDate = pk.MetDate;
+            pk.MetYear = 0;
+            pk.MetMonth = 0;
+            pk.MetDay = 0;
             pk.HeldItem = 0;
             pk.CurrentLevel = 1;
             pk.EXP = 0;
             pk.MetLevel = 1;
             pk.MetLocation = pk switch
+
             {
                 PB8 => 65535,
                 PK9 => 0,
