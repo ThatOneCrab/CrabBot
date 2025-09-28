@@ -156,10 +156,10 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>
     {
         var position = Hub.Queues.Info.CheckPosition(_traderID, _uniqueTradeID, PokeRoutineType.LinkTrade);
         var currentPosition = position.Position < 1 ? 1 : position.Position;
+        // Store the latest position for future reference
+        _lastReportedPosition = currentPosition;
         var botct = Hub.Bots.Count;
         var currentETA = currentPosition > botct ? Hub.Config.Queues.EstimateDelay(currentPosition, botct) : 0;
-
-        _lastReportedPosition = currentPosition;
 
         var batchDescription = TotalBatchTrades > 1
             ? $"Your batch trade request ({TotalBatchTrades} Pokémon) has been queued.\n\n⚠️ **Important Instructions:**\n• Stay in the trade for all {TotalBatchTrades} trades\n• Have all {TotalBatchTrades} Pokémon ready to trade\n• Do not exit until you see the completion message\n\nPosition in queue: **{currentPosition}**"
