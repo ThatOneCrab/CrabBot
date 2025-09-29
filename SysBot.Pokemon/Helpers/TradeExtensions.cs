@@ -186,9 +186,8 @@ namespace SysBot.Pokemon.Helpers
                 _ => 60002, //PK8
             };
 
-            
-            pk.MetDate = DateOnly.FromDateTime(DateTime.Now);
-            pk.EggMetDate = pk.MetDate;
+
+            pk.EggMetDate = DateOnly.FromDateTime(DateTime.Now);
             pk.MetYear = 0;
             pk.MetMonth = 0;
             pk.MetDay = 0;
@@ -203,6 +202,20 @@ namespace SysBot.Pokemon.Helpers
                 PK9 => 0,
                 _ => 30002, //PK8
             };
+
+
+            // Set MetDate based on MetLocation
+            // If MetLocation is 0, MetDate fields must also be 0 (per PKHeX validation)
+            if (pk.MetLocation == 0 || pk.MetLocation == 65535)
+            {
+                pk.MetYear = 0;
+                pk.MetMonth = 0;
+                pk.MetDay = 0;
+            }
+            else
+            {
+                pk.MetDate = pk.EggMetDate;
+            }
 
             pk.CurrentHandler = 0;
             pk.OriginalTrainerFriendship = 1;
