@@ -37,7 +37,13 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>
 
     public readonly PokeTradeHub<T> Hub = SysCord<T>.Runner.Hub;
 
-    public DiscordTradeNotifier(T data, PokeTradeTrainerInfo info, int code, SocketUser trader, int batchTradeNumber, int totalBatchTrades, bool isMysteryEgg, List<Pictocodes>? lgcode)
+    private static readonly HashSet<int> _batchDMsSent = new();
+    public Action<PokeRoutineExecutor<T>>? OnFinish { private get; set; }
+
+
+
+
+    public DiscordTradeNotifier(T data, PokeTradeTrainerInfo info, int code, SocketUser trader, int batchTradeNumber, int totalBatchTrades, bool isMysteryEgg, List<Pictocodes>? lgcode, int queuedTradeID) // <-- fix: pass the actual queued trade ID from Hub
     {
         Data = data;
         Info = info;
@@ -48,22 +54,14 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>
         IsMysteryEgg = isMysteryEgg;
         LGCode = lgcode;
         _traderID = trader.Id;
-        _uniqueTradeID = DiscordTradeNotifier<T>.GetUniqueTradeID();
+        _uniqueTradeID = queuedTradeID;
     }
-
-    public Action<PokeRoutineExecutor<T>>? OnFinish { private get; set; }
 
     public void UpdateBatchProgress(int currentBatchNumber, T currentPokemon, int uniqueTradeID)
     {
         BatchTradeNumber = currentBatchNumber;
         Data = currentPokemon;
         _uniqueTradeID = uniqueTradeID;
-    }
-
-    private static int GetUniqueTradeID()
-    {
-        // Generate a unique trade ID using timestamp or another method
-        return (int)(DateTime.UtcNow.Ticks % int.MaxValue);
     }
 
     private void StartPeriodicUpdates()
@@ -76,11 +74,13 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>
         // Create a new timer that sends queue position updates every minute
         _periodicUpdateTimer = new Timer(async _ =>
         {
-            if (!_isTradeActive)
-                return;
+            if (!_isTradeActive) return;
 
-            // Check the current position using the unique trade ID
             var position = Hub.Queues.Info.CheckPosition(_traderID, _uniqueTradeID, PokeRoutineType.LinkTrade);
+
+            // Debugging
+            Console.WriteLine($"[QueueDebug] Trader {_traderID} | TradeID {_uniqueTradeID} | InQueue {position.InQueue} | Position {position.Position}");
+
             if (!position.InQueue)
                 return;
 
@@ -90,18 +90,21 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>
             _lastReportedPosition = currentPosition;
 
             var botct = Hub.Bots.Count;
-            var currentETA = currentPosition > botct ? Hub.Config.Queues.EstimateDelay(currentPosition, botct) : 0;
+            var currentETA = Hub.Config.Queues.EstimateDelay(currentPosition, botct);
 
-            // Only send update if the trade is still in queue (not being processed)
-            if (position.InQueue && position.Detail != null)
+            string etaText = currentETA < 1
+                ? "< 1 minute"
+                : currentETA < 2
+                    ? "1–2 minutes"
+                    : $"{Math.Ceiling(currentETA)} minutes";
+
+            if (position.Detail != null)
             {
                 // Check if the trade is ready to be processed (next in line)
                 bool isNextInLine = currentPosition <= botct;
 
                 if (isNextInLine && currentPosition <= 2 && _initialUpdateSent && !_almostUpNotificationSent)
                 {
-                    // Send a more prominent notification when user is getting close to their turn
-                    // Only send this notification once
                     _almostUpNotificationSent = true;
 
                     var batchInfo = TotalBatchTrades > 1 ? $"\n\n**Important:** This is a batch trade with {TotalBatchTrades} Pokémon. Please stay in the trade until all are completed!" : "";
@@ -111,10 +114,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>
                         Color = Color.Gold,
                         Title = "🎯 You're Almost Up!",
                         Description = $"Your trade will begin soon. Current queue position: **{currentPosition}**.{batchInfo}",
-                        Footer = new EmbedFooterBuilder
-                        {
-                            Text = $"Estimated wait time: {(currentETA > 0 ? $"{currentETA} minutes" : "Less than a minute")}"
-                        },
+                        Footer = new EmbedFooterBuilder { Text = $"Estimated wait time: {etaText}" },
                         Timestamp = DateTimeOffset.Now
                     }.Build();
 
@@ -129,10 +129,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>
                         Color = Color.Blue,
                         Title = "Queue Position Update",
                         Description = $"You are still in queue. Your current position: **{currentPosition}**.",
-                        Footer = new EmbedFooterBuilder
-                        {
-                            Text = $"Estimated wait time: {(currentETA > 0 ? $"{currentETA} minutes" : "Less than a minute")}"
-                        },
+                        Footer = new EmbedFooterBuilder { Text = $"Estimated wait time: {etaText}" },
                         Timestamp = DateTimeOffset.Now
                     }.Build();
 
@@ -154,12 +151,23 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>
 
     public async Task SendInitialQueueUpdate()
     {
+        if (_batchDMsSent.Contains(_uniqueTradeID))
+            return;
+        _batchDMsSent.Add(_uniqueTradeID);
+
         var position = Hub.Queues.Info.CheckPosition(_traderID, _uniqueTradeID, PokeRoutineType.LinkTrade);
-        var currentPosition = position.Position < 1 ? 1 : position.Position;
-        // Store the latest position for future reference
+
+        var currentPosition = position.Position;
         _lastReportedPosition = currentPosition;
+
         var botct = Hub.Bots.Count;
-        var currentETA = currentPosition > botct ? Hub.Config.Queues.EstimateDelay(currentPosition, botct) : 0;
+        var currentETA = Hub.Config.Queues.EstimateDelay(currentPosition, botct);
+
+        string etaText = currentETA < 1
+            ? "< 1 minute"
+            : currentETA < 2
+                ? "1–2 minutes"
+                : $"{Math.Ceiling(currentETA)} minutes";
 
         var batchDescription = TotalBatchTrades > 1
             ? $"Your batch trade request ({TotalBatchTrades} Pokémon) has been queued.\n\n⚠️ **Important Instructions:**\n• Stay in the trade for all {TotalBatchTrades} trades\n• Have all {TotalBatchTrades} Pokémon ready to trade\n• Do not exit until you see the completion message\n\nPosition in queue: **{currentPosition}**"
@@ -170,14 +178,22 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>
             Color = Color.Green,
             Title = TotalBatchTrades > 1 ? "🎁 Batch Trade Request Queued" : "Trade Request Queued",
             Description = batchDescription,
-            Footer = new EmbedFooterBuilder
-            {
-                Text = $"Estimated wait time: {(currentETA > 0 ? $"{currentETA} minutes" : "Less than a minute")}"
-            },
+            Footer = new EmbedFooterBuilder { Text = $"Estimated wait time: {etaText}" },
+
             Timestamp = DateTimeOffset.Now
         }.Build();
 
-        await Trader.SendMessageAsync(embed: initialEmbed).ConfigureAwait(false);
+        try
+        {
+            await Trader.SendMessageAsync(
+                text: "Your trade request has been queued.",
+                embed: initialEmbed
+            ).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Notifier] Failed to DM user {_traderID}: {ex}");
+        }
 
         _initialUpdateSent = true;
 

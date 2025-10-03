@@ -122,14 +122,13 @@ public static class QueueHelper<T> where T : PKM, new()
         var user = trader;
         var userID = user.Id;
         var name = user.Username;
-        var trainer = new PokeTradeTrainerInfo(trainerName, userID);
-        var notifier = new DiscordTradeNotifier<T>(pk, trainer, code, trader, batchTradeNumber, totalBatchTrades,
-            isMysteryEgg, lgcode: lgcode);
-
+        // Generate unique trade ID first
         int uniqueTradeID = GenerateUniqueTradeID();
 
-        var detail = new PokeTradeDetail<T>(pk, trainer, notifier, t, code, sig == RequestSignificance.Favored,
-            lgcode, batchTradeNumber, totalBatchTrades, isMysteryEgg, uniqueTradeID, ignoreAutoOT, setEdited);
+        var trainer = new PokeTradeTrainerInfo(trainerName, userID);
+        var notifier = new DiscordTradeNotifier<T>(pk, trainer, code, trader, batchTradeNumber, totalBatchTrades, isMysteryEgg, lgcode: lgcode, queuedTradeID: uniqueTradeID);
+
+        var detail = new PokeTradeDetail<T>(pk, trainer, notifier, t, code, sig == RequestSignificance.Favored, lgcode, batchTradeNumber, totalBatchTrades, isMysteryEgg, uniqueTradeID, ignoreAutoOT, setEdited);
 
         var trade = new TradeEntry<T>(detail, userID, PokeRoutineType.LinkTrade, name, uniqueTradeID);
         var hub = SysCord<T>.Runner.Hub;
@@ -184,8 +183,12 @@ public static class QueueHelper<T> where T : PKM, new()
 
             var position = Info.CheckPosition(userID, uniqueTradeID, type);
             var botct = Info.Hub.Bots.Count;
-            var baseEta = position.Position > botct ? Info.Hub.Config.Queues.EstimateDelay(position.Position, botct) : 0;
-            var etaMessage = $"Estimated: {baseEta:F1} min(s) for trade.";
+            var baseEta = Info.Hub.Config.Queues.EstimateDelay(position.Position, botct);
+            string etaMessage = baseEta < 1
+                ? "< 1 minute"
+                : baseEta < 2
+                    ? "1-2 minutes"
+                    : $"{Math.Ceiling(baseEta)} minutes";
             string footerText = $"Current Position: {(position.Position == -1 ? 1 : position.Position)}";
 
             string userDetailsText = DetailsExtractor<T>.GetUserDetails(totalTradeCount, tradeDetails);
@@ -193,7 +196,7 @@ public static class QueueHelper<T> where T : PKM, new()
             {
                 footerText += $"\n{userDetailsText}";
             }
-            footerText += $"\n{etaMessage}";
+            footerText += $"\nEstimated: {etaMessage} for next trade.";
             footerText += $"\n✧ DudeBot.NET {DudeBot.Version} ✧";
 
             var embedBuilder = new EmbedBuilder()
@@ -290,12 +293,13 @@ public static class QueueHelper<T> where T : PKM, new()
         var userID = trader.Id;
         var name = trader.Username;
         var trainer_info = new PokeTradeTrainerInfo(trainer, userID);
-        var notifier = new DiscordTradeNotifier<T>(firstTrade, trainer_info, code, trader, 1, totalBatchTrades, false, lgcode: null);
 
         int uniqueTradeID = GenerateUniqueTradeID();
 
-        var detail = new PokeTradeDetail<T>(firstTrade, trainer_info, notifier, PokeTradeType.Batch, code,
-            sig == RequestSignificance.Favored, null, 1, totalBatchTrades, false, uniqueTradeID)
+        // Pass it into the notifier constructor
+        var notifier = new DiscordTradeNotifier<T>(firstTrade, trainer_info, code, trader, 1, totalBatchTrades, false, lgcode: null, queuedTradeID: uniqueTradeID);
+
+        var detail = new PokeTradeDetail<T>(firstTrade, trainer_info, notifier, PokeTradeType.Batch, code, sig == RequestSignificance.Favored, null, 1, totalBatchTrades, false, uniqueTradeID)
         {
             BatchTrades = allTrades
         };
