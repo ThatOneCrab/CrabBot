@@ -30,7 +30,6 @@ namespace SysBot.Pokemon.WinForms
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             TC_Main = new TabControl();
             Tab_Bots = new TabPage();
             CB_Theme = new ComboBox();
@@ -125,7 +124,7 @@ namespace SysBot.Pokemon.WinForms
             // FLP_Bots
             // 
             FLP_Bots.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            FLP_Bots.BorderStyle = BorderStyle.FixedSingle;
+            FLP_Bots.BackgroundImageLayout = ImageLayout.Stretch;
             FLP_Bots.Location = new Point(0, 47);
             FLP_Bots.Margin = new Padding(0);
             FLP_Bots.Name = "FLP_Bots";
@@ -169,7 +168,6 @@ namespace SysBot.Pokemon.WinForms
             // B_New
             // 
             B_New.Font = new Font("Calibri", 12F, FontStyle.Bold);
-            B_New.Image = Resources.add;
             B_New.ImageAlign = ContentAlignment.MiddleLeft;
             B_New.Location = new Point(5, 9);
             B_New.Margin = new Padding(5, 4, 5, 4);
@@ -177,7 +175,6 @@ namespace SysBot.Pokemon.WinForms
             B_New.Size = new Size(70, 29);
             B_New.TabIndex = 0;
             B_New.Text = "Add";
-            B_New.TextAlign = ContentAlignment.MiddleRight;
             B_New.UseVisualStyleBackColor = true;
             B_New.Click += B_New_Click;
             // 
@@ -232,7 +229,6 @@ namespace SysBot.Pokemon.WinForms
             // 
             B_Stop.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             B_Stop.Font = new Font("Calibri", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            B_Stop.Image = Resources.stop;
             B_Stop.ImageAlign = ContentAlignment.MiddleLeft;
             B_Stop.Location = new Point(349, 0);
             B_Stop.Margin = new Padding(5, 4, 5, 4);
@@ -240,7 +236,6 @@ namespace SysBot.Pokemon.WinForms
             B_Stop.Size = new Size(110, 29);
             B_Stop.TabIndex = 4;
             B_Stop.Text = "Stop All";
-            B_Stop.TextAlign = ContentAlignment.MiddleRight;
             B_Stop.UseVisualStyleBackColor = true;
             B_Stop.Click += B_Stop_Click;
             // 
@@ -248,7 +243,6 @@ namespace SysBot.Pokemon.WinForms
             // 
             B_Start.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             B_Start.Font = new Font("Calibri", 12F, FontStyle.Bold);
-            B_Start.Image = Resources.start;
             B_Start.ImageAlign = ContentAlignment.MiddleLeft;
             B_Start.Location = new Point(234, 0);
             B_Start.Margin = new Padding(5, 4, 5, 4);
@@ -256,7 +250,6 @@ namespace SysBot.Pokemon.WinForms
             B_Start.Size = new Size(110, 29);
             B_Start.TabIndex = 3;
             B_Start.Text = "Start All";
-            B_Start.TextAlign = ContentAlignment.MiddleRight;
             B_Start.UseVisualStyleBackColor = true;
             B_Start.Click += B_Start_Click;
             // 
@@ -264,7 +257,6 @@ namespace SysBot.Pokemon.WinForms
             // 
             B_Restart.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             B_Restart.Font = new Font("Calibri", 12F, FontStyle.Bold);
-            B_Restart.Image = (Image)resources.GetObject("B_Restart.Image");
             B_Restart.ImageAlign = ContentAlignment.MiddleLeft;
             B_Restart.Location = new Point(464, 0);
             B_Restart.Margin = new Padding(5, 4, 5, 4);
@@ -272,7 +264,6 @@ namespace SysBot.Pokemon.WinForms
             B_Restart.Size = new Size(110, 29);
             B_Restart.TabIndex = 5;
             B_Restart.Text = "Restart All";
-            B_Restart.TextAlign = ContentAlignment.MiddleRight;
             B_Restart.UseVisualStyleBackColor = true;
             B_Restart.Click += B_Restart_Click;
             // 
@@ -280,7 +271,6 @@ namespace SysBot.Pokemon.WinForms
             // 
             B_Update.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             B_Update.Font = new Font("Calibri", 12F, FontStyle.Bold);
-            B_Update.Image = (Image)resources.GetObject("B_Update.Image");
             B_Update.ImageAlign = ContentAlignment.MiddleLeft;
             B_Update.Location = new Point(579, 0);
             B_Update.Margin = new Padding(5, 4, 5, 4);
@@ -288,7 +278,6 @@ namespace SysBot.Pokemon.WinForms
             B_Update.Size = new Size(110, 29);
             B_Update.TabIndex = 6;
             B_Update.Text = "Update";
-            B_Update.TextAlign = ContentAlignment.MiddleRight;
             B_Update.UseVisualStyleBackColor = true;
             B_Update.Click += B_Update_Click;
             // 

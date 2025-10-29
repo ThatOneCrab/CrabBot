@@ -394,9 +394,9 @@ public class OwnerModule<T> : SudoModule<T> where T : PKM, new()
         }
     }
 
-    [Command("kill")]
+    [Command("stopbot")]
     [Alias("shutdown")]
-    [Summary("Causes the entire process to end itself!")]
+    [Summary("Causes the entire process to end")]
     [RequireOwner]
     public async Task ExitProgram()
     {
