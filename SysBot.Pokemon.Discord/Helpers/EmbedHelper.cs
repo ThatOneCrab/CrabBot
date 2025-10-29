@@ -14,7 +14,7 @@ public static class EmbedHelper
             .WithTitle("Notice")
             .WithDescription(message)
             .WithTimestamp(DateTimeOffset.Now)
-            .WithThumbnailUrl("https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/dm-legalityerror.gif")
+            .WithThumbnailUrl("")
             .WithColor(Color.Red)
             .Build();
 

@@ -197,8 +197,8 @@ public sealed class SysCord<T> where T : PKM, new()
         var botName = string.IsNullOrEmpty(SysCordSettings.HubConfig.BotName) ? "CrabBot" : SysCordSettings.HubConfig.BotName;
         var fullStatusMessage = $"**Status**: {botName} is {status}!";
         var thumbnailUrl = status == "Online"
-            ? "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/botgo.png"
-            : "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/botstop.png";
+            ? ""
+            : "";
 
         var embed = new EmbedBuilder()
             .WithTitle("Bot Status Report")
