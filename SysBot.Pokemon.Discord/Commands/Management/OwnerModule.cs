@@ -379,7 +379,7 @@ public class OwnerModule<T> : SudoModule<T> where T : PKM, new()
     {
         try
         {
-            var jsonData = File.ReadAllText(DudeBot.ConfigPath);
+            var jsonData = File.ReadAllText(CrabBot.ConfigPath);
             var config = JObject.Parse(jsonData);
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.

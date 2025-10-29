@@ -8,7 +8,7 @@ namespace SysBot.Pokemon;
 
 public class LegalitySettings
 {
-    private string DefaultTrainerName = "DudeBot.Net";
+    private string DefaultTrainerName = "Crab";
     private const string Generate = nameof(Generate);
     private const string Misc = nameof(Misc);
     public override string ToString() => "Legality Generating Settings";
@@ -47,7 +47,7 @@ public class LegalitySettings
     public LanguageID GenerateLanguage { get; set; } = LanguageID.English;
 
     [Category(Generate), Description("If PrioritizeGame is set to \"True\", uses PriorityOrder to start looking for encounters. If \"False\", uses newest game as the version. It is recommended to leave this as \"True\".")]
-    public bool PrioritizeGame { get; set; } = false;
+    public bool PrioritizeGame { get; set; } = true;
 
     [Category(Generate), Description("The order of GameVersions ALM will attempt to legalize from.")]
     public List<GameVersion> PriorityOrder { get; set; } =

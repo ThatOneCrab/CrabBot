@@ -10,14 +10,14 @@ namespace SysBot.Pokemon.WinForms
 {
     public class UpdateChecker
     {
-        private const string RepositoryOwner = "Havokx89";
-        private const string RepositoryName = "DudeBot.NET";
+        private const string RepositoryOwner = "ThatOneCrab";
+        private const string RepositoryName = "CrabBot";
 
         public static async Task<(bool UpdateAvailable, bool UpdateRequired, string NewVersion)> CheckForUpdatesAsync(bool forceShow = false)
         {
             ReleaseInfo? latestRelease = await FetchLatestReleaseAsync();
 
-            bool updateAvailable = latestRelease != null && latestRelease.TagName != DudeBot.Version;
+            bool updateAvailable = latestRelease != null && latestRelease.TagName != CrabBot.Version;
             bool updateRequired = latestRelease?.Prerelease == false && IsUpdateRequired(latestRelease?.Body);
             string? newVersion = latestRelease?.TagName;
 

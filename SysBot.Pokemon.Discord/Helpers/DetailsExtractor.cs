@@ -271,7 +271,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
             string moveName = strings.movelist[moves[i]];
             byte moveTypeId = MoveInfo.GetType(moves[i], default);
             PKHeX.Core.MoveType moveType = (PKHeX.Core.MoveType)moveTypeId;
-            string formattedMove = $"{moveName} ({movePPs[i]}pp)";
+            string formattedMove = $"{moveName}";
             if (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.MoveTypeEmojis && typeEmojis.TryGetValue(moveType, out var moveEmoji))
             {
                 formattedMove = $"{moveEmoji} {formattedMove}";

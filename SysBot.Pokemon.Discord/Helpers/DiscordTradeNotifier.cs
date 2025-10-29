@@ -112,7 +112,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>
                     var almostUpEmbed = new EmbedBuilder
                     {
                         Color = Color.Gold,
-                        Title = "🎯 You're Almost Up!",
+                        Title = "You're Almost Up!",
                         Description = $"Your trade will begin soon. Current queue position: **{currentPosition}**.{batchInfo}",
                         Footer = new EmbedFooterBuilder { Text = $"Estimated wait time: {etaText}" },
                         Timestamp = DateTimeOffset.Now

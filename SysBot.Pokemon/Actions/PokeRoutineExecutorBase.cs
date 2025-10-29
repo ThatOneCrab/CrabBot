@@ -12,7 +12,7 @@ public abstract class PokeRoutineExecutorBase(IConsoleBotManaged<IConsoleConnect
 
     public LanguageID GameLang { get; private set; }
     public GameVersion Version { get; private set; }
-    public string InGameName { get; private set; } = "DudeBot.NET";
+    public string InGameName { get; private set; } = "CrabBot";
 
     public static readonly TrackedUserLog PreviousUsers = new();
     public static readonly TrackedUserLog PreviousUsersDistribution = new();

@@ -165,11 +165,11 @@ public static class QueueHelper<T> where T : PKM, new()
         {
             (string embedImageUrl, DiscordColor embedColor) = await PrepareEmbedDetails(pk);
 
-            embedData.EmbedImageUrl = isMysteryEgg ? "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/mysteryegg3.png?raw=true&width=300&height=300" :
-                                       type == PokeRoutineType.Dump ? "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Dumping.png?raw=true&width=300&height=300" :
-                                       type == PokeRoutineType.Clone ? "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Cloning.png?raw=true&width=300&height=300" :
-                                       type == PokeRoutineType.SeedCheck ? "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Seeding.png?raw=true&width=300&height=300" :
-                                       type == PokeRoutineType.FixOT ? "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/FixOTing.png?raw=true&width=300&height=300" :
+            embedData.EmbedImageUrl = isMysteryEgg ? "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/unnamed2.png?raw=true&width=300&height=300" :
+                                       type == PokeRoutineType.Dump ? "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/iwCCCAY%20(1).gif?raw=true&width=300&height=300" :
+                                       type == PokeRoutineType.Clone ? "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/7L5CfPt.png?raw=true&width=300&height=300" :
+                                       type == PokeRoutineType.SeedCheck ? "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/sHtnqOm.gif?raw=true&width=300&height=300" :
+                                       type == PokeRoutineType.FixOT ? "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/emote_icon_pose_13s.png?raw=true&width=300&height=300" :
                                        embedImageUrl;
 
             embedData.HeldItemUrl = string.Empty;
@@ -197,7 +197,7 @@ public static class QueueHelper<T> where T : PKM, new()
                 footerText += $"\n{userDetailsText}";
             }
             footerText += $"\nEstimated: {etaMessage} for next trade.";
-            footerText += $"\n✧ DudeBot.NET {DudeBot.Version} ✧";
+            footerText += $"";
 
             var embedBuilder = new EmbedBuilder()
                 .WithColor(embedColor)
@@ -381,7 +381,7 @@ public static class QueueHelper<T> where T : PKM, new()
                             footerText += $"\n{userDetailsText}";
                         }
                         footerText += $"\nEstimated: {baseEta:F1} min(s) for batch\n";
-                        footerText += $"\n✧ DudeBot.NET {DudeBot.Version} ✧";
+                        footerText += $"";
 
                     }
 
