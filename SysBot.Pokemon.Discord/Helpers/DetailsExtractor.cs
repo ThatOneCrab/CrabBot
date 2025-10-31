@@ -40,6 +40,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
         leftSideContent +=
             (pk.Version is GameVersion.SL or GameVersion.VL && SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowTeraType ? $"**Tera Type:** {embedData.TeraType}\n" : "") +
             (pk.Version is GameVersion.SL or GameVersion.VL && SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowScale ? $"**Scale:** {embedData.Scale.Item1} ({embedData.Scale.Item2})\n" : "") +
+            (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowHeldItem ? $"**Held Item:** {embedData.HeldItem}\n" : "") +
             (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowLevel ? $"**Level:** {embedData.Level}\n" : "") +
             (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowMetDate ? $"**Met Date:** {embedData.MetDate}\n" : "") +
             (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowAbility ? $"**Ability:** {embedData.Ability}\n" : "") +
@@ -51,7 +52,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
         leftSideContent = leftSideContent.TrimEnd('\n');
         embedBuilder.AddField($"**{embedData.SpeciesName}{(string.IsNullOrEmpty(embedData.FormName) ? "" : $"-{embedData.FormName}")} {embedData.SpecialSymbols}**", leftSideContent, inline: true);
         embedBuilder.AddField("\u200B", "\u200B", inline: true);
-        embedBuilder.AddField("**Moves:**", embedData.MovesDisplay, inline: true);
+        embedBuilder.AddField("**Moves:**", embedData.MovesDisplay, inline: false);
     }
 
     /// <summary>
@@ -85,7 +86,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
         }
         else if (!string.IsNullOrEmpty(heldItemUrl))
         {
-            embedBuilder.WithThumbnailUrl(heldItemUrl);
+            embedBuilder.WithImageUrl(heldItemUrl);
         }
     }
 

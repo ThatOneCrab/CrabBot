@@ -246,6 +246,9 @@ public class TradeSettings : IBotStateSettings, ICountSettings
         [Category(EmbedSettings), Description("Will show EVs in trade embed (Discord only)."), DisplayName("Show EVs")]
         public bool ShowEVs { get; set; } = true;
 
+        [Category(EmbedSettings), Description("Will show Held Item in trade embed (Discord only)."), DisplayName("Show Held Item")]
+        public bool ShowHeldItem { get; set; } = true;
+
         [Category(EmbedSettings), Description("Will show Scale in trade embed (SV & Discord only). Requires user to upload the emojis to their server."), DisplayName("Show Scale")]
         public bool ShowScale { get; set; } = true;
 

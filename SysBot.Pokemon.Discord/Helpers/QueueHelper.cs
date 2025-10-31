@@ -201,12 +201,12 @@ public static class QueueHelper<T> where T : PKM, new()
 
             var embedBuilder = new EmbedBuilder()
                 .WithColor(embedColor)
-                .WithImageUrl(embedData.IsLocalFile ? $"attachment://{Path.GetFileName(embedData.EmbedImageUrl)}" : embedData.EmbedImageUrl)
+                .WithThumbnailUrl(embedData.IsLocalFile ? $"attachment://{Path.GetFileName(embedData.EmbedImageUrl)}" : embedData.EmbedImageUrl)
                 .WithFooter(footerText)
                 .WithAuthor(new EmbedAuthorBuilder()
                     .WithName(embedData.AuthorName)
                     .WithIconUrl(trader.GetAvatarUrl() ?? trader.GetDefaultAvatarUrl())
-                    .WithUrl("https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/FromTheHeart2.png"));
+                    .WithUrl("https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/Cyberklawf.png"));
 
             DetailsExtractor<T>.AddAdditionalText(embedBuilder);
 
@@ -388,12 +388,12 @@ public static class QueueHelper<T> where T : PKM, new()
                     // Create embed
                     var embedBuilder = new EmbedBuilder()
                         .WithColor(embedColor)
-                        .WithImageUrl(embedData.IsLocalFile ? $"attachment://{Path.GetFileName(embedData.EmbedImageUrl)}" : embedData.EmbedImageUrl)
+                        .WithThumbnailUrl(embedData.IsLocalFile ? $"attachment://{Path.GetFileName(embedData.EmbedImageUrl)}" : embedData.EmbedImageUrl)
                         .WithFooter(footerText)
                         .WithAuthor(new EmbedAuthorBuilder()
                             .WithName(embedData.AuthorName)
                             .WithIconUrl(trader.GetAvatarUrl() ?? trader.GetDefaultAvatarUrl())
-                            .WithUrl("https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/FromTheHeart2.png"));
+                            .WithUrl("https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/Cyberklawf.png"));
 
                     DetailsExtractor<T>.AddAdditionalText(embedBuilder);
                     DetailsExtractor<T>.AddNormalTradeFields(embedBuilder, embedData, trader.Mention, pk);
