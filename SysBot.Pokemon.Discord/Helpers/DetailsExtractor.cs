@@ -189,7 +189,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
         string userDetailsText = "";
         if (totalTradeCount > 0)
         {
-            userDetailsText = $"Trades: {totalTradeCount}";
+            userDetailsText = $"";
         }
         if (SysCord<T>.Runner.Config.Trade.TradeConfiguration.StoreTradeCodes && tradeDetails != null)
         {
@@ -199,11 +199,11 @@ public static class DetailsExtractor<T> where T : PKM, new()
             }
             if (tradeDetails?.TID != null)
             {
-                userDetailsText += $" | TID: {tradeDetails?.TID}";
+                userDetailsText += $"";
             }
             if (tradeDetails?.TID != null)
             {
-                userDetailsText += $" | SID: {tradeDetails?.SID}";
+                userDetailsText += $"";
             }
         }
         return userDetailsText;

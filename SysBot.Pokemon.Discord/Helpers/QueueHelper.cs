@@ -282,7 +282,7 @@ public static class QueueHelper<T> where T : PKM, new()
         {
             var tradeCodeStorage = new TradeCodeStorage();
             int tradeCount = tradeCodeStorage.GetTradeCount(trader.Id);
-            _ = SendMilestoneEmbed(tradeCount, context.Channel, trader);
+            _ = (tradeCount, context.Channel, trader);
         }
 
         return new TradeQueueResult(true);
@@ -437,14 +437,9 @@ public static class QueueHelper<T> where T : PKM, new()
             }
         }
 
-        // Send milestone embed if applicable
-        if (SysCord<T>.Runner.Hub.Config.Trade.TradeConfiguration.StoreTradeCodes)
-        {
-            var tradeCodeStorage = new TradeCodeStorage();
-            int tradeCount = tradeCodeStorage.GetTradeCount(trader.Id);
-            _ = SendMilestoneEmbed(tradeCount, context.Channel, trader);
+        
         }
-    }
+    
 
     private static int GenerateUniqueTradeID()
     {
@@ -671,21 +666,7 @@ public static class QueueHelper<T> where T : PKM, new()
         }
     }
 
-    private static async Task SendMilestoneEmbed(int tradeCount, ISocketMessageChannel channel, SocketUser user)
-    {
-        if (MilestoneImages.TryGetValue(tradeCount, out string? imageUrl))
-        {
-            var embed = new EmbedBuilder()
-                .WithTitle($"{user.Username}'s Milestone Medal")
-                .WithDescription(GetMilestoneDescription(tradeCount))
-                .WithColor(new DiscordColor(255, 215, 0)) // Gold color
-                .WithThumbnailUrl(imageUrl)
-                .Build();
-
-            await channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
-        }
-    }
-
+    
     public static async Task<(int R, int G, int B)> GetDominantColorAsync(string imagePath)
     {
         try

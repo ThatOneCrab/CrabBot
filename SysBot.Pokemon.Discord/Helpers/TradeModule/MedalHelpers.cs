@@ -40,7 +40,7 @@ public static class MedalHelpers
             _ => "New Trainer"
         };
 
-        string description = $"Total Trades: **{totalTrades}**\n**Current Status:** {status}";
+        string description = $"";
 
         if (milestone > 0)
         {
