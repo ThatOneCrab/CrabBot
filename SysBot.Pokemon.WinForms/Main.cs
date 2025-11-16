@@ -35,6 +35,7 @@ Kindness and support from certain staff members did not go unnoticed.
 
 Your program’s structure helped me grow, even if the journey had its difficulties.
 Overall, I value the connections I made and the lessons learned along the way.
+Unwavering support.
 
 Despite the challenges, I recognize the effort put into this program’s curriculum.
 Every participant’s experience is unique, and I’m thankful for the good moments.
@@ -114,6 +115,7 @@ public sealed partial class Main : Form
         ProgramMode.BDSP => new PokeBotRunnerImpl<PB8>(cfg.Hub, new BotFactory8BS()),
         ProgramMode.LA => new PokeBotRunnerImpl<PA8>(cfg.Hub, new BotFactory8LA()),
         ProgramMode.SV => new PokeBotRunnerImpl<PK9>(cfg.Hub, new BotFactory9SV()),
+     //   ProgramMode.PLZA => new PokeBotRunnerImpl<PA9>(cfg.Hub, new BotFactory9ZA()),
         ProgramMode.LGPE => new PokeBotRunnerImpl<PB7>(cfg.Hub, new BotFactory7LGPE()),
         _ => throw new IndexOutOfRangeException("Unsupported mode."),
     };
@@ -322,6 +324,7 @@ public sealed partial class Main : Form
     {
         FLP_Bots.BackgroundImage = mode switch
         {
+         //   ProgramMode.PLZA => Resources.plza_mode_image,
             ProgramMode.SV => Resources.sv_mode_image,
             ProgramMode.SWSH => Resources.swsh_mode_image,
             ProgramMode.BDSP => Resources.bdsp_mode_image,
