@@ -31,6 +31,7 @@ public class InfoModule<T> : ModuleBase<SocketCommandContext> where T : PKM, new
         var app = await Context.Client.GetApplicationInfoAsync().ConfigureAwait(false);
         var game = typeof(T) switch
         {
+            Type type when type == typeof(PA9) => "Pokémon Legends: ZA",
             Type type when type == typeof(PK9) => "Scarlet & Violet",
             Type type when type == typeof(PK8) => "Sword & Shield",
             Type type when type == typeof(PA8) => "Pokémon Legends: Arceus",

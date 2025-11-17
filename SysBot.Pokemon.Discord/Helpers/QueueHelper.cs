@@ -24,29 +24,29 @@ public static class QueueHelper<T> where T : PKM, new()
     private const uint MaxTradeCode = 9999_9999;
 
     private static readonly Dictionary<int, string> MilestoneImages = new()
-    {
-        { 1, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0001.png" },
-        { 50, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0050.png" },
-        { 100, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0100.png" },
-        { 150, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0150.png" },
-        { 200, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0200.png" },
-        { 250, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0250.png" },
-        { 300, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0300.png" },
-        { 350, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0350.png" },
-        { 400, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0400.png" },
-        { 450, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0450.png" },
-        { 500, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0500.png" },
-        { 550, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0550.png" },
-        { 600, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0600.png" },
-        { 650, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0650.png" },
-        { 700, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0700.png" },
-        { 750, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0750.png" },
-        { 800, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0800.png" },
-        { 850, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0850.png" },
-        { 900, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0900.png" },
-        { 950, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0950.png" },
-        { 1000, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/1000.png" }
-    };
+ {
+     { 1, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0001.png" },
+     { 50, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0050.png" },
+     { 100, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0100.png" },
+     { 150, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0150.png" },
+     { 200, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0200.png" },
+     { 250, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0250.png" },
+     { 300, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0300.png" },
+     { 350, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0350.png" },
+     { 400, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0400.png" },
+     { 450, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0450.png" },
+     { 500, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0500.png" },
+     { 550, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0550.png" },
+     { 600, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0600.png" },
+     { 650, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0650.png" },
+     { 700, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0700.png" },
+     { 750, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0750.png" },
+     { 800, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0800.png" },
+     { 850, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0850.png" },
+     { 900, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0900.png" },
+     { 950, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/0950.png" },
+     { 1000, "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Medal/1000.png" }
+ };
 
     private static string GetMilestoneDescription(int tradeCount)
     {
@@ -76,6 +76,7 @@ public static class QueueHelper<T> where T : PKM, new()
             _ => $"Congratulations on reaching {tradeCount} trades! Keep it going!"
         };
     }
+
 
     public static async Task AddToQueueAsync(SocketCommandContext context, int code, string trainer, RequestSignificance sig, T trade, PokeRoutineType routine, PokeTradeType type, SocketUser trader, bool isBatchTrade = false, int batchTradeNumber = 1, int totalBatchTrades = 1, bool isHiddenTrade = false, bool isMysteryEgg = false, List<Pictocodes>? lgcode = null, bool ignoreAutoOT = false, bool setEdited = false, bool isNonNative = false)
     {
@@ -119,16 +120,20 @@ public static class QueueHelper<T> where T : PKM, new()
         int batchTradeNumber, int totalBatchTrades, bool isHiddenTrade, bool isMysteryEgg = false,
         List<Pictocodes>? lgcode = null, bool ignoreAutoOT = false, bool setEdited = false, bool isNonNative = false)
     {
+        // Note: This method should only be called for individual trades now
+        // Batch trades use AddBatchContainerToQueueAsync
+
         var user = trader;
         var userID = user.Id;
         var name = user.Username;
-        // Generate unique trade ID first
+        var trainer = new PokeTradeTrainerInfo(trainerName, userID);
+        var notifier = new DiscordTradeNotifier<T>(pk, trainer, code, trader, batchTradeNumber, totalBatchTrades,
+            isMysteryEgg, lgcode: lgcode!);
+
         int uniqueTradeID = GenerateUniqueTradeID();
 
-        var trainer = new PokeTradeTrainerInfo(trainerName, userID);
-        var notifier = new DiscordTradeNotifier<T>(pk, trainer, code, trader, batchTradeNumber, totalBatchTrades, isMysteryEgg, lgcode: lgcode, queuedTradeID: uniqueTradeID);
-
-        var detail = new PokeTradeDetail<T>(pk, trainer, notifier, t, code, sig == RequestSignificance.Favored, lgcode, batchTradeNumber, totalBatchTrades, isMysteryEgg, uniqueTradeID, ignoreAutoOT, setEdited);
+        var detail = new PokeTradeDetail<T>(pk, trainer, notifier, t, code, sig == RequestSignificance.Favored,
+            lgcode, batchTradeNumber, totalBatchTrades, isMysteryEgg, uniqueTradeID, ignoreAutoOT, setEdited);
 
         var trade = new TradeEntry<T>(detail, userID, PokeRoutineType.LinkTrade, name, uniqueTradeID);
         var hub = SysCord<T>.Runner.Hub;
@@ -137,8 +142,11 @@ public static class QueueHelper<T> where T : PKM, new()
         var added = Info.AddToTradeQueue(trade, userID, false, isSudo);
 
         // Start queue position updates for Discord notification
-        if (added != QueueResultAdd.AlreadyInQueue && notifier is DiscordTradeNotifier<T> discordNotifier)
+        if (added != QueueResultAdd.AlreadyInQueue && added != QueueResultAdd.NotAllowedItem && notifier is DiscordTradeNotifier<T> discordNotifier)
         {
+            // IMPORTANT: Update the notifier's unique trade ID to match the one used in the queue
+            // Otherwise the DM will check position with the wrong ID and return incorrect results
+            discordNotifier.UpdateUniqueTradeID(uniqueTradeID);
             await discordNotifier.SendInitialQueueUpdate().ConfigureAwait(false);
         }
 
@@ -153,6 +161,30 @@ public static class QueueHelper<T> where T : PKM, new()
 
         if (added == QueueResultAdd.AlreadyInQueue)
         {
+            await context.Channel.SendMessageAsync($"{trader.Mention} - You are already in the queue!").ConfigureAwait(false);
+            return new TradeQueueResult(false);
+        }
+
+        if (added == QueueResultAdd.QueueFull)
+        {
+            var maxCount = SysCord<T>.Runner.Config.Queues.MaxQueueCount;
+            var embed = new EmbedBuilder()
+                .WithColor(DiscordColor.Red)
+                .WithTitle("🚫 Queue Full")
+                .WithDescription($"The queue is currently full ({maxCount}/{maxCount}). Please try again later when space becomes available.")
+                .WithFooter("Queue will open up as trades are completed")
+                .WithTimestamp(DateTimeOffset.Now)
+                .Build();
+
+            await context.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
+            return new TradeQueueResult(false);
+        }
+
+        if (added == QueueResultAdd.NotAllowedItem)
+        {
+            var held = pk.HeldItem;
+            var itemName = held > 0 ? PKHeX.Core.GameInfo.GetStrings("en").Item[held] : "(none)";
+            await context.Channel.SendMessageAsync($"{trader.Mention} - Trade blocked: the held item '{itemName}' cannot be traded in PLZA.").ConfigureAwait(false);
             return new TradeQueueResult(false);
         }
 
@@ -166,11 +198,11 @@ public static class QueueHelper<T> where T : PKM, new()
             (string embedImageUrl, DiscordColor embedColor) = await PrepareEmbedDetails(pk);
 
             embedData.EmbedImageUrl = isMysteryEgg ? "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/mysteryegg3.png?raw=true&width=300&height=300" :
-                                       type == PokeRoutineType.Dump ? "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Dumping.png?raw=true&width=300&height=300" :
-                                       type == PokeRoutineType.Clone ? "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Cloning.png?raw=true&width=300&height=300" :
-                                       type == PokeRoutineType.SeedCheck ? "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Seeding.png?raw=true&width=300&height=300" :
-                                       type == PokeRoutineType.FixOT ? "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/FixOTing.png?raw=true&width=300&height=300" :
-                                       embedImageUrl;
+                           type == PokeRoutineType.Dump ? "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Dumping.png?raw=true&width=300&height=300" :
+                           type == PokeRoutineType.Clone ? "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Cloning.png?raw=true&width=300&height=300" :
+                           type == PokeRoutineType.SeedCheck ? "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/Seeding.png?raw=true&width=300&height=300" :
+                           type == PokeRoutineType.FixOT ? "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/FixOTing.png?raw=true&width=300&height=300" :
+                           embedImageUrl;
 
             embedData.HeldItemUrl = string.Empty;
             if (!string.IsNullOrWhiteSpace(embedData.HeldItem))
@@ -293,13 +325,12 @@ public static class QueueHelper<T> where T : PKM, new()
         var userID = trader.Id;
         var name = trader.Username;
         var trainer_info = new PokeTradeTrainerInfo(trainer, userID);
+        var notifier = new DiscordTradeNotifier<T>(firstTrade, trainer_info, code, trader, 1, totalBatchTrades, false, lgcode: []);
 
         int uniqueTradeID = GenerateUniqueTradeID();
 
-        // Pass it into the notifier constructor
-        var notifier = new DiscordTradeNotifier<T>(firstTrade, trainer_info, code, trader, 1, totalBatchTrades, false, lgcode: null, queuedTradeID: uniqueTradeID);
-
-        var detail = new PokeTradeDetail<T>(firstTrade, trainer_info, notifier, PokeTradeType.Batch, code, sig == RequestSignificance.Favored, null, 1, totalBatchTrades, false, uniqueTradeID)
+        var detail = new PokeTradeDetail<T>(firstTrade, trainer_info, notifier, PokeTradeType.Batch, code,
+            sig == RequestSignificance.Favored, null, 1, totalBatchTrades, false, uniqueTradeID)
         {
             BatchTrades = allTrades
         };
@@ -313,15 +344,41 @@ public static class QueueHelper<T> where T : PKM, new()
         await EmbedHelper.SendTradeCodeEmbedAsync(trader, code).ConfigureAwait(false);
 
         // Start queue position updates for Discord notification
-        if (added != QueueResultAdd.AlreadyInQueue && notifier is DiscordTradeNotifier<T> discordNotifier)
+        if (added != QueueResultAdd.AlreadyInQueue && added != QueueResultAdd.NotAllowedItem && notifier is DiscordTradeNotifier<T> discordNotifier)
         {
+            // IMPORTANT: Update the notifier's unique trade ID to match the one used in the queue
+            // Otherwise the DM will check position with the wrong ID and return incorrect results
+            discordNotifier.UpdateUniqueTradeID(uniqueTradeID);
             await discordNotifier.SendInitialQueueUpdate().ConfigureAwait(false);
         }
 
         // Handle the display
         if (added == QueueResultAdd.AlreadyInQueue)
         {
-            await context.Channel.SendMessageAsync("You are already in the queue!").ConfigureAwait(false);
+            await context.Channel.SendMessageAsync($"{trader.Mention} - You are already in the queue!").ConfigureAwait(false);
+            return;
+        }
+
+        if (added == QueueResultAdd.QueueFull)
+        {
+            var maxCount = SysCord<T>.Runner.Config.Queues.MaxQueueCount;
+            var embed = new EmbedBuilder()
+                .WithColor(DiscordColor.Red)
+                .WithTitle("🚫 Queue Full")
+                .WithDescription($"The queue is currently full ({maxCount}/{maxCount}). Please try again later when space becomes available.")
+                .WithFooter("Queue will open up as trades are completed")
+                .WithTimestamp(DateTimeOffset.Now)
+                .Build();
+
+            await context.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
+            return;
+        }
+
+        if (added == QueueResultAdd.NotAllowedItem)
+        {
+            var held = firstTrade.HeldItem;
+            var itemName = held > 0 ? PKHeX.Core.GameInfo.GetStrings("en").Item[held] : "(none)";
+            await context.Channel.SendMessageAsync($"{trader.Mention} - Trade blocked: the held item '{itemName}' cannot be traded in PLZA.").ConfigureAwait(false);
             return;
         }
 
@@ -371,7 +428,7 @@ public static class QueueHelper<T> where T : PKM, new()
                     embedData.IsLocalFile = File.Exists(embedData.EmbedImageUrl);
 
                     // Build footer text with batch info
-                    string footerText = $"Batch Trade {batchTradeNumber} of {totalBatchTrades}\n";
+                    string footerText = $"Batch Trade {batchTradeNumber} of {totalBatchTrades}";
                     if (i == 0) // Only show position and ETA on first embed
                     {
                         footerText += $" | Position: {position.Position}";
@@ -399,7 +456,6 @@ public static class QueueHelper<T> where T : PKM, new()
                     DetailsExtractor<T>.AddNormalTradeFields(embedBuilder, embedData, trader.Mention, pk);
 
                     // Check for Non-Native and Home Tracker
-                    bool isNonNative = false; // You may need to pass this from the batch trade processing
                     if (pk is IHomeTrack homeTrack)
                     {
                         if (homeTrack.HasTracker)
@@ -487,11 +543,8 @@ public static class QueueHelper<T> where T : PKM, new()
         {
             string eggImageUrl = GetEggTypeImageUrl(pk);
             speciesImageUrl = TradeExtensions<T>.PokeImg(pk, false, true, null);
-            System.Drawing.Image? combinedImage = await OverlaySpeciesOnEgg(eggImageUrl, speciesImageUrl);
-            if (combinedImage != null)
-                embedImageUrl = SaveImageLocally(combinedImage);
-            else
-                embedImageUrl = speciesImageUrl;
+            System.Drawing.Image combinedImage = await OverlaySpeciesOnEgg(eggImageUrl, speciesImageUrl);
+            embedImageUrl = SaveImageLocally(combinedImage);
         }
         else
         {
@@ -533,8 +586,16 @@ public static class QueueHelper<T> where T : PKM, new()
         }
         else
         {
-            (System.Drawing.Image finalCombinedImage, bool ballImageLoaded) = await OverlayBallOnSpecies(speciesImageUrl, ballImgUrl);
-            embedImageUrl = SaveImageLocally(finalCombinedImage);
+            (System.Drawing.Image? finalCombinedImage, bool ballImageLoaded) = await OverlayBallOnSpecies(speciesImageUrl, ballImgUrl);
+            if (finalCombinedImage != null)
+            {
+                embedImageUrl = SaveImageLocally(finalCombinedImage);
+            }
+            else
+            {
+                // Fall back to species image if overlay failed
+                embedImageUrl = speciesImageUrl;
+            }
 
             if (!ballImageLoaded)
             {
@@ -546,15 +607,13 @@ public static class QueueHelper<T> where T : PKM, new()
         return (embedImageUrl, new DiscordColor(R, G, B));
     }
 
-    private static async Task<(System.Drawing.Image, bool)> OverlayBallOnSpecies(string speciesImageUrl, string ballImageUrl)
+    private static async Task<(System.Drawing.Image?, bool)> OverlayBallOnSpecies(string speciesImageUrl, string ballImageUrl)
     {
         using var speciesImage = await LoadImageFromUrl(speciesImageUrl);
         if (speciesImage == null)
         {
             Console.WriteLine("Species image could not be loaded.");
-#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
             return (null, false);
-#pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
         }
 
         var ballImage = await LoadImageFromUrl(ballImageUrl);
@@ -584,13 +643,18 @@ public static class QueueHelper<T> where T : PKM, new()
 
     private static async Task<System.Drawing.Image> OverlaySpeciesOnEgg(string eggImageUrl, string speciesImageUrl)
     {
-        System.Drawing.Image eggImage = await LoadImageFromUrl(eggImageUrl);
-        System.Drawing.Image speciesImage = await LoadImageFromUrl(speciesImageUrl);
+        System.Drawing.Image? eggImage = await LoadImageFromUrl(eggImageUrl);
+        System.Drawing.Image? speciesImage = await LoadImageFromUrl(speciesImageUrl);
+        
+        if (eggImage == null || speciesImage == null)
+        {
+            throw new InvalidOperationException("Failed to load egg or species image.");
+        }
 
 #pragma warning disable CA1416 // Validate platform compatibility
         double scaleRatio = Math.Min((double)eggImage.Width / speciesImage.Width, (double)eggImage.Height / speciesImage.Height);
         Size newSize = new((int)(speciesImage.Width * scaleRatio), (int)(speciesImage.Height * scaleRatio));
-        System.Drawing.Image? resizedSpeciesImage = new Bitmap(speciesImage, newSize);
+        System.Drawing.Image resizedSpeciesImage = new Bitmap(speciesImage, newSize);
 
         using (Graphics g = Graphics.FromImage(eggImage))
         {
@@ -772,7 +836,7 @@ public static class QueueHelper<T> where T : PKM, new()
                     if (!permissions.SendMessages)
                     {
                         message = "You must grant me \"Send Messages\" permissions!";
-                        Base.LogUtil.LogError(message, "QueueHelper");
+                        Base.LogUtil.LogError("QueueHelper", message);
                         return;
                     }
                     if (!permissions.ManageMessages)

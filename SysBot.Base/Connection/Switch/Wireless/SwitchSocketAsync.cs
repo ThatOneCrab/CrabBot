@@ -202,7 +202,7 @@ public sealed class SwitchSocketAsync : SwitchSocket, ISwitchConnectionAsync
 
     private async Task<byte[]> FlexRead(CancellationToken token)
     {
-        List<byte> flexBuffer = new();
+        List<byte> flexBuffer = [];
         int available = Connection.Available;
         Connection.ReceiveTimeout = 1_000;
 

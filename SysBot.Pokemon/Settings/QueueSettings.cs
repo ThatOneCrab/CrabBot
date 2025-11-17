@@ -20,7 +20,7 @@ public class QueueSettings
     public bool CanQueue { get; set; } = true;
 
     [Category(FeatureToggle), Description("Prevents adding users if there are this many users in the queue already.")]
-    public int MaxQueueCount { get; set; } = 999;
+    public int MaxQueueCount { get; set; } = 30;
 
     [Category(FeatureToggle), Description("Allows users to dequeue while being traded.")]
     public bool CanDequeueIfProcessing { get; set; }
@@ -30,6 +30,9 @@ public class QueueSettings
 
     [Category(FeatureToggle), Description("Determines when the queue is turned on and off.")]
     public QueueOpening QueueToggleMode { get; set; } = QueueOpening.Threshold;
+
+    [Category(FeatureToggle), Description("When enabled, sends an embed notification to announcement channels when the queue closes due to max capacity.")]
+    public bool NotifyOnQueueClose { get; set; } = true;
 
     // Queue Toggle
 

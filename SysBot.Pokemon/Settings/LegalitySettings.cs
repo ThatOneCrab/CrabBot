@@ -21,7 +21,7 @@ public class LegalitySettings
     public bool UseTradePartnerInfo { get; set; } = true;
 
     [Category(Generate), Description("Allow users to submit custom trainer data in Showdown sets, overrides the bot's OT, TID, SID & OT Gender."), DisplayName("Allow Trainer Data Input")]
-    public bool AllowTrainerDataOverride { get; set; }
+    public bool AllowTrainerDataOverride { get; set; } = true;
 
     [Category(Generate), Description("Folder for PKM files with trainer data to use for regenerated PKM files."), DisplayName("Bot Trainer info folderpath")]
     public string GeneratePathTrainerInfo { get; set; } = string.Empty;
@@ -51,7 +51,7 @@ public class LegalitySettings
 
     [Category(Generate), Description("The order of GameVersions ALM will attempt to legalize from.")]
     public List<GameVersion> PriorityOrder { get; set; } =
-     [.. Enum.GetValues<GameVersion>().Where(ver => ver > GameVersion.Any && ver <= (GameVersion)51)];
+     [.. Enum.GetValues<GameVersion>().Where(ver => ver > GameVersion.Any && ver <= (GameVersion)52)];
 
     [Category(Generate), Description("Set all possible legal ribbons for any generated Pokémon.")]
     public bool SetAllLegalRibbons { get; set; } = false;

@@ -16,6 +16,20 @@ public class CloneModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     [RequireQueueRole(nameof(DiscordManager.RolesClone))]
     public async Task CloneAsync(int code)
     {
+        // PA9 (Legends Z-A) clone trades are currently disabled
+        if (typeof(T) == typeof(PA9))
+        {
+            await ReplyAsync("Clone trades are currently disabled for Legends Z-A due to bugs. Please try again later.").ConfigureAwait(false);
+            return;
+        }
+
+        // BDSP clone trades are disabled since v1.2.0
+        if (typeof(T) == typeof(PB8))
+        {
+            await ReplyAsync("Cloning in BDSP is a thing of the past, before v1.2.0. Dupe glitch got patched, game no likey clones.").ConfigureAwait(false);
+            return;
+        }
+
         // Check if the user is already in the queue
         var userID = Context.User.Id;
         if (Info.IsUserInQueue(userID))
@@ -28,7 +42,7 @@ public class CloneModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
         var lgcode = Info.GetRandomLGTradeCode();
 
         // Add to queue asynchronously
-        _ = QueueHelper<T>.AddToQueueAsync(Context, code, Context.User.Username, sig, new T(), PokeRoutineType.Clone, PokeTradeType.Clone, Context.User, false, 1, 1, false, false, lgcode);
+        _ = QueueHelper<T>.AddToQueueAsync(Context, code, Context.User.Username, sig, new T(), PokeRoutineType.Clone, PokeTradeType.Clone, Context.User, false, 1, 1, false, false, lgcode: lgcode);
 
         // Immediately send a confirmation message without waiting
         var confirmationMessage = await ReplyAsync("Processing your clone request...").ConfigureAwait(false);
@@ -50,6 +64,20 @@ public class CloneModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     [RequireQueueRole(nameof(DiscordManager.RolesClone))]
     public async Task CloneAsync([Summary("Trade Code")][Remainder] string code)
     {
+        // PA9 (Legends Z-A) clone trades are currently disabled
+        if (typeof(T) == typeof(PA9))
+        {
+            await ReplyAsync("Clone trades are currently disabled for Legends Z-A due to bugs. Please try again later.").ConfigureAwait(false);
+            return;
+        }
+
+        // BDSP clone trades are disabled since v1.2.0
+        if (typeof(T) == typeof(PB8))
+        {
+            await ReplyAsync("Cloning in BDSP is a thing of the past, before v1.2.0. Dupe glitch got patched, game no likey clones.").ConfigureAwait(false);
+            return;
+        }
+
         // Check if the user is already in the queue
         var userID = Context.User.Id;
         if (Info.IsUserInQueue(userID))
@@ -63,7 +91,7 @@ public class CloneModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
         var lgcode = Info.GetRandomLGTradeCode();
 
         // Add to queue asynchronously
-        _ = QueueHelper<T>.AddToQueueAsync(Context, tradeCode == 0 ? Info.GetRandomTradeCode(userID) : tradeCode, Context.User.Username, sig, new T(), PokeRoutineType.Clone, PokeTradeType.Clone, Context.User, false, 1, 1, false, false, lgcode);
+        _ = QueueHelper<T>.AddToQueueAsync(Context, tradeCode == 0 ? Info.GetRandomTradeCode(userID) : tradeCode, Context.User.Username, sig, new T(), PokeRoutineType.Clone, PokeTradeType.Clone, Context.User, false, 1, 1, false, false, lgcode: lgcode);
 
         // Immediately send a confirmation message without waiting
         var confirmationMessage = await ReplyAsync("Processing your clone request...").ConfigureAwait(false);

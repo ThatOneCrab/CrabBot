@@ -1,6 +1,7 @@
 using Discord;
 using Discord.WebSocket;
 using PKHeX.Core;
+using PKHeX.Core.AutoMod;
 using SysBot.Base;
 using SysBot.Pokemon.Discord.Helpers;
 using SysBot.Pokemon.Helpers;
@@ -22,13 +23,23 @@ public static class AutoLegalityExtensionsDiscord
         try
         {
             var template = AutoLegalityWrapper.GetTemplate(set);
-            var pkm = sav.GetLegal(template, out var result);
-            if (pkm is PK8 && pkm.Nickname.ToLower() == "egg" && Breeding.CanHatchAsEgg(pkm.Species))
-                TradeExtensions<PK8>.EggTrade(pkm, template);
-            else if (pkm is PB8 && pkm.Nickname.ToLower() == "egg" && Breeding.CanHatchAsEgg(pkm.Species))
-                TradeExtensions<PB8>.EggTrade(pkm, template);
-            else if (pkm is PK9 && pkm.Nickname.ToLower() == "egg" && Breeding.CanHatchAsEgg(pkm.Species))
-                TradeExtensions<PK9>.EggTrade(pkm, template);
+
+            // Check if this is an egg request based on nickname
+            bool isEggRequest = set.Nickname.Equals("egg", StringComparison.CurrentCultureIgnoreCase) && Breeding.CanHatchAsEgg(set.Species);
+
+            PKM pkm;
+            string result;
+            if (isEggRequest)
+            {
+                // Generate as egg using ALM's GenerateEgg method
+                pkm = sav.GenerateEgg(template, out var eggResult);
+                result = eggResult.ToString();
+            }
+            else
+            {
+                // Generate normally
+                pkm = sav.GetLegal(template, out result);
+            }
 
             var la = new LegalityAnalysis(pkm);
             var spec = GameInfo.Strings.Species[template.Species];
@@ -41,7 +52,6 @@ public static class AutoLegalityExtensionsDiscord
                 await channel.SendMessageAsync(imsg).ConfigureAwait(false);
                 return;
             }
-
             var msg = $"Here's your ({result}) legalized PKM for {spec} ({la.EncounterOriginal.Name})!";
             await channel.SendPKMAsync(pkm, msg + $"\n{ReusableActions.GetFormattedShowdownText(pkm)}").ConfigureAwait(false);
         }
@@ -55,8 +65,8 @@ public static class AutoLegalityExtensionsDiscord
 
     public static Task ReplyWithLegalizedSetAsync(this ISocketMessageChannel channel, string content, byte gen)
     {
-        content = ReusableActions.StripCodeBlock(content);
         content = BatchNormalizer.NormalizeBatchCommands(content);
+        content = ReusableActions.StripCodeBlock(content);
         var set = new ShowdownSet(content);
         var sav = AutoLegalityWrapper.GetTrainerInfo(gen);
         return channel.ReplyWithLegalizedSetAsync(sav, set);
@@ -64,8 +74,8 @@ public static class AutoLegalityExtensionsDiscord
 
     public static Task ReplyWithLegalizedSetAsync<T>(this ISocketMessageChannel channel, string content) where T : PKM, new()
     {
-        content = ReusableActions.StripCodeBlock(content);
         content = BatchNormalizer.NormalizeBatchCommands(content);
+        content = ReusableActions.StripCodeBlock(content);
         var set = new ShowdownSet(content);
         var sav = AutoLegalityWrapper.GetTrainerInfo<T>();
         return channel.ReplyWithLegalizedSetAsync(sav, set);

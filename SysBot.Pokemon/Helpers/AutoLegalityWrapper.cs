@@ -4,11 +4,14 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+
 namespace SysBot.Pokemon;
+
 public static class AutoLegalityWrapper
 {
     private static bool Initialized;
-    private static TradeSettings? TradeConfig;
+
     public static void EnsureInitialized(LegalitySettings cfg)
     {
         if (Initialized)
@@ -16,21 +19,25 @@ public static class AutoLegalityWrapper
         Initialized = true;
         InitializeAutoLegality(cfg);
     }
-    public static void SetTradeSettings(TradeSettings settings)
-    {
-        TradeConfig = settings;
-    }
+
     private static void InitializeAutoLegality(LegalitySettings cfg)
     {
         InitializeCoreStrings();
+        // Updated to convert the string to a ReadOnlySpan<string> array as required by the method signature.
         EncounterEvent.RefreshMGDB([cfg.MGDBPath]);
         InitializeTrainerDatabase(cfg);
         InitializeSettings(cfg);
     }
+
     // The list of encounter types in the priority we prefer if no order is specified.
     private static readonly EncounterTypeGroup[] EncounterPriority = [EncounterTypeGroup.Egg, EncounterTypeGroup.Slot, EncounterTypeGroup.Static, EncounterTypeGroup.Mystery, EncounterTypeGroup.Trade];
+
     private static void InitializeSettings(LegalitySettings cfg)
     {
+        // Disable expensive PID+ validation for PLZA shiny Pokemon
+        // PKHeX will skip correlation checks when SearchShiny1 is false (see EncounterGift9a.TryGetSeed)
+        LumioseSolver.SearchShiny1 = false;
+
         APILegality.SetAllLegalRibbons = cfg.SetAllLegalRibbons;
         APILegality.SetMatchingBalls = cfg.SetMatchingBalls;
         APILegality.ForceSpecifiedBall = cfg.ForceSpecifiedBall;
@@ -39,9 +46,8 @@ public static class AutoLegalityWrapper
         APILegality.AllowTrainerOverride = cfg.AllowTrainerDataOverride;
         APILegality.AllowBatchCommands = cfg.AllowBatchCommands;
         APILegality.PrioritizeGame = cfg.PrioritizeGame;
-
         // Prevent missing entries in case of deletion
-        GameVersion[] validVersions = [.. Enum.GetValues<GameVersion>().Where(ver => ver <= (GameVersion)51 && ver > GameVersion.Any)];
+        GameVersion[] validVersions = [.. Enum.GetValues<GameVersion>().Where(ver => ver <= (GameVersion)52 && ver > GameVersion.Any)];
         foreach (var ver in validVersions)
         {
             if (!cfg.PriorityOrder.Contains(ver))
@@ -51,7 +57,9 @@ public static class AutoLegalityWrapper
         APILegality.SetBattleVersion = cfg.SetBattleVersion;
         APILegality.Timeout = cfg.Timeout;
         var settings = ParseSettings.Settings;
+        settings.WordFilter.CheckWordFilter = false;
         settings.Handler.CheckActiveHandler = false;
+        settings.Handler.Restrictions.Disable();
         var validRestriction = new NicknameRestriction { NicknamedTrade = Severity.Fishy, NicknamedMysteryGift = Severity.Fishy };
         settings.Nickname.SetAllTo(validRestriction);
 
@@ -67,13 +75,14 @@ public static class AutoLegalityWrapper
         cfg.PrioritizeEncounters = [.. cfg.PrioritizeEncounters.Distinct()]; // Don't allow duplicates.
         EncounterMovesetGenerator.PriorityList = cfg.PrioritizeEncounters;
     }
+
     private static void InitializeTrainerDatabase(LegalitySettings cfg)
     {
         var externalSource = cfg.GeneratePathTrainerInfo;
         if (Directory.Exists(externalSource))
             TrainerSettings.LoadTrainerDatabaseFromPath(externalSource);
 
-        // Seed the Trainer Database with enough fake save files so that we return a generation sensitive format when needed.
+        // Seed the Trainer Database with enough fake save files so that we return a generation sensitive format when needed.  
         var fallback = GetDefaultTrainer(cfg);
         for (byte generation = 1; generation <= GameUtil.GetGeneration(GameVersion.Gen9); generation++)
         {
@@ -81,11 +90,11 @@ public static class AutoLegalityWrapper
             foreach (var version in versions)
                 RegisterIfNoneExist(fallback, generation, version);
         }
-
-        // Manually register for LGP/E since Gen7 above will only register the 3DS versions.
+        // Manually register for LGP/E since Gen7 above will only register the 3DS versions.  
         RegisterIfNoneExist(fallback, 7, GameVersion.GP);
         RegisterIfNoneExist(fallback, 7, GameVersion.GE);
     }
+
     private static SimpleTrainerInfo GetDefaultTrainer(LegalitySettings cfg)
     {
         var OT = cfg.GenerateOT;
@@ -101,6 +110,7 @@ public static class AutoLegalityWrapper
         };
         return fallback;
     }
+
     private static void RegisterIfNoneExist(SimpleTrainerInfo fallback, byte generation, GameVersion version)
     {
         fallback = new SimpleTrainerInfo(version)
@@ -115,28 +125,27 @@ public static class AutoLegalityWrapper
         if (exist is SimpleTrainerInfo) // not anything from files; this assumes ALM returns SimpleTrainerInfo for non-user-provided fake templates.
             TrainerSettings.Register(fallback);
     }
+
     private static void InitializeCoreStrings()
     {
         var lang = Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName[..2];
         LocalizationUtil.SetLocalization(typeof(LegalityCheckResultCode), lang);
         LocalizationUtil.SetLocalization(typeof(MessageStrings), lang);
-
+        
         // Pre-initialize BattleTemplateLocalization to prevent concurrent dictionary access issues
         // This forces all localizations to be loaded at startup before any concurrent operations
         _ = BattleTemplateLocalization.ForceLoadAll();
     }
+
     public static bool CanBeTraded(this PKM pkm)
     {
-        
         if (pkm.IsNicknamed && StringsUtil.IsSpammyString(pkm.Nickname))
             return false;
         if (StringsUtil.IsSpammyString(pkm.OriginalTrainerName) && !IsFixedOT(new LegalityAnalysis(pkm).EncounterOriginal, pkm))
             return false;
-        
-
-
         return !FormInfo.IsFusedForm(pkm.Species, pkm.Form, pkm.Format);
     }
+
     public static bool IsFixedOT(IEncounterTemplate t, PKM pkm) => t switch
     {
         IFixedTrainer { IsFixedTrainer: true } => true,
@@ -152,6 +161,7 @@ public static class AutoLegalityWrapper
         },
         _ => false,
     };
+
     public static ITrainerInfo GetTrainerInfo<T>() where T : PKM, new()
     {
         if (typeof(T) == typeof(PK8))
@@ -162,24 +172,39 @@ public static class AutoLegalityWrapper
             return TrainerSettings.GetSavedTrainerData(GameVersion.PLA, 8);
         if (typeof(T) == typeof(PK9))
             return TrainerSettings.GetSavedTrainerData(GameVersion.SV, 9);
+        if (typeof(T) == typeof(PA9))
+            return TrainerSettings.GetSavedTrainerData(GameVersion.ZA, 9);
         if (typeof(T) == typeof(PB7))
             return TrainerSettings.GetSavedTrainerData(GameVersion.GE, 7);
+
         throw new ArgumentException("Type does not have a recognized trainer fetch.", typeof(T).Name);
     }
+
     public static ITrainerInfo GetTrainerInfo(byte gen) => TrainerSettings.GetSavedTrainerData(gen);
+
     public static PKM GetLegal(this ITrainerInfo sav, IBattleTemplate set, out string res)
     {
-        var result = sav.GetLegalFromSet(set);
-        res = result.Status switch
+        var task = Task.Run(() => sav.GetLegalFromSet(set));
+        if (task.Wait(TimeSpan.FromSeconds(30)))
         {
-            LegalizationResult.Regenerated => "Regenerated",
-            LegalizationResult.Failed => "Failed",
-            LegalizationResult.Timeout => "Timeout",
-            LegalizationResult.VersionMismatch => "VersionMismatch",
-            _ => "",
-        };
-        return result.Created;
+            var result = task.Result;
+            res = result.Status switch
+            {
+                LegalizationResult.Regenerated => "Regenerated",
+                LegalizationResult.Failed => "Failed",
+                LegalizationResult.Timeout => "Timeout",
+                LegalizationResult.VersionMismatch => "VersionMismatch",
+                _ => "",
+            };
+            return result.Created;
+        }
+        else
+        {
+            res = "Timeout";
+            return null!; // Explicitly return null with suppression since the res parameter indicates the failure
+        }
     }
+
     public static string GetLegalizationHint(IBattleTemplate set, ITrainerInfo sav, PKM pk) => set.SetAnalysis(sav, pk);
     public static PKM LegalizePokemon(this PKM pk) => pk.Legalize();
     public static IBattleTemplate GetTemplate(ShowdownSet set) => new RegenTemplate(set);

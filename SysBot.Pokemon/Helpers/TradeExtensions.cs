@@ -1,12 +1,12 @@
 using PKHeX.Core;
 using PKHeX.Core.AutoMod;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using static SysBot.Pokemon.TradeSettings;
 
 namespace SysBot.Pokemon.Helpers;
+
 public abstract class TradeExtensions<T> where T : PKM, new()
 {
     public static readonly string[] MarkTitle =
@@ -82,7 +82,9 @@ public abstract class TradeExtensions<T> where T : PKM, new()
 
         if (mgPkm is not null && result is EntityConverterResult.Success)
         {
-            var enc = new LegalityAnalysis(mgPkm).EncounterMatch;
+            // Create LA once and reuse it
+            var laTemp = new LegalityAnalysis(mgPkm);
+            var enc = laTemp.EncounterMatch;
             mgPkm.SetHandlerandMemory(info, enc);
 
             if (mgPkm.TID16 is 0 && mgPkm.SID16 is 0)
@@ -97,27 +99,28 @@ public abstract class TradeExtensions<T> where T : PKM, new()
             else if (mgPkm.Species is (ushort)Species.Silvally && mgPkm.Form > 0)
                 mgPkm.HeldItem = mgPkm.Form + 903;
             else mgPkm.HeldItem = 0;
+
+            // Apply trash bytes fix
+            mgPkm = TrashBytes((T)mgPkm, laTemp);
+
+            // Re-validate after modifications
+            var la = new LegalityAnalysis(mgPkm);
+            if (!la.Valid)
+            {
+                mgPkm.SetRandomIVs(6);
+                var text = ShowdownParsing.GetShowdownText(mgPkm);
+                var set = new ShowdownSet(text);
+                var template = AutoLegalityWrapper.GetTemplate(set);
+                var pk = AutoLegalityWrapper.GetLegal(info, template, out _);
+                pk.SetAllTrainerData(info);
+                return (T)pk;
+            }
+
+            return (T)mgPkm;
         }
         else
         {
             return new();
-        }
-
-        mgPkm = TrashBytes((T)mgPkm);
-        var la = new LegalityAnalysis(mgPkm);
-        if (!la.Valid)
-        {
-            mgPkm.SetRandomIVs(6);
-            var text = ShowdownParsing.GetShowdownText(mgPkm);
-            var set = new ShowdownSet(text);
-            var template = AutoLegalityWrapper.GetTemplate(set);
-            var pk = AutoLegalityWrapper.GetLegal(info, template, out _);
-            pk.SetAllTrainerData(info);
-            return (T)pk;
-        }
-        else
-        {
-            return (T)mgPkm;
         }
     }
 
@@ -149,150 +152,10 @@ public abstract class TradeExtensions<T> where T : PKM, new()
 
         pkm.Ball = 21;
         pkm.IVs = [31, nickname.Contains(dittoStats[0]) ? 0 : 31, 31, nickname.Contains(dittoStats[1]) ? 0 : 31, nickname.Contains(dittoStats[2]) ? 0 : 31, 31];
-        TrashBytes(pkm, new LegalityAnalysis(pkm));
-    }
 
-    // https://github.com/Koi-3088/ForkBot.NET/blob/KoiTest/SysBot.Pokemon/Helpers/TradeExtensions.cs
-    public static void EggTrade(PKM pk, IBattleTemplate template, bool nicknameEgg = true)
-    {
-        // Set egg nickname
-        if (nicknameEgg)
-        {
-            pk.IsNicknamed = true;
-            pk.Nickname = pk.Language switch
-            {
-                1 => "タマゴ",
-                3 => "Œuf",
-                4 => "Uovo",
-                5 => "Ei",
-                7 => "Huevo",
-                8 => "알",
-                9 or 10 => "蛋",
-                _ => "Egg",
-            };
-        }
-        else
-        {
-            pk.IsNicknamed = false;
-            pk.Nickname = "";
-        }
-
-        pk.IsEgg = true;
-        pk.EggLocation = pk switch
-        {
-            PB8 => 60010,
-            PK9 => 30023,
-            _ => 60002, //PK8
-        };
-
-        pk.EggMetDate = DateOnly.FromDateTime(DateTime.Now);
-        pk.HeldItem = 0;
-        pk.CurrentLevel = 1;
-        pk.EXP = 0;
-        pk.MetLevel = 1;
-        pk.MetLocation = pk switch
-        {
-            PB8 => 65535,    // BDSP hatched location (unset)
-            PK9 => 0,        // SV hatched location (unset)
-            _ => 30002,      // SwSh hatched location (unset)
-        };
-
-        // Set MetDate based on MetLocation
-        // For unhatched eggs:
-        // - PK9 (SV): MetLocation 0 requires MetDate fields to be 0
-        // - PB8 (BDSP): MetLocation 65535 requires MetDate fields to be 0
-        // - PK8 (SwSh): MetLocation 30002 can have a valid MetDate
-        if (pk.MetLocation == 0 || pk.MetLocation == 65535)
-        {
-            pk.MetYear = 0;
-            pk.MetMonth = 0;
-            pk.MetDay = 0;
-        }
-        else
-        {
-            pk.MetDate = pk.EggMetDate;
-        }
-
-        // Clear trainer data
-        pk.CurrentHandler = 0;
-        pk.HandlingTrainerName = "";
-        ClearHandlingTrainerTrash(pk);
-        pk.HandlingTrainerFriendship = 0;
-        pk.ClearMemories();
-
-        // Clear battle stats
-        pk.StatNature = pk.Nature;
-        pk.SetEVs([0, 0, 0, 0, 0, 0]);
-        if (pk.Ball is 1)
-        {
-            pk.Ball = 21; // Change to Love Ball if it was a Master Ball
-        }
-
-        // Handle PID/EC relationship
-        if (pk.Format >= 6 && pk.PID == pk.EncryptionConstant)
-        {
-            pk.EncryptionConstant = pk.PID ^ 0x80000000;
-        }
-
-        // Clear markings and ribbons
-        MarkingApplicator.SetMarkings(pk);
-        RibbonApplicator.RemoveAllValidRibbons(pk);
-
-        // Handle game-specific properties
-        if (pk is PK8 pk8)
-        {
-            pk8.HandlingTrainerLanguage = 0;
-            pk8.HandlingTrainerGender = 0;
-            pk8.HandlingTrainerMemory = 0;
-            pk8.HandlingTrainerMemoryFeeling = 0;
-            pk8.HandlingTrainerMemoryIntensity = 0;
-            pk8.DynamaxLevel = 0; // Eggs don't have dynamax level
-        }
-        else if (pk is PB8 pb8)
-        {
-            pb8.HandlingTrainerLanguage = 0;
-            pb8.HandlingTrainerGender = 0;
-            pb8.HandlingTrainerMemory = 0;
-            pb8.HandlingTrainerMemoryFeeling = 0;
-            pb8.HandlingTrainerMemoryIntensity = 0;
-            pb8.DynamaxLevel = 0;
-            ClearNicknameTrash(pk);
-        }
-        else if (pk is PK9 pk9)
-        {
-            pk9.HandlingTrainerLanguage = 0;
-            pk9.HandlingTrainerGender = 0;
-            pk9.HandlingTrainerMemory = 0;
-            pk9.HandlingTrainerMemoryFeeling = 0;
-            pk9.HandlingTrainerMemoryIntensity = 0;
-            pk9.ObedienceLevel = 1;
-            pk9.Version = 0;
-            pk9.BattleVersion = 0;
-            pk9.TeraTypeOverride = (PKHeX.Core.MoveType)19;
-        }
-
-        // Set moves and relearn moves
-        pk.RefreshChecksum();
-        var la = new LegalityAnalysis(pk);
-        var enc = la.EncounterMatch;
-
-        // Set egg moves
-        Span<ushort> relearn = stackalloc ushort[4];
-        la.GetSuggestedRelearnMoves(relearn, enc);
-        pk.SetRelearnMoves(relearn);
-
-        // Clear tech records
-        if (pk is ITechRecord t)
-            t.ClearRecordFlags();
-
-        // Set level-up moves appropriate for level 1
-        pk.SetSuggestedMoves();
-        pk.Move1_PPUps = pk.Move2_PPUps = pk.Move3_PPUps = pk.Move4_PPUps = 0;
-        pk.SetMaximumPPCurrent(pk.Moves);
-        pk.MaximizeFriendship(); // Hatch Egg Faster
-
-        // Final checksum refresh
-        pk.RefreshChecksum();
+        // Create LA once and pass to TrashBytes to reuse it
+        var la = new LegalityAnalysis(pkm);
+        TrashBytes(pkm, la);
     }
 
     public static string FormOutput(ushort species, byte form, out string[] formString)
@@ -309,66 +172,10 @@ public abstract class TradeExtensions<T> where T : PKM, new()
         return formString[form].Contains('-') ? formString[form] : formString[form] == "" ? "" : $"-{formString[form]}";
     }
 
-    private static void ClearNicknameTrash(PKM pokemon)
-    {
-        switch (pokemon)
-        {
-            case PK9 pk9:
-                ClearTrash(pk9.NicknameTrash, pk9.Nickname);
-                break;
-            case PA8 pa8:
-                ClearTrash(pa8.NicknameTrash, pa8.Nickname);
-                break;
-            case PB8 pb8:
-                ClearTrash(pb8.NicknameTrash, pb8.Nickname);
-                break;
-            case PB7 pb7:
-                ClearTrash(pb7.NicknameTrash, pb7.Nickname);
-                break;
-            case PK8 pk8:
-                ClearTrash(pk8.NicknameTrash, pk8.Nickname);
-                break;
-        }
-    }
-
-    private static void ClearTrash(Span<byte> trash, string name)
-    {
-        trash.Clear();
-        int maxLength = trash.Length / 2;
-        int actualLength = Math.Min(name.Length, maxLength);
-        for (int i = 0; i < actualLength; i++)
-        {
-            char value = name[i];
-            trash[i * 2] = (byte)value;
-            trash[(i * 2) + 1] = (byte)(value >> 8);
-        }
-        if (actualLength < maxLength)
-        {
-            trash[actualLength * 2] = 0x00;
-            trash[(actualLength * 2) + 1] = 0x00;
-        }
-    }
-
-    private static void ClearHandlingTrainerTrash(PKM pk)
-    {
-        switch (pk)
-        {
-            case PK8 pk8:
-                ClearTrash(pk8.HandlingTrainerTrash, "");
-                break;
-            case PB8 pb8:
-                ClearTrash(pb8.HandlingTrainerTrash, "");
-                break;
-            case PK9 pk9:
-                ClearTrash(pk9.HandlingTrainerTrash, "");
-                break;
-        }
-    }
-
     public static bool HasAdName(T pk, out string ad)
     {
         // List of common TLDs to match
-        const string domainPattern = @"(?<=\w)\.(com|org|net|gg|xyz|io|tv|co|me|us|uk|ca|de|fr|jp|au|eu|ch|it|nl|ru|br|in|fun|info|blog|int|gov|edu|app|art|biz|bot|buzz|dev|eco|fan|fans|forum|free|game|help|host|inc|icu|live|lol|market|media|news|ninja|now|one|ong|online|page|porn|pro|red|sale|sex|sexy|shop|site|store|stream|tech|tel|top|tube|uno|vip|website|wiki|work|world|wtf|xxx|zero|youtube|zone|nyc|onion|bit|crypto|meme)\b";
+        const string domainPattern = @"(?<=\w)\.(com|org|net|gg|xyz|io|tv|co|me|us|uk|ca|de|fr|jp|au|eu|ch|it|nl|ru|br|in)\b";
 
         bool ot = Regex.IsMatch(pk.OriginalTrainerName, domainPattern, RegexOptions.IgnoreCase);
         bool nick = Regex.IsMatch(pk.Nickname, domainPattern, RegexOptions.IgnoreCase);
@@ -392,7 +199,18 @@ public abstract class TradeExtensions<T> where T : PKM, new()
             else if (ribbonSetMark.RibbonMarkAlpha)
             {
                 result = RibbonIndex.MarkAlpha;
-                markTitle = " The Former Alpha";
+
+                // For PA9 (PLZA), check if the Pokemon is native to determine the correct title
+                if (pk is PA9 pa9)
+                {
+                    var la = new LegalityAnalysis(pa9);
+                    bool isNative = la.EncounterOriginal.Context == pa9.Context;
+                    markTitle = isNative ? " The Alpha" : " The Former Alpha";
+                }
+                else
+                {
+                    markTitle = " The Former Alpha";
+                }
                 return true;
             }
             else if (ribbonSetMark.RibbonMarkTitan)
@@ -518,24 +336,26 @@ public abstract class TradeExtensions<T> where T : PKM, new()
 
     public static PKM TrashBytes(PKM pkm, LegalityAnalysis? la = null)
     {
-        var pkMet = (T)pkm.Clone();
-        if (pkMet.Version is not GameVersion.GO)
-            pkMet.MetDate = DateOnly.FromDateTime(DateTime.Now);
+        // Simply update MetDate for non-GO Pokemon
+        // The caller will handle validation
+        var result = (T)pkm.Clone();
+        if (result.Version is not GameVersion.GO)
+            result.MetDate = DateOnly.FromDateTime(DateTime.Now);
 
-        var analysis = new LegalityAnalysis(pkMet);
-        var pkTrash = (T)pkMet.Clone();
-        if (analysis.Valid)
+        // If a LegalityAnalysis was provided and is valid, attempt nickname cleanup
+        if (la?.Valid == true)
         {
-            pkTrash.IsNicknamed = true;
-            pkTrash.Nickname = "UwU";
-            pkTrash.SetDefaultNickname(la ?? new LegalityAnalysis(pkTrash));
+            var withNickname = (T)result.Clone();
+            withNickname.IsNicknamed = true;
+            withNickname.Nickname = "UwU";
+            withNickname.SetDefaultNickname(la);
+
+            // Only return the nickname-cleaned version if we know it's valid
+            // The caller will validate anyway, so we don't need to check here
+            result = withNickname;
         }
 
-        if (new LegalityAnalysis(pkTrash).Valid)
-            pkm = pkTrash;
-        else if (analysis.Valid)
-            pkm = pkMet;
-        return pkm;
+        return result;
     }
 
     public static bool IsEggCheck(string showdownSet)
@@ -555,7 +375,7 @@ public abstract class TradeExtensions<T> where T : PKM, new()
         }
 
         // Split the remaining text into words
-        var words = firstLine.Split(new[] { ' ', '(' }, StringSplitOptions.RemoveEmptyEntries);
+        var words = firstLine.Split([' ', '('], StringSplitOptions.RemoveEmptyEntries);
 
         // Check if any word is exactly "Egg" (case-insensitive)
         return words.Any(word => string.Equals(word, "Egg", StringComparison.OrdinalIgnoreCase));
@@ -567,7 +387,7 @@ public abstract class TradeExtensions<T> where T : PKM, new()
         var batchMatch = Regex.Match(content, @"\.Language=(\d+)");
         if (batchMatch.Success && byte.TryParse(batchMatch.Groups[1].Value, out byte langCode))
         {
-            return langCode >= 1 && langCode <= 10 ? langCode : (byte)2; // Validate range and default to English if invalid
+            return langCode >= 1 && langCode <= 11 ? langCode : (byte)2; // Validate range and default to English if invalid
         }
 
         // Check for explicit language specification
@@ -585,6 +405,7 @@ public abstract class TradeExtensions<T> where T : PKM, new()
                     "italian" or "italiano" or "ita" or "it" => 4,
                     "german" or "deutsch" or "deu" or "de" => 5,
                     "spanish" or "español" or "spa" or "es" => 7,
+                    "spanish-latam" or "spanishl" or "es-419" or "latam" => 11,
                     "japanese" or "日本語" or "jpn" or "ja" => 1,
                     "korean" or "한국어" or "kor" or "ko" => 8,
                     "chinese simplified" or "中文简体" or "chs" or "zh-cn" => 9,
@@ -662,8 +483,8 @@ public abstract class TradeExtensions<T> where T : PKM, new()
         {
             return 10; // Chinese Traditional
         }
-        // Default to English
-        return 2;
+        // No language detected
+        return 0;
     }
 }
 

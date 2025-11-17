@@ -37,9 +37,9 @@ public abstract class PokeRoutineExecutor8BS : PokeRoutineExecutor<PB8>
 
         // Close out of the game
         await Click(B, 0_500, token).ConfigureAwait(false);
-        await Click(HOME, 2_000 + timing.ClosingGameSettings.ExtraTimeReturnHome, token).ConfigureAwait(false);
+        await Click(HOME, 2_000 + timing.ExtraTimeReturnHome, token).ConfigureAwait(false);
         await Click(X, 1_000, token).ConfigureAwait(false);
-        await Click(A, 5_000 + timing.ClosingGameSettings.ExtraTimeCloseGame, token).ConfigureAwait(false);
+        await Click(A, 5_000 + timing.ExtraTimeCloseGame, token).ConfigureAwait(false);
         Log("Closed out of the game!");
     }
 
@@ -116,7 +116,7 @@ public abstract class PokeRoutineExecutor8BS : PokeRoutineExecutor<PB8>
             Log("Turning off screen.");
             await SetScreen(ScreenState.Off, token).ConfigureAwait(false);
         }
-
+        await SetController(ControllerType.ProController, token);
         Log("Setting BDSP-specific hid waits.");
         await Connection.SendAsync(SwitchCommand.Configure(SwitchConfigureParameter.keySleepTime, 50), token).ConfigureAwait(false);
         await Connection.SendAsync(SwitchCommand.Configure(SwitchConfigureParameter.pollRate, 50), token).ConfigureAwait(false);
@@ -167,7 +167,7 @@ public abstract class PokeRoutineExecutor8BS : PokeRoutineExecutor<PB8>
 
     public async Task ReOpenGame(PokeTradeHubConfig config, CancellationToken token)
     {
-        Log("Error detected, restarting the game!!");
+        Log("Error detected, restarting the game!");
         await CloseGame(config, token).ConfigureAwait(false);
         await StartGame(config, token).ConfigureAwait(false);
     }
@@ -189,57 +189,77 @@ public abstract class PokeRoutineExecutor8BS : PokeRoutineExecutor<PB8>
 
         // Open game.
         var timing = config.Timings;
-        var loadPro = timing.OpeningGameSettings.ProfileSelectionRequired ? timing.OpeningGameSettings.ExtraTimeLoadProfile : 0;
+        var loadPro = timing.ProfileSelectionRequired ? timing.ExtraTimeLoadProfile : 0;
 
         await Click(A, 1_000 + loadPro, token).ConfigureAwait(false); // Initial "A" Press to start the Game + a delay if needed for profiles to load
 
         // Menus here can go in the order: Update Prompt -> Profile -> DLC check -> Unable to use DLC.
         //  The user can optionally turn on the setting if they know of a breaking system update incoming.
-        if (timing.MiscellaneousSettings.AvoidSystemUpdate)
+        if (timing.AvoidSystemUpdate)
         {
             await Click(DUP, 0_600, token).ConfigureAwait(false);
-            await Click(A, 1_000 + timing.OpeningGameSettings.ExtraTimeLoadProfile, token).ConfigureAwait(false);
+            await Click(A, 1_000 + timing.ExtraTimeLoadProfile, token).ConfigureAwait(false);
         }
 
         // Only send extra Presses if we need to
-        if (timing.OpeningGameSettings.ProfileSelectionRequired)
+        if (timing.ProfileSelectionRequired)
         {
             await Click(A, 1_000, token).ConfigureAwait(false); // Now we are on the Profile Screen
             await Click(A, 1_000, token).ConfigureAwait(false); // Select the profile
         }
 
         // Digital game copies take longer to load
-        if (timing.OpeningGameSettings.CheckGameDelay)
+        if (timing.CheckGameDelay)
         {
-            await Task.Delay(2_000 + timing.OpeningGameSettings.ExtraTimeCheckGame, token).ConfigureAwait(false);
+            await Task.Delay(2_000 + timing.ExtraTimeCheckGame, token).ConfigureAwait(false);
         }
+
+        await Click(A, 0_600, token).ConfigureAwait(false);
 
         Log("Restarting the game!");
 
-        // Switch Logo lag, skip cutscene, game load screen
-        await Task.Delay(22_000 + timing.OpeningGameSettings.ExtraTimeLoadGame, token).ConfigureAwait(false);
+        // Wait for game to load
+        await Task.Delay(22_000 + timing.ExtraTimeLoadGame, token).ConfigureAwait(false);
 
         for (int i = 0; i < 10; i++)
+        {
             await Click(A, 1_000, token).ConfigureAwait(false);
+            if (token.IsCancellationRequested) return;
+        }
 
-        var timer = 60_000;
+        var totalWaitTime = 0;
+        var maxWaitTime = 60_000; // 1 minute
         while (!await IsSceneID(SceneID_Field, token).ConfigureAwait(false))
         {
-            await Task.Delay(1_000, token).ConfigureAwait(false);
-            timer -= 1_000;
+            if (token.IsCancellationRequested) return;
 
-            // We haven't made it back to overworld after a minute, so press A every 6 seconds hoping to restart the game.
-            // Don't risk it if hub is set to avoid updates.
-            if (timer <= 0 && !timing.MiscellaneousSettings.AvoidSystemUpdate)
+            await Task.Delay(1_000, token).ConfigureAwait(false);
+            totalWaitTime += 1_000;
+
+            if (totalWaitTime >= maxWaitTime)
             {
-                Log("Still not in the game, initiating rescue protocol!");
-                while (!await IsSceneID(SceneID_Field, token).ConfigureAwait(false))
-                    await Click(A, 6_000, token).ConfigureAwait(false);
+                if (!timing.AvoidSystemUpdate)
+                {
+                    Log("Still not in the game, initiating rescue protocol!");
+                    int retries = 0;
+                    int maxRetries = 10;
+                    while (!await IsSceneID(SceneID_Field, token).ConfigureAwait(false))
+                    {
+                        if (token.IsCancellationRequested) return;
+                        if (retries >= maxRetries)
+                        {
+                            Log("Max retries reached while trying to start the game.");
+                            throw new Exception("Unable to start the game after multiple attempts.");
+                        }
+                        await Click(A, 6_000, token).ConfigureAwait(false);
+                        retries++;
+                    }
+                }
                 break;
             }
         }
 
-        await Task.Delay(timing.OpeningGameSettings.ExtraTimeLoadOverworld, token).ConfigureAwait(false);
+        await Task.Delay(timing.ExtraTimeLoadOverworld, token).ConfigureAwait(false);
         Log("Back in the overworld!");
     }
 
@@ -257,7 +277,7 @@ public abstract class PokeRoutineExecutor8BS : PokeRoutineExecutor<PB8>
         // Default implementation to just press directional arrows. Can do via Hid keys, but users are slower than bots at even the default code entry.
         foreach (var key in TradeUtil.GetPresses(code))
         {
-            int delay = config.Timings.MiscellaneousSettings.KeypressTime;
+            int delay = config.Timings.KeypressTime;
             await Click(key, delay, token).ConfigureAwait(false);
         }
 

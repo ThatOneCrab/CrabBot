@@ -78,4 +78,10 @@ public sealed class PokeTradeHubConfig : BaseConfig
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public TradeAbuseSettings TradeAbuse { get; set; } = new();
 
+    // Recovery settings
+
+    [Category(Operation), Description("Settings for automatic bot recovery after crashes.")]
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    public RecoverySettings Recovery { get; set; } = new();
+
 }

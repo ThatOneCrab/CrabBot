@@ -2,6 +2,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using PKHeX.Core;
+using PKHeX.Core.AutoMod;
 using SysBot.Base;
 using SysBot.Pokemon.Discord.Helpers;
 using SysBot.Pokemon.Helpers;
@@ -195,8 +196,8 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
             return;
         }
 
-        content = ReusableActions.StripCodeBlock(content);
         content = BatchNormalizer.NormalizeBatchCommands(content);
+        content = ReusableActions.StripCodeBlock(content);
         var set = new ShowdownSet(content);
         var template = AutoLegalityWrapper.GetTemplate(set);
 
@@ -205,11 +206,16 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
             try
             {
                 var sav = AutoLegalityWrapper.GetTrainerInfo<T>();
-                var pkm = sav.GetLegal(template, out var result);
 
-                if (pkm == null)
+                // Generate the egg using ALM's GenerateEgg method
+                var pkm = sav.GenerateEgg(template, out var result);
+
+                if (result != LegalizationResult.Regenerated)
                 {
-                    await ReplyAsync("Set took too long to legalize.");
+                    var reason = result == LegalizationResult.Timeout
+                        ? "Egg generation took too long."
+                        : "Failed to generate egg from the provided set.";
+                    await Helpers<T>.ReplyAndDeleteAsync(Context, reason, 2);
                     return;
                 }
 
@@ -219,8 +225,6 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
                     await Helpers<T>.ReplyAndDeleteAsync(Context, "Oops! I wasn't able to create an egg for that.", 2);
                     return;
                 }
-
-                Helpers<T>.ApplyEggLogic(pk, content);
 
                 var sig = Context.User.GetFavor();
                 await Helpers<T>.AddTradeToQueueAsync(Context, code, Context.User.Username, pk, sig, Context.User).ConfigureAwait(false);
@@ -554,8 +558,8 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
                 "You already have an existing trade in the queue that cannot be cleared. Please wait until it is processed.", 2);
             return;
         }
-        content = ReusableActions.StripCodeBlock(content);
         content = BatchNormalizer.NormalizeBatchCommands(content);
+        content = ReusableActions.StripCodeBlock(content);
         var trades = BatchHelpers<T>.ParseBatchTradeContent(content);
         const int maxTradesAllowed = 4;
         if (maxTradesAllowed < 1 || trades.Count > maxTradesAllowed)
@@ -644,7 +648,10 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
         {
             try
             {
-                var result = await Helpers<T>.ProcessShowdownSetAsync(content);
+                // Detect custom trainer info BEFORE generating the Pokemon
+                var ignoreAutoOT = content.Contains("OT:") || content.Contains("TID:") || content.Contains("SID:");
+
+                var result = await Helpers<T>.ProcessShowdownSetAsync(content, ignoreAutoOT);
 
                 if (result.Pokemon == null)
                 {
@@ -653,7 +660,6 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
                 }
 
                 var sig = Context.User.GetFavor();
-                var ignoreAutoOT = content.Contains("OT:") || content.Contains("TID:") || content.Contains("SID:");
 
                 await Helpers<T>.AddTradeToQueueAsync(
                     Context, code, Context.User.Username, result.Pokemon, sig, Context.User,

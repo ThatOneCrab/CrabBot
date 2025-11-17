@@ -14,7 +14,7 @@ public class BotSource<T>(RoutineExecutor<T> Bot)
 
     public bool IsRunning { get; private set; }
 
-    private bool IsStopping { get; set; }
+    public bool IsStopping { get; private set; }
 
     public void Pause()
     {
