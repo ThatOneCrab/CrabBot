@@ -1,9 +1,9 @@
 namespace SysBot.Pokemon.Helpers
 {
-    public static class DudeBot
+    public static class CrabBot
     {
-        public const string Version = "v1.2.0";
-        public const string Attribution = "https://Chinchou.net";
+        public const string Version = "v1.2.5";
+        public const string Attribution = "https://discord.gg/FnAGV4pb2k";
         public const string ConfigPath = "config.json";
     }
 }

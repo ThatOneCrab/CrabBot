@@ -134,6 +134,7 @@ public class OwnerModule<T> : SudoModule<T> where T : PKM, new()
     }
 
     [Command("addChannel")]
+    [Alias("ac")]
     [Summary("Adds a channel to the list of channels that are accepting commands.")]
     [RequireOwner]
     public async Task AddChannel()
@@ -364,7 +365,7 @@ public class OwnerModule<T> : SudoModule<T> where T : PKM, new()
     {
         try
         {
-            var jsonData = File.ReadAllText(DudeBot.ConfigPath);
+            var jsonData = File.ReadAllText(CrabBot.ConfigPath);
             var config = JObject.Parse(jsonData);
 
             var botsArray = config["Bots"] as JArray;
@@ -384,7 +385,7 @@ public class OwnerModule<T> : SudoModule<T> where T : PKM, new()
         }
     }
 
-    [Command("kill")]
+    [Command("stopbot")]
     [Alias("shutdown")]
     [Summary("Causes the entire process to end itself!")]
     [RequireOwner]

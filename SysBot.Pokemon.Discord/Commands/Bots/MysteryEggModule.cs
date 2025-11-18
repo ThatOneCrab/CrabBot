@@ -205,12 +205,12 @@ namespace SysBot.Pokemon.Discord
                 .WithColor(global::Discord.Color.Gold)
                 .WithTitle($"🥚 Mystery Egg {eggNumber} of {totalEggs}")
                 .WithDescription("A mysterious egg containing a random Pokémon!")
-                .WithImageUrl("https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/mysteryegg3.png")
+                .WithImageUrl("https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/unnamed2.png")
                 .WithFooter($"Batch Trade {eggNumber} of {totalEggs}" + (eggNumber == 1 ? $" | Position: {queuePosition}" : ""))
                 .WithAuthor(new EmbedAuthorBuilder()
                     .WithName($"Mystery Egg for {context.User.Username}")
                     .WithIconUrl(context.User.GetAvatarUrl() ?? context.User.GetDefaultAvatarUrl())
-                    .WithUrl("https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/FromTheHeart2.png"));
+                    .WithUrl("https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/Cyberklawf.png"));
 
             return embedBuilder.Build();
         }

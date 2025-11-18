@@ -8,7 +8,7 @@ namespace SysBot.Pokemon;
 
 public class LegalitySettings
 {
-    private string DefaultTrainerName = "DudeBot.Net";
+    private string DefaultTrainerName = "CrabBot.Net";
     private const string Generate = nameof(Generate);
     private const string Misc = nameof(Misc);
     public override string ToString() => "Legality Generating Settings";

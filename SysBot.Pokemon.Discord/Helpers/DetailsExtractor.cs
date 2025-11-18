@@ -40,6 +40,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
         leftSideContent +=
             (pk.Version is GameVersion.SL or GameVersion.VL && SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowTeraType ? $"**Tera Type:** {embedData.TeraType}\n" : "") +
             (pk.Version is GameVersion.SL or GameVersion.VL && SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowScale ? $"**Scale:** {embedData.Scale.Item1} ({embedData.Scale.Item2})\n" : "") +
+            (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowLevel ? $"**Held Item:** {embedData.Level}\n" : "") +
             (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowLevel ? $"**Level:** {embedData.Level}\n" : "") +
             (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowMetDate ? $"**Met Date:** {embedData.MetDate}\n" : "") +
             (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowAbility ? $"**Ability:** {embedData.Ability}\n" : "") +
@@ -51,7 +52,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
         leftSideContent = leftSideContent.TrimEnd('\n');
         embedBuilder.AddField($"**{embedData.SpeciesName}{(string.IsNullOrEmpty(embedData.FormName) ? "" : $"-{embedData.FormName}")} {embedData.SpecialSymbols}**", leftSideContent, inline: true);
         embedBuilder.AddField("\u200B", "\u200B", inline: true);
-        embedBuilder.AddField("**Moves:**", embedData.MovesDisplay, inline: true);
+        embedBuilder.AddField("**Moves:**", embedData.MovesDisplay, inline: false);
     }
 
     /// <summary>
@@ -81,11 +82,11 @@ public static class DetailsExtractor<T> where T : PKM, new()
     {
         if (isCloneRequest || isSpecialRequest)
         {
-            embedBuilder.WithThumbnailUrl("https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/profoak.png");
+            embedBuilder.WithThumbnailUrl("https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/7L5CfPt.png");
         }
         else if (!string.IsNullOrEmpty(heldItemUrl))
         {
-            embedBuilder.WithThumbnailUrl(heldItemUrl);
+            embedBuilder.WithImageUrl(heldItemUrl);
         }
     }
 
@@ -188,21 +189,21 @@ public static class DetailsExtractor<T> where T : PKM, new()
         string userDetailsText = "";
         if (totalTradeCount > 0)
         {
-            userDetailsText = $"Trades: {totalTradeCount}";
+            userDetailsText = $"";
         }
         if (SysCord<T>.Runner.Config.Trade.TradeConfiguration.StoreTradeCodes && tradeDetails != null)
         {
             if (!string.IsNullOrEmpty(tradeDetails?.OT))
             {
-                userDetailsText += $" | OT: {tradeDetails?.OT}";
+                userDetailsText += $"";
             }
             if (tradeDetails?.TID != null)
             {
-                userDetailsText += $" | TID: {tradeDetails?.TID}";
+                userDetailsText += $"";
             }
             if (tradeDetails?.TID != null)
             {
-                userDetailsText += $" | SID: {tradeDetails?.SID}";
+                userDetailsText += $"";
             }
         }
         return userDetailsText;
@@ -271,7 +272,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
             string moveName = strings.movelist[moves[i]];
             byte moveTypeId = MoveInfo.GetType(moves[i], default);
             PKHeX.Core.MoveType moveType = (PKHeX.Core.MoveType)moveTypeId;
-            string formattedMove = $"{moveName} ({movePPs[i]}pp)";
+            string formattedMove = $"{moveName}";
             if (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.MoveTypeEmojis && typeEmojis.TryGetValue(moveType, out var moveEmoji))
             {
                 formattedMove = $"{moveEmoji} {formattedMove}";

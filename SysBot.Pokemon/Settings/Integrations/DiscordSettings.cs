@@ -56,7 +56,7 @@ public class DiscordSettings
     public bool BotColorStatusTradeOnly { get; set; } = true;
 
     [Category(Startup), Description("Custom Status for playing a game.")]
-    public string BotGameStatus { get; set; } = "DudeBot.NET: Pokémon";
+    public string BotGameStatus { get; set; } = "CrabBot.NET: Pokémon";
 
     [Category(Startup), Description("List of modules that will not be loaded when the bot is started (comma separated).")]
     public string ModuleBlacklist { get; set; } = string.Empty;

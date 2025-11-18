@@ -14,7 +14,7 @@ public static class EmbedHelper
             .WithTitle("Notice")
             .WithDescription(message)
             .WithTimestamp(DateTimeOffset.Now)
-            .WithThumbnailUrl("https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/dm-legalityerror.gif")
+            .WithThumbnailUrl("")
             .WithColor(Color.Red)
             .Build();
 
@@ -25,9 +25,9 @@ public static class EmbedHelper
     {
         var embed = new EmbedBuilder()
             .WithTitle("Your Trade was Canceled...")
-            .WithDescription($"Your trade was canceled.\nPlease try again. If the issue persists, restart your switch and check your internet connection.\n\n**Reason**: {reason}")
+            .WithDescription($"\nPlease try again. If the issue persists, restart your switch and check your internet connection.\n\n**Reason**: {reason}")
             .WithTimestamp(DateTimeOffset.Now)
-            .WithThumbnailUrl("https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/dm-uhoherror.gif")
+            .WithThumbnailUrl("")
             .WithColor(Color.Red)
             .Build();
 
@@ -37,12 +37,13 @@ public static class EmbedHelper
     public static async Task SendTradeCodeEmbedAsync(IUser user, int code)
     {
         var embed = new EmbedBuilder()
-            .WithTitle("Here's your trade code!")
-            .WithDescription($"# {code:0000 0000}")
-            .WithTimestamp(DateTimeOffset.Now)
-            .WithThumbnailUrl("https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/dm-tradecode.gif")
-            .WithColor(Color.Blue)
-            .Build();
+             .WithTitle("Here's your trade code!")
+             .WithDescription($"# {code:0000 0000}")
+             .WithFields(new EmbedFieldBuilder { Name = "Instructions", Value = "1. Connect to the internet.\n2. Open the Poke Portal on your Nintendo Switch.\n3. Select Link Trade.\n4. Enter the trade code above to connect with the bot.\n5. Wait here for the next message to continue the trade." })
+             .WithTimestamp(DateTimeOffset.Now)
+             .WithThumbnailUrl("https://cdn.discordapp.com/emojis/1214222858461511730.webp?size=160")
+             .WithColor(Color.Blue)
+             .Build();
 
         await user.SendMessageAsync(embed: embed).ConfigureAwait(false);
     }
@@ -54,7 +55,7 @@ public static class EmbedHelper
 
         if (isMysteryEgg)
         {
-            thumbnailUrl = "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/mysteryegg3.png";
+            thumbnailUrl = "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/unnamed2.png";
         }
         else
         {
@@ -83,7 +84,7 @@ public static class EmbedHelper
             .WithTitle("Loading the Trade Portal...")
             .WithDescription($"**Pokemon**: {speciesName}\n**Trade Code**: {code:0000 0000}")
             .WithTimestamp(DateTimeOffset.Now)
-            .WithThumbnailUrl("https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/dm-initializingbot.gif")
+            .WithThumbnailUrl("")
             .WithColor(Color.Orange);
 
         if (!string.IsNullOrEmpty(message))
@@ -101,7 +102,7 @@ public static class EmbedHelper
             .WithTitle($"Now Searching for You, {trainerName}...")
             .WithDescription($"**Waiting for**: {trainerName}\n**My IGN**: {inGameName}")
             .WithTimestamp(DateTimeOffset.Now)
-            .WithThumbnailUrl("https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/main/dm-nowsearching.gif")
+            .WithThumbnailUrl("")
             .WithColor(Color.Green);
 
         if (!string.IsNullOrEmpty(message))

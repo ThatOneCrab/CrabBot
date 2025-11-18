@@ -20,8 +20,8 @@ namespace SysBot.Pokemon.WinForms;
 *** Thank You and Credits ***
 We would like to express our sincere gratitude to the following individuals and organizations for their invaluable contributions to this program:
 Core Development Team:
-- Havokx, Co-Creator of DudeBot.NET
-- Link2026, Co-Creator of DudeBot.NET
+- Havokx, Co-Creator of CrabBot.NET
+- Link2026, Co-Creator of CrabBot.NET
 
 Special Thanks To:
 - kwsch, Creator of SysBot.NET
@@ -102,7 +102,7 @@ public sealed partial class Main : Form
 
         RTB_Logs.MaxLength = 32_767; // character length
         LoadControls();
-        Text = $"{(string.IsNullOrEmpty(Config.Hub.BotName) ? "DudeBot.NET" : Config.Hub.BotName)} {DudeBot.Version} ({Config.Mode})";
+        Text = $"{(string.IsNullOrEmpty(Config.Hub.BotName) ? "CrabBot.NET" : Config.Hub.BotName)} {CrabBot.Version} ({Config.Mode})";
         _ = Task.Run(BotMonitor);
         InitUtil.InitializeStubs(Config.Mode);
         _isFormLoading = false;
@@ -286,7 +286,7 @@ public sealed partial class Main : Form
     private void UpdateRunnerAndUI()
     {
         RunningEnvironment = GetRunner(Config);
-        Text = $"{(string.IsNullOrEmpty(Config.Hub.BotName) ? "DudeBot.NET" : Config.Hub.BotName)} {DudeBot.Version} ({Config.Mode})";
+        Text = $"{(string.IsNullOrEmpty(Config.Hub.BotName) ? "CrabBot.NET" : Config.Hub.BotName)} {CrabBot.Version} ({Config.Mode})";
     }
 
     private void B_Start_Click(object sender, EventArgs e)
@@ -332,7 +332,7 @@ public sealed partial class Main : Form
             ProgramMode.LGPE => Resources.lgpe_mode_image,
             _ => null,
         };
-        FLP_Bots.BackgroundImageLayout = ImageLayout.Center;
+        FLP_Bots.BackgroundImageLayout = ImageLayout.Stretch;
     }
 
     private void SendAll(BotControlCommand cmd)

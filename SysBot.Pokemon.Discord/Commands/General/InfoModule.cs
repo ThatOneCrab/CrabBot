@@ -20,9 +20,9 @@ namespace SysBot.Pokemon.Discord;
 public class InfoModule<T> : ModuleBase<SocketCommandContext> where T : PKM, new()
 {
     private readonly PokeTradeHub<T> Hub = SysCord<T>.Runner.Hub;
-    private const string Version = DudeBot.Version;
-    private const string dev = "https://www.chinchou.net";
-    private const string detail = "I am an open-source Discord bot powered by PKHeX.Core and other open-source software, modified by the Brother Dudes.";
+    private const string Version = CrabBot.Version;
+    private const string dev = "https://discord.gg/FnAGV4pb2k";
+    private const string detail = "I am an open-source Discord bot powered by PKHeX.Core and other open-source software, modified by Crab.";
 
     [Command("Info")]
     [Alias("about", "whoami", "owner")]
@@ -43,8 +43,8 @@ public class InfoModule<T> : ModuleBase<SocketCommandContext> where T : PKM, new
         {
             Title = "Here's a bit about me!",
             Description = detail,
-            Color = Color.Gold,
-            ThumbnailUrl = "https://raw.githubusercontent.com/Havokx89/Bot-Sprite-Images/refs/heads/main/BotIcons/dudebot.png",
+            Color = Color.Green,
+            ThumbnailUrl = "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/Cyberklawf.png",
             // To be added later
             //ImageUrl = ""
         };
@@ -52,12 +52,12 @@ public class InfoModule<T> : ModuleBase<SocketCommandContext> where T : PKM, new
         builder.AddField("Info",
             $"- {Format.Bold("Owner")}: {app.Owner.Username} ({app.Owner.Id})\n" +
             $"- {Format.Bold("Current Botmode")}: {game}\n" +
-            $"- {Format.Bold("DudeBot.NET Version")}: {Version}\n" +
+            $"- {Format.Bold("CrabBot Version")}: {Version}\n" +
             $"- {Format.Bold("PKHeX.Core Version")}: {GetVersionInfo("PKHeX.Core")}\n" +
             $"- {Format.Bold("AutoLegality Version")}: {GetVersionInfo("PKHeX.Core.AutoMod")}\n" +
             $"- {Format.Bold("Buildtime")}: {GetVersionInfo("SysBot.Base", false)}\n" +
             $"- {Format.Bold("Built on kwsch [SysBot.NET](https://github.com/kwsch/SysBot.NET)")}\n" +
-            $"- {Format.Bold($"Dev Server: [In Link We Trust]({dev})")}"
+            $"- {Format.Bold($"Dev Server: [Crab's Dev Server]({dev})")}"
             );
         builder.AddField("Stats",
             $"- {Format.Bold("Uptime")}: {GetUptime()}\n" +
