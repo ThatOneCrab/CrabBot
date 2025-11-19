@@ -58,11 +58,11 @@ public sealed record TradeQueueInfo<T>(PokeTradeHub<T> Hub)
         {
             // First, try to find the trade in UsersInQueue (more reliable for recently added trades)
             var tradeEntry = UsersInQueue.FirstOrDefault(z => z.UserID == uid && z.UniqueTradeID == uniqueTradeID);
-            
+
             // Try to find the trade in the queue system
             var allTrades = Hub.Queues.AllQueues.SelectMany(q => q.Queue.Select(x => x.Value)).ToList();
             var index = allTrades.FindIndex(z => z.Trainer.ID == uid && z.UniqueTradeID == uniqueTradeID);
-            
+
             if (index >= 0)
             {
                 // Trade found in queue - use queue-based position calculation
@@ -112,7 +112,7 @@ public sealed record TradeQueueInfo<T>(PokeTradeHub<T> Hub)
             {
                 // Trade found in UsersInQueue but not in queue yet - calculate position based on UsersInQueue order
                 var userIndex = UsersInQueue.FindIndex(z => z.UserID == uid && z.UniqueTradeID == uniqueTradeID);
-                
+
                 // Count trades ahead in UsersInQueue
                 int totalTradesAhead = 0;
                 for (int i = 0; i < userIndex; i++)
@@ -137,7 +137,7 @@ public sealed record TradeQueueInfo<T>(PokeTradeHub<T> Hub)
 
                 return new QueueCheckResult<T>(true, tradeEntry, actualIndex, totalInQueue, tradeEntry.Trade.BatchTradeNumber, tradeEntry.Trade.TotalBatchTrades);
             }
-            
+
             // Trade not found anywhere
             return QueueCheckResult<T>.None;
         }
@@ -325,34 +325,31 @@ public sealed record TradeQueueInfo<T>(PokeTradeHub<T> Hub)
             if (!sudo && UsersInQueue.Count >= Hub.Config.Queues.MaxQueueCount)
                 return QueueResultAdd.QueueFull;
 
-            // PLZA blocked item validation - check if Pokemon has blocked held item
+            // Blocked item validation - check if Pokemon has blocked held item using PKHeX's ItemRestrictions
             // This central check ensures NO bypass is possible from any entry point
-            if (NonTradableItemsPLZA.IsPLZAMode(Hub))
+            // Check the main pokemon
+            if (TradeExtensions<T>.IsItemBlocked(trade.Trade.TradeData))
             {
-                // Check the main pokemon
-                if (NonTradableItemsPLZA.IsBlocked(trade.Trade.TradeData))
-                {
-                    var held = trade.Trade.TradeData.HeldItem;
-                    var itemName = held > 0 ? PKHeX.Core.GameInfo.GetStrings("en").Item[held] : "(none)";
-                    LogUtil.LogInfo(nameof(TradeQueueInfo<T>),
-                        $"Blocked trade for user {userID}: held item '{itemName}' is not allowed in PLZA");
-                    return QueueResultAdd.NotAllowedItem;
-                }
+                var held = trade.Trade.TradeData.HeldItem;
+                var itemName = held > 0 ? GameInfo.GetStrings("en").Item[held] : "(none)";
+                LogUtil.LogInfo(nameof(TradeQueueInfo<T>),
+                    $"Blocked trade for user {userID}: held item '{itemName}' is not allowed");
+                return QueueResultAdd.NotAllowedItem;
+            }
 
-                // For batch trades, also check all pokemon in the batch
-                if (trade.Trade.BatchTrades != null && trade.Trade.BatchTrades.Count > 0)
+            // For batch trades, also check all pokemon in the batch
+            if (trade.Trade.BatchTrades != null && trade.Trade.BatchTrades.Count > 0)
+            {
+                for (int i = 0; i < trade.Trade.BatchTrades.Count; i++)
                 {
-                    for (int i = 0; i < trade.Trade.BatchTrades.Count; i++)
+                    if (TradeExtensions<T>.IsItemBlocked(trade.Trade.BatchTrades[i]))
                     {
-                        if (NonTradableItemsPLZA.IsBlocked(trade.Trade.BatchTrades[i]))
-                        {
-                            var held = trade.Trade.BatchTrades[i].HeldItem;
-                            var itemName = held > 0 ? PKHeX.Core.GameInfo.GetStrings("en").Item[held] : "(none)";
-                            var speciesName = GameInfo.Strings.Species[trade.Trade.BatchTrades[i].Species];
-                            LogUtil.LogInfo(nameof(TradeQueueInfo<T>),
-                                $"Blocked batch trade for user {userID}: Pokemon #{i + 1} ({speciesName}) has held item '{itemName}' which is not allowed in PLZA");
-                            return QueueResultAdd.NotAllowedItem;
-                        }
+                        var held = trade.Trade.BatchTrades[i].HeldItem;
+                        var itemName = held > 0 ? GameInfo.GetStrings("en").Item[held] : "(none)";
+                        var speciesName = GameInfo.Strings.Species[trade.Trade.BatchTrades[i].Species];
+                        LogUtil.LogInfo(nameof(TradeQueueInfo<T>),
+                            $"Blocked batch trade for user {userID}: Pokemon #{i + 1} ({speciesName}) has held item '{itemName}' which is not allowed");
+                        return QueueResultAdd.NotAllowedItem;
                     }
                 }
             }
