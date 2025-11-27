@@ -182,10 +182,35 @@ public static class QueueHelper<T> where T : PKM, new()
 
         if (added == QueueResultAdd.NotAllowedItem)
         {
+
             var held = pk.HeldItem;
             var itemName = held > 0 ? PKHeX.Core.GameInfo.GetStrings("en").Item[held] : "(none)";
-            await context.Channel.SendMessageAsync($"{trader.Mention} - Trade blocked: the held item '{itemName}' cannot be traded in PLZA.").ConfigureAwait(false);
-            return new TradeQueueResult(false);
+
+            // Sanitize and convert item name to lowercase filename for the sprite URL
+            string? imageUrl = null;
+            if (held > 0 && !string.IsNullOrWhiteSpace(itemName) && itemName != "(none)")
+            {
+                // Replace spaces with underscores and lowercase the name
+                var fileName = itemName.ToLowerInvariant().Replace(' ', '_');
+
+                // Escape any remaining characters that could break the URL
+                fileName = Uri.EscapeDataString(fileName);
+
+                imageUrl = $"https://serebii.net/itemdex/sprites/{fileName}.png";
+            }
+
+            var embedBuilder = new EmbedBuilder()
+                .WithColor(DiscordColor.Red)
+                .WithTitle("Trade Blocked")
+                .WithDescription($"The held item **{itemName}** cannot be traded in PLZA.");
+
+            if (imageUrl != null)
+                embedBuilder.WithImageUrl(imageUrl);
+
+            var embed = embedBuilder.Build();
+
+            await context.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
+            await Task.Delay(6000).ConfigureAwait(false);
         }
 
         var embedData = DetailsExtractor<T>.ExtractPokemonDetails(
@@ -378,7 +403,32 @@ public static class QueueHelper<T> where T : PKM, new()
         {
             var held = firstTrade.HeldItem;
             var itemName = held > 0 ? PKHeX.Core.GameInfo.GetStrings("en").Item[held] : "(none)";
-            await context.Channel.SendMessageAsync($"{trader.Mention} - Trade blocked: the held item '{itemName}' cannot be traded in PLZA.").ConfigureAwait(false);
+
+            // Sanitize and convert item name to lowercase filename for the sprite URL
+            string? imageUrl = null;
+            if (held > 0 && !string.IsNullOrWhiteSpace(itemName) && itemName != "(none)")
+            {
+                // Replace spaces with underscores and lowercase the name
+                var fileName = itemName.ToLowerInvariant().Replace(' ', '_');
+
+                // Escape any remaining characters that could break the URL
+                fileName = Uri.EscapeDataString(fileName);
+
+                imageUrl = $"https://serebii.net/itemdex/sprites/{fileName}.png";
+            }
+
+            var embedBuilder = new EmbedBuilder()
+                .WithColor(DiscordColor.Red)
+                .WithTitle("Trade Blocked")
+                .WithDescription($"The held item **{itemName}** cannot be traded in PLZA.");
+
+            if (imageUrl != null)
+                embedBuilder.WithImageUrl(imageUrl);
+
+            var embed = embedBuilder.Build();
+
+            await context.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
+            await Task.Delay(6000).ConfigureAwait(false);
             return;
         }
 

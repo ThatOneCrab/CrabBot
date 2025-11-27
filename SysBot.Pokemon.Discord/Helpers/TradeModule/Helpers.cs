@@ -5,11 +5,14 @@ using Discord.WebSocket;
 using PKHeX.Core;
 using PKHeX.Core.AutoMod;
 using SysBot.Base;
+using SysBot.Pokemon.Discord.Helpers;
 using SysBot.Pokemon.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Color = System.Drawing.Color;
+using DiscordColor = Discord.Color;
 using static SysBot.Pokemon.TradeSettings.TradeSettingsCategory;
 
 namespace SysBot.Pokemon.Discord;
@@ -123,6 +126,7 @@ public static class Helpers<T> where T : PKM, new()
 
     public static Task<ProcessedPokemonResult<T>> ProcessShowdownSetAsync(string content, bool ignoreAutoOT = false)
     {
+        content = BatchNormalizer.NormalizeBatchCommands(content);
         content = ReusableActions.StripCodeBlock(content);
         bool isEgg = TradeExtensions<T>.IsEggCheck(content);
 
@@ -302,7 +306,7 @@ public static class Helpers<T> where T : PKM, new()
 
         var embedBuilder = new EmbedBuilder()
             .WithTitle("Trade Creation Failed.")
-            .WithColor(Color.Red)
+            .WithColor(DiscordColor.Red)
             .AddField("Status", $"Failed to create {spec}.")
             .AddField("Reason", result.Error ?? "Unknown error");
 
@@ -406,10 +410,35 @@ public static class Helpers<T> where T : PKM, new()
         // Block non-tradable items using PKHeX's ItemRestrictions
         if (pk is not null && TradeExtensions<T>.IsItemBlocked(pk))
         {
-            var itemName = pk.HeldItem > 0 ? GameInfo.GetStrings("en").Item[pk.HeldItem] : "(none)";
-            var reply = await context.Channel.SendMessageAsync($"Trade blocked: The held item '{itemName}' cannot be traded.").ConfigureAwait(false);
+            var held = pk.HeldItem;
+            var itemName = held > 0 ? PKHeX.Core.GameInfo.GetStrings("en").Item[held] : "(none)";
+
+            // Sanitize and convert item name to lowercase filename for the sprite URL
+            string? imageUrl = null;
+            if (held > 0 && !string.IsNullOrWhiteSpace(itemName) && itemName != "(none)")
+            {
+                // Replace spaces with underscores and lowercase the name
+                var fileName = itemName.ToLowerInvariant().Replace(' ', '_');
+
+                // Escape any remaining characters that could break the URL
+                fileName = Uri.EscapeDataString(fileName);
+
+                imageUrl = $"https://serebii.net/itemdex/sprites/{fileName}.png";
+            }
+
+            var embedBuilder = new EmbedBuilder()
+                .WithColor(DiscordColor.Red)
+                .WithTitle("Trade Blocked")
+                .WithDescription($"The held item **{itemName}** cannot be traded in PLZA.");
+
+            if (imageUrl != null)
+                embedBuilder.WithImageUrl(imageUrl);
+
+            var embed = embedBuilder.Build();
+
+            await context.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
             await Task.Delay(6000).ConfigureAwait(false);
-            await reply.DeleteAsync().ConfigureAwait(false);
+
             return;
         }
         var la = new LegalityAnalysis(pk!);

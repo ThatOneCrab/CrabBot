@@ -110,7 +110,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>, IDisposable
                     var upNextEmbed = new EmbedBuilder
                     {
                         Color = Color.Gold,
-                        Title = "🎯 You're Up Next!",
+                        Title = "You're Up Next!",
                         Description = $"Your trade will begin very soon. Please be ready!{batchInfo}",
                         Footer = new EmbedFooterBuilder
                         {
