@@ -149,7 +149,37 @@ public abstract class PokeRoutineExecutor9PLZA(PokeBotState Config) : PokeRoutin
         var data = await SwitchConnection.ReadBytesAbsoluteAsync(offset, 1, token).ConfigureAwait(false);
         return data[0] == 1;
     }
+    /// <summary>
+    /// Checks if the console is connected online using a direct main memory offset.
+    /// This is the preferred method for PLZA v1.0.3+ as it's faster and more reliable.
+    /// </summary>
+    public async Task<bool> IsConnected(CancellationToken token)
+    {
+        var data = await SwitchConnection.ReadBytesMainAsync(ConnectedOffset, 1, token).ConfigureAwait(false);
+        return data[0] == 1;
+    }
 
+    public async Task<byte> GetStoredLinkTradeCodeLength(CancellationToken token)
+    {
+        var data = await SwitchConnection.PointerPeek(1, Offsets.LinkTradeCodeLengthPointer, token).ConfigureAwait(false);
+        return data[0];
+    }
+
+    public async Task<int> GetStoredLinkTradeCode(CancellationToken token)
+    {
+        var data = await SwitchConnection.PointerPeek(16, Offsets.LinkTradeCodePointer, token).ConfigureAwait(false);
+        var raw = StringConverter8.GetString(data);
+
+        var trimmed = raw.Trim();
+        if (trimmed.Length == 0)
+            return 0;
+
+        if (int.TryParse(trimmed, out int value))
+            return value;
+
+        return -1;
+
+    }
     public override Task<PA9> ReadBoxPokemon(int box, int slot, CancellationToken token)
     {
         var jumps = Offsets.BoxStartPokemonPointer.ToArray();
@@ -302,23 +332,10 @@ public abstract class PokeRoutineExecutor9PLZA(PokeBotState Config) : PokeRoutin
         if (code == 0)
             return;
 
-        if (config.UseKeyboard)
+        foreach (var key in TradeUtil.GetPresses(code))
         {
-            char[] codeChars = $"{code:00000000}".ToCharArray();
-            HidKeyboardKey[] keysToPress = new HidKeyboardKey[codeChars.Length];
-            for (int i = 0; i < codeChars.Length; ++i)
-                keysToPress[i] = (HidKeyboardKey)Enum.Parse(typeof(HidKeyboardKey), (int)codeChars[i] >= (int)'A' && (int)codeChars[i] <= (int)'Z' ? $"{codeChars[i]}" : $"D{codeChars[i]}");
-
-            await Connection.SendAsync(SwitchCommand.TypeMultipleKeys(keysToPress), token).ConfigureAwait(false);
-            await Task.Delay((HidWaitTime * 8) + 0_200, token).ConfigureAwait(false);
-        }
-        else
-        {
-            foreach (var key in TradeUtil.GetPresses(code))
-            {
-                int delay = config.Timings.KeypressTime;
-                await Click(key, delay, token).ConfigureAwait(false);
-            }
+            int delay = config.Timings.KeypressTime;
+            await Click(key, delay, token).ConfigureAwait(false);
         }
     }
 
