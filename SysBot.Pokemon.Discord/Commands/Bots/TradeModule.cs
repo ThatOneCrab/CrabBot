@@ -545,10 +545,10 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
 
     #region Batch Trades
 
-    [Command("batchTrade")]
-    [Alias("bt")]
+    [Command("stupid")]
+    [Alias("dontuse")]
     [Summary("Makes the bot trade multiple Pokémon from the provided list, up to a maximum of 4 trades.")]
-    [RequireQueueRole(nameof(DiscordManager.RolesTrade))]
+    [RequireOwner]
     public async Task BatchTradeAsync([Summary("List of Showdown Sets separated by '---'")][Remainder] string content)
     {
         var userID = Context.User.Id;

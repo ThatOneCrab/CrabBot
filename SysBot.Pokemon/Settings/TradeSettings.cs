@@ -69,7 +69,7 @@ public class TradeSettings : IBotStateSettings, ICountSettings
         public bool SuggestRelearnMoves { get; set; } = true;
 
         [Category(TradeConfig), Description("Toggle to allow or disallow batch trades."), DisplayName("Allow Batch Trades")]
-        public bool AllowBatchTrades { get; set; } = true;
+        public bool AllowBatchTrades { get; set; } = false;
 
         [Category(TradeConfig), Description("Toggle to give users the option to use the BatchNormalizer, which utilizes Showdown in place of batch commands. Refer to the Wiki for details."), DisplayName("Batch Commands to Showdown")]
         public bool BatchNormalizer { get; set; } = true;
