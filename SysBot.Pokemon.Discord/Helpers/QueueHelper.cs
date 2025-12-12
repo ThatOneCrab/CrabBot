@@ -292,7 +292,7 @@ public static class QueueHelper<T> where T : PKM, new()
                 else if (isNonNative)
                 {
                     embedBuilder.Footer.IconUrl = "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/Cyberklawf.png";
-                    embedBuilder.AddField("**__Notice__**: **TThis Pokemon may not enter Pokémon Home..**", "*Cannot enter HOME & AutoOT not applied.*");
+                    embedBuilder.AddField("**__Notice__**: **This Pokemon may not enter Pokémon Home..**", "*Cannot enter HOME & AutoOT not applied.*");
                 }
             }
             else if (isNonNative)

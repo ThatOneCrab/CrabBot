@@ -283,7 +283,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
 
             string formattedMove = isPLZA
                 ? $"{moveName}" // no PP
-                : $"{moveName} ({movePPs[i]} PP)"; // normal games include PP
+                : $"{moveName}"; // normal games include PP
 
             // Add type emoji
             if (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.MoveTypeEmojis && typeEmojis.TryGetValue(moveType, out var moveEmoji))
