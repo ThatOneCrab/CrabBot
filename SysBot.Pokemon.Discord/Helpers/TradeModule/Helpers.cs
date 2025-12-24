@@ -417,8 +417,8 @@ public static class Helpers<T> where T : PKM, new()
             string? imageUrl = null;
             if (held > 0 && !string.IsNullOrWhiteSpace(itemName) && itemName != "(none)")
             {
-                // Replace spaces with underscores and lowercase the name
-                var fileName = itemName.ToLowerInvariant().Replace(' ', '_');
+                // Remove spaces and lowercase the name
+                var fileName = itemName.ToLowerInvariant().Replace(" ", "");
 
                 // Escape any remaining characters that could break the URL
                 fileName = Uri.EscapeDataString(fileName);
