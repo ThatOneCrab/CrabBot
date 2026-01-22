@@ -2,7 +2,7 @@ using PKHeX.Core;
 
 namespace SysBot.Pokemon.Discord;
 
-public sealed class FileNamer : IFileNamer<PKM>
+public sealed class DefaultPKMFileNamer : IFileNamer<PKM>
 {
     public string Name => "Default";
 

@@ -8,6 +8,7 @@ public class ProgramConfig : BotList<PokeBotState>
     public PokeTradeHubConfig Hub { get; set; } = new();
 
     public ProgramMode Mode { get; set; } = ProgramMode.SV;
+
     public bool DarkMode { get; set; }
     public int Width { get; set; }
     public int Height { get; set; }
@@ -29,6 +30,7 @@ public enum ProgramMode
 
     PLZA = 6,
 }
+
 [JsonSerializable(typeof(ProgramConfig))]
 [JsonSourceGenerationOptions(WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public sealed partial class ProgramConfigContext : JsonSerializerContext;

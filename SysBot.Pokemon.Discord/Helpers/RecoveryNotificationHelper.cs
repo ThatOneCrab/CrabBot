@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 namespace SysBot.Pokemon.Discord;
 
 /// <summary>
-/// Helper class for sending bot recovery & update notifications to Discord,
-/// and a simple baseline-based screen-change detector to detect "update" screens.
+/// Helper class for sending bot recovery notifications to Discord.
 /// </summary>
 public static class RecoveryNotificationHelper
 {

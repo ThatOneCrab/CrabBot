@@ -18,28 +18,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
 {
     private static TradeQueueInfo<T> Info => SysCord<T>.Runner.Hub.Queues.Info;
 
-    #region Medal Achievement Command
-
-    [Command("medals")]
-    [Alias("ml")]
-    [Summary("Shows your current trade count and medal status")]
-    public async Task ShowMedalsCommand()
-    {
-        var tradeCodeStorage = new TradeCodeStorage();
-        int totalTrades = tradeCodeStorage.GetTradeCount(Context.User.Id);
-
-        if (totalTrades < 0)
-        {
-            await ReplyAsync($"{Context.User.Username}, you haven't made any trades yet. Start trading to earn your first medal!");
-            return;
-        }
-
-        int currentMilestone = MedalHelpers.GetCurrentMilestone(totalTrades);
-        var embed = MedalHelpers.CreateMedalsEmbed(Context.User, currentMilestone, totalTrades);
-        await Context.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
-    }
-
-    #endregion
+    
     #region Trade Commands
 
     [Command("trade")]
@@ -409,7 +388,7 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
     private async Task ProcessItemTradeAsync(int code, string item)
     {
         Species species = Info.Hub.Config.Trade.TradeConfiguration.ItemTradeSpecies == Species.None
-            ? Species.Diglett
+            ? Species.Pikachu
             : Info.Hub.Config.Trade.TradeConfiguration.ItemTradeSpecies;
 
         var set = new ShowdownSet($"{SpeciesName.GetSpeciesNameGeneration((ushort)species, 2, 8)} @ {item.Trim()}");
@@ -427,10 +406,18 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
 
         if (pkm.HeldItem == 0)
         {
-            await Helpers<T>.ReplyAndDeleteAsync(Context, $"{Context.User.Username}, the item you entered wasn't recognized.", 2);
+            await Helpers<T>.ReplyAndDeleteAsync(Context, $"Sorry, the item you entered wasn't recognized.", 2);
             return;
         }
+        
 
+        if (TradeRestrictions.IsUntradableHeld(pkm.Context, pkm.HeldItem))
+        {
+            await Helpers<T>.ReplyAndDeleteAsync(Context, $"Sorry, the item you entered can't be traded.", 2);
+            return;
+        }
+       
+        
         var la = new LegalityAnalysis(pkm);
         if (pkm is not T pk || !la.Valid)
         {
@@ -499,18 +486,6 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
             args
         );
 
-    [Command("battlereadylist")]
-    [Alias("brl")]
-    [Summary("Lists available battle-ready files, filtered by a specific letter or substring, and sends the list via DM.")]
-    public Task BattleReadyListAsync([Remainder] string args = "")
-        => ListHelpers<T>.HandleListCommandAsync(
-            Context,
-            SysCord<T>.Runner.Config.Folder.BattleReadyPKMFolder,
-            "battle-ready files",
-            "brr",
-            args
-        );
-
     #endregion
 
     #region Request Commands
@@ -528,27 +503,14 @@ public class TradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM, ne
             "le"
         );
 
-    [Command("battlereadyrequest")]
-    [Alias("brr", "br")]
-    [Summary("Downloads battle-ready attachments from the specified folder and adds to trade queue.")]
-    [RequireQueueRole(nameof(DiscordManager.RolesTrade))]
-    public Task BattleReadyRequestAsync(int index)
-        => ListHelpers<T>.HandleRequestCommandAsync(
-            Context,
-            SysCord<T>.Runner.Config.Folder.BattleReadyPKMFolder,
-            index,
-            "battle-ready file",
-            "brl"
-        );
-
     #endregion
 
     #region Batch Trades
 
-    [Command("stupid")]
-    [Alias("dontuse")]
+    [Command("batchTrade")]
+    [Alias("bt")]
     [Summary("Makes the bot trade multiple Pokémon from the provided list, up to a maximum of 4 trades.")]
-    [RequireOwner]
+    [RequireSudo]
     public async Task BatchTradeAsync([Summary("List of Showdown Sets separated by '---'")][Remainder] string content)
     {
         var userID = Context.User.Id;

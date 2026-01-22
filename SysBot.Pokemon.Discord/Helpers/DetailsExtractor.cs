@@ -36,24 +36,27 @@ public static class DetailsExtractor<T> where T : PKM, new()
     /// <param name="pk">Pokémon data.</param>
     public static void AddNormalTradeFields(EmbedBuilder embedBuilder, EmbedData embedData, string trainerMention, T pk)
     {
-        string leftSideContent = $"**Trainer:** {trainerMention}\n";
+        string leftSideContent = $"**User:** {trainerMention}\n";
         leftSideContent +=
             (pk.Version is GameVersion.SL or GameVersion.VL && SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowTeraType ? $"**Tera Type:** {embedData.TeraType}\n" : "") +
-            (pk.Version is GameVersion.SL or GameVersion.VL && SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowScale ? $"**Scale:** {embedData.Scale.Item1} ({embedData.Scale.Item2})\n" : "") +
-            (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowLevel ? $"**Held Item:** {embedData.HeldItem}\n" : "") +
+            (pk.Version is GameVersion.PLA or GameVersion.SL or GameVersion.VL && SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowScale ? $"**Scale:** {embedData.Scale.Item1} ({embedData.Scale.Item2})\n" : "") +
             (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowLevel ? $"**Level:** {embedData.Level}\n" : "") +
+            (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowHeldItem ? $"**Held Item:** {embedData.HeldItem}\n" : "") +
+            (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowBall ? $"**Ball:** {embedData.Ball}\n" : "") +
+            (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowMetLevel ? $"**Met Level:** {embedData.MetLevel}\n" : "") +
             (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowMetDate ? $"**Met Date:** {embedData.MetDate}\n" : "") +
             (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowAbility ? $"**Ability:** {embedData.Ability}\n" : "") +
-            (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowNature ? $"**Nature**: {embedData.Nature}\n" : "") +
-            (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowIVs ? $"**IVs**: {embedData.IVsDisplay}\n" : "") +
+            (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowNature ? $"**{embedData.Nature}** Nature\n" : "") +
             (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowLanguage ? $"**Language**: {embedData.Language}\n" : "") +
+            (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowIVs ? $"**IVs**: {embedData.IVsDisplay}\n" : "") +
             (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowEVs && !string.IsNullOrWhiteSpace(embedData.EVsDisplay) ? $"**EVs**: {embedData.EVsDisplay}\n" : "");
 
         leftSideContent = leftSideContent.TrimEnd('\n');
         embedBuilder.AddField($"**{embedData.SpeciesName}{(string.IsNullOrEmpty(embedData.FormName) ? "" : $"-{embedData.FormName}")} {embedData.SpecialSymbols}**", leftSideContent, inline: true);
         embedBuilder.AddField("\u200B", "\u200B", inline: true);
-        embedBuilder.AddField("**Moves:**", embedData.MovesDisplay, inline: false);
+        embedBuilder.AddField("**__MOVES__**", embedData.MovesDisplay, inline: false);
     }
+
 
     /// <summary>
     /// Adds special trade information fields to the embed.
@@ -82,7 +85,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
     {
         if (isCloneRequest || isSpecialRequest)
         {
-            embedBuilder.WithThumbnailUrl("https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/7L5CfPt.png");
+            embedBuilder.WithThumbnailUrl("https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/sHtnqOm.gif?raw=true&width=300&height=300");
         }
         else if (!string.IsNullOrEmpty(heldItemUrl))
         {
@@ -138,24 +141,31 @@ public static class DetailsExtractor<T> where T : PKM, new()
 
         Span<int> ivs = stackalloc int[6];
         pk.GetIVs(ivs);
-        string ivsDisplay;
-        if (ivs.ToArray().All(iv => iv == 31))
+
+        // Map PKHeX order to display order: HP / Atk / Def / SpA / SpD / Spe
+        int[] displayOrder = { 0, 1, 2, 4, 5, 3 }; // indices in ivs[]
+        string[] labels = { "HP", "Atk", "Def", "SpA", "SpD", "Spe" };
+
+        // Count perfect IVs
+        int perfectIVCount = 0;
+        for (int i = 0; i < ivs.Length; i++)
         {
-            ivsDisplay = "6IV";
+            if (ivs[i] == 31)
+                perfectIVCount++;
         }
-        else
+
+        // Build IV display strings
+        var ivStrings = new List<string>();
+        for (int i = 0; i < displayOrder.Length; i++)
         {
-            ivsDisplay = string.Join("/", new[]
-            {
-                ivs[0].ToString(),
-                ivs[1].ToString(),
-                ivs[2].ToString(),
-                ivs[4].ToString(),
-                ivs[5].ToString(),
-                ivs[3].ToString()
-            });
+            int idx = displayOrder[i];
+            ivStrings.Add($"{ivs[idx]} {labels[i]}");
         }
+
+        // Compose final display
+        string ivsDisplay = perfectIVCount == 6 ? "6IV" : string.Join(" / ", ivStrings);
         embedData.IVsDisplay = ivsDisplay;
+
 
         int[] evs = GetEVs(pk);
         embedData.EVsDisplay = string.Join(" / ", new[] {
@@ -167,6 +177,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
             (evs[3] != 0 ? $"{evs[3]} Spe" : "")
         }.Where(s => !string.IsNullOrEmpty(s)));
         embedData.MetDate = pk.MetDate.ToString();
+        embedData.MetLevel = pk.MetLevel;
         embedData.MovesDisplay = string.Join("\n", embedData.Moves);
         embedData.PokemonDisplayName = pk.IsNicknamed ? pk.Nickname : embedData.SpeciesName;
 
@@ -178,34 +189,55 @@ public static class DetailsExtractor<T> where T : PKM, new()
         return embedData;
     }
 
+   
+
     /// <summary>
     /// Gets user details for display.
     /// </summary>
     /// <param name="totalTradeCount">Total number of trades for this user.</param>
     /// <param name="tradeDetails">Trade code details if available.</param>
+    /// <param name="trainerMention">If no details available, set a static message with Discord username.</param>
     /// <returns>Formatted user details string.</returns>
-    public static string GetUserDetails(int totalTradeCount, TradeCodeStorage.TradeCodeDetails? tradeDetails)
+    public static string GetUserDetails(int totalTradeCount, TradeCodeStorage.TradeCodeDetails? tradeDetails, string trainerMention)
     {
         string userDetailsText = "";
+
+        // Add Total User Trades
         if (totalTradeCount > 0)
         {
-            userDetailsText = $"";
+            int totalMedals = (totalTradeCount);
+            userDetailsText += $"Total User Trades: {totalTradeCount} | Medals: {totalMedals}\n";
         }
-        if (SysCord<T>.Runner.Config.Trade.TradeConfiguration.StoreTradeCodes && tradeDetails != null)
+
+        // First trade — no record exists yet
+        if (tradeDetails == null)
         {
-            if (!string.IsNullOrEmpty(tradeDetails?.OT))
-            {
-                userDetailsText += $"";
-            }
-            if (tradeDetails?.TID != null)
-            {
-                userDetailsText += $"";
-            }
-            if (tradeDetails?.TID != null)
-            {
-                userDetailsText += $"";
-            }
+            userDetailsText += "First Trade, No Trainer Info Saved.";
+            return userDetailsText;
         }
+
+        // Display trainer info if storage enabled
+        if (SysCord<T>.Runner.Config.Trade.TradeConfiguration.StoreTradeCodes)
+        {
+            List<string> trainerParts = new();
+
+            if (!string.IsNullOrEmpty(tradeDetails.OT))
+                trainerParts.Add($"OT: {tradeDetails.OT}");
+
+            if (tradeDetails.TID > 0)
+                trainerParts.Add($"TID: {tradeDetails.TID}");
+
+            // SID is no longer force-rejected, we just show it if it exists
+            if (tradeDetails.SID > 0)
+                trainerParts.Add($"SID: {tradeDetails.SID}");
+
+            // If user exists but no trainer fields are populated
+            if (trainerParts.Count == 0)
+                trainerParts.Add("Trainer Info Not Yet Recorded");
+
+            userDetailsText += string.Join(" | ", trainerParts);
+        }
+
         return userDetailsText;
     }
 
@@ -254,6 +286,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
         pk.GetEVs(evs);
         return evs;
     }
+
     // Scrape move names with PP and type emojis
     private static List<string> GetMoveNames(T pk, GameStrings strings)
     {
@@ -261,6 +294,7 @@ public static class DetailsExtractor<T> where T : PKM, new()
         pk.GetMoves(moves.AsSpan());
         List<int> movePPs = new() { pk.Move1_PP, pk.Move2_PP, pk.Move3_PP, pk.Move4_PP };
         var moveNames = new List<string>();
+
         // Prepare type emojis dictionary
         var typeEmojis = SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.CustomTypeEmojis
             .Where(e => !string.IsNullOrEmpty(e.EmojiCode))
@@ -275,30 +309,35 @@ public static class DetailsExtractor<T> where T : PKM, new()
         for (int i = 0; i < moves.Length; i++)
         {
             if (moves[i] == 0) continue;
+
             string moveName = strings.movelist[moves[i]];
             byte moveTypeId = MoveInfo.GetType(moves[i], default);
             PKHeX.Core.MoveType moveType = (PKHeX.Core.MoveType)moveTypeId;
+
             // For PLZA (PA9) we skip the PP entirely
             bool isPLZA = pk is PA9;
 
             string formattedMove = isPLZA
-                ? $"{moveName}" // no PP
-                : $"{moveName}"; // normal games include PP
+                ? $"*{moveName}*" // no PP
+                : $"*{moveName}* ()"; // normal games include PP
 
             // Add type emoji
             if (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.MoveTypeEmojis && typeEmojis.TryGetValue(moveType, out var moveEmoji))
             {
                 formattedMove = $"{moveEmoji} {formattedMove}";
             }
+
+            // PLUS MOVE LOGIC (PLZA only)
             if (isPLZA && pk is PA9 pa9 && pa9.PersonalInfo is IPermitPlus plus)
             {
                 int plusIndex = plus.PlusMoveIndexes.IndexOf(moves[i]);
                 if (plusIndex >= 0 && pa9.GetMovePlusFlag(plusIndex))
                 {
-                    formattedMove += !string.IsNullOrWhiteSpace(plusEmoji) ? plusEmoji : " (*+*)";
+                    formattedMove += !string.IsNullOrWhiteSpace(plusEmoji) ? plusEmoji : " +";
                 }
             }
-            moveNames.Add($"- {formattedMove}");
+
+            moveNames.Add($"\u200B{formattedMove}");
         }
 
         return moveNames;
@@ -366,12 +405,12 @@ public static class DetailsExtractor<T> where T : PKM, new()
     private static string GetTradeTitle(bool isMysteryEgg, bool isCloneRequest, bool isDumpRequest, bool isFixOTRequest, bool isSpecialRequest, bool isBatchTrade, int batchTradeNumber, string pokemonDisplayName, bool isShiny)
     {
         string shinyEmoji = isShiny ? "✨ " : "";
-        return isMysteryEgg ? "✨ Shiny Mystery Egg ✨" :
+        return isMysteryEgg ? "Mystery Egg Request!" :
                isBatchTrade ? $"Batch Trade #{batchTradeNumber} - {shinyEmoji}{pokemonDisplayName}" :
-               isFixOTRequest ? "FixOT Request" :
-               isSpecialRequest ? "Special Request" :
-               isCloneRequest ? "Clone Pod Activated!" :
-               isDumpRequest ? "Pokémon Dump" :
+               isFixOTRequest ? "FixOT Request!" :
+               isSpecialRequest ? "Special Request!" :
+               isCloneRequest ? "Clone Request!" :
+               isDumpRequest ? "Dump Request!" :
                "";
     }
 }
@@ -419,6 +458,9 @@ public class EmbedData
 
     /// <summary>Met date.</summary>
     public string? MetDate { get; set; }
+
+    /// <summary>Met level.</summary>
+    public byte MetLevel { get; set; }
 
     /// <summary>List of move names.</summary>
     public List<string>? Moves { get; set; }

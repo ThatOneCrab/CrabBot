@@ -28,13 +28,14 @@ namespace SysBot.Pokemon.Discord.Helpers
             { "Game", "Version" },
             { "Hypertrain", "HyperTrainFlags" },
             { "Moves", "Moves" },
+            { "Plus Moves", "PlusMoves" },
             { "Relearn Moves", "RelearnMoves" },
             { "Met Level", "MetLevel" },
             { "Ribbons", "Ribbons" },
             { "Mark", "Mark" },
             { "Ribbon", "Ribbon" },
             { "GVs", "GVs" },
-            { "OT Friendship", "OriginalTrainerFriendship" },
+            { "Friendship", "OriginalTrainerFriendship" },
             { "HT Friendship", "HandlingTrainerFriendship" },
         };
 
@@ -53,6 +54,7 @@ namespace SysBot.Pokemon.Discord.Helpers
             { "MetLocation", ProcessMetLocation },
             { "HyperTrainFlags", ProcessHyperTrainFlags },
             { "Moves", ProcessMoves },
+            { "PlusMoves", ProcessPlusMoves },
             { "RelearnMoves", ProcessRelearnMoves },
             { "Ribbons", ProcessRibbons },
             { "Mark", ProcessMark },
@@ -148,7 +150,7 @@ namespace SysBot.Pokemon.Discord.Helpers
                 ? $".HeightScalar={Rng.Next(range.Min, range.Max + 1)}"
                 : $".HeightScalar={val}";
 
-        // .OriginalTrainerFriendship= → OT Friendship:
+        // .OriginalTrainerFriendship= → Friendship:
         // Value is between 1-255
         private static string ProcessFriendshipOT(string val) =>
             int.TryParse(val, out int f) && f >= 1 && f <= 255
@@ -210,6 +212,18 @@ namespace SysBot.Pokemon.Discord.Helpers
             val.Equals("Random", StringComparison.OrdinalIgnoreCase)
                 ? ".Moves=$suggest"
                 : $".Moves={val}";
+
+        // .PlusMoves= → Plus Moves:
+        // Only accepted option is "All" all others are ignored and default to only setting level up Plus Moves. 
+        private static string ProcessPlusMoves(string value)
+        {
+            // trim and normalize spacing
+            value = value.Trim();
+
+            if (!value.Equals("All", StringComparison.OrdinalIgnoreCase))
+                return ".PlusMoves=$Suggest";
+            return $".RelearnMoves=$SuggestAll";
+        }
 
         // .RelearnMoves= → Relearn Moves:
         // Only accepted options are "All" or "None"

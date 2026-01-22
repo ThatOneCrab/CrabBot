@@ -1,4 +1,5 @@
 namespace SysBot.Base;
+
 /// <summary>
 /// Configuration for the logging system
 /// </summary>
@@ -8,6 +9,7 @@ public static class LogConfig
     /// Enable or disable all logging
     /// </summary>
     public static bool LoggingEnabled { get; set; } = true;
+
     /// <summary>
     /// Number of archived log files to keep (default: 14 days)
     /// </summary>
@@ -57,6 +59,9 @@ public static class LogConfig
 
         // Recovery and monitoring
         "Recovery", "RecoveryNotification",
+
+        // Web services
+        "WebServer", "WebTrade", "WebDump", "WebTradeNotifier", "TCP",
 
         // Discord integration
         "Discord", "SysCord",

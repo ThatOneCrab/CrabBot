@@ -149,6 +149,7 @@ public abstract class PokeRoutineExecutor9PLZA(PokeBotState Config) : PokeRoutin
         var data = await SwitchConnection.ReadBytesAbsoluteAsync(offset, 1, token).ConfigureAwait(false);
         return data[0] == 1;
     }
+
     /// <summary>
     /// Checks if the console is connected online using a direct main memory offset.
     /// This is the preferred method for PLZA v1.0.3+ as it's faster and more reliable.
@@ -178,8 +179,8 @@ public abstract class PokeRoutineExecutor9PLZA(PokeBotState Config) : PokeRoutin
             return value;
 
         return -1;
-
     }
+
     public override Task<PA9> ReadBoxPokemon(int box, int slot, CancellationToken token)
     {
         var jumps = Offsets.BoxStartPokemonPointer.ToArray();

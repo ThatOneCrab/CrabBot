@@ -58,11 +58,11 @@ public sealed record TradeQueueInfo<T>(PokeTradeHub<T> Hub)
         {
             // First, try to find the trade in UsersInQueue (more reliable for recently added trades)
             var tradeEntry = UsersInQueue.FirstOrDefault(z => z.UserID == uid && z.UniqueTradeID == uniqueTradeID);
-
+            
             // Try to find the trade in the queue system
             var allTrades = Hub.Queues.AllQueues.SelectMany(q => q.Queue.Select(x => x.Value)).ToList();
             var index = allTrades.FindIndex(z => z.Trainer.ID == uid && z.UniqueTradeID == uniqueTradeID);
-
+            
             if (index >= 0)
             {
                 // Trade found in queue - use queue-based position calculation
@@ -112,7 +112,7 @@ public sealed record TradeQueueInfo<T>(PokeTradeHub<T> Hub)
             {
                 // Trade found in UsersInQueue but not in queue yet - calculate position based on UsersInQueue order
                 var userIndex = UsersInQueue.FindIndex(z => z.UserID == uid && z.UniqueTradeID == uniqueTradeID);
-
+                
                 // Count trades ahead in UsersInQueue
                 int totalTradesAhead = 0;
                 for (int i = 0; i < userIndex; i++)
@@ -137,7 +137,7 @@ public sealed record TradeQueueInfo<T>(PokeTradeHub<T> Hub)
 
                 return new QueueCheckResult<T>(true, tradeEntry, actualIndex, totalInQueue, tradeEntry.Trade.BatchTradeNumber, tradeEntry.Trade.TotalBatchTrades);
             }
-
+            
             // Trade not found anywhere
             return QueueCheckResult<T>.None;
         }
@@ -283,8 +283,16 @@ public sealed record TradeQueueInfo<T>(PokeTradeHub<T> Hub)
     {
         lock (_sync)
         {
-            LogUtil.LogInfo(nameof(TradeQueueInfo<T>), $"Removing {detail.Trade.Trainer.TrainerName}");
-            return UsersInQueue.Remove(detail);
+            if (detail.UserID.Equals(null))
+            {
+                LogUtil.LogInfo(nameof(TradeQueueInfo<T>), $"Removing {detail.Trade.Trainer.TrainerName}");
+                return UsersInQueue.Remove(detail);
+            }
+            else
+            {
+                LogUtil.LogInfo(nameof(TradeQueueInfo<T>), $"Removing {detail.UserID} - {detail.Trade.Trainer.TrainerName}");
+                return UsersInQueue.Remove(detail);
+            }
         }
     }
 
@@ -361,15 +369,15 @@ public sealed record TradeQueueInfo<T>(PokeTradeHub<T> Hub)
             // Both favored and regular users get TierFree - favoritism is handled by queue positioning logic
             var priority = sudo ? PokeTradePriorities.Tier1 : PokeTradePriorities.TierFree;
 
-            var queue = Hub.Queues.GetQueue(trade.Type);
+                var queue = Hub.Queues.GetQueue(trade.Type);
 
-            queue.Enqueue(trade.Trade, priority);
-            UsersInQueue.Add(trade);
+                queue.Enqueue(trade.Trade, priority);
+                UsersInQueue.Add(trade);
 
-            trade.Trade.Notifier.OnFinish = _ => Remove(trade);
-            return QueueResultAdd.Added;
+                trade.Trade.Notifier.OnFinish = _ => Remove(trade);
+                return QueueResultAdd.Added;
+            }
         }
-    }
 
     public int GetRandomTradeCode(ulong trainerID)
     {

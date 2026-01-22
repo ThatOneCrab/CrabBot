@@ -20,30 +20,13 @@ namespace SysBot.Pokemon.WinForms;
 *** Thank You and Credits ***
 We would like to express our sincere gratitude to the following individuals and organizations for their invaluable contributions to this program:
 Core Development Team:
-- Havokx, Co-Creator of CrabBot.NET
-- Link2026, Co-Creator of CrabBot.NET
+- Crab, Creator of CrabBot
+- Tempest, Artist of CrabBot
 
 Special Thanks To:
 - kwsch, Creator of SysBot.NET
 - Gengar, Creator of Mergebot
-- Secludedly, Creator of ZE-Fusionbot
-
-First and foremost, I appreciate the opportunity to have been part of this program.
-Understanding new concepts was challenging, but I’m grateful for the knowledge I gained.
-Contributors that truly made a difference with their dedication.
-Kindness and support from certain staff members did not go unnoticed.
-
-Your program’s structure helped me grow, even if the journey had its difficulties.
-Overall, I value the connections I made and the lessons learned along the way.
-Unwavering support.
-
-Despite the challenges, I recognize the effort put into this program’s curriculum.
-Every participant’s experience is unique, and I’m thankful for the good moments.
-Valuable skills were acquired, thanks to those who genuinely cared about student success.
-Reflecting on my time here, I appreciate the resilience it helped me build.
-You’ve contributed to my growth, and for that, I sincerely thank you.
-
-From the heart! 
+- Secludedly, Creator of ZE-Fusionbot 
 */
 
 public sealed partial class Main : Form
@@ -52,9 +35,9 @@ public sealed partial class Main : Form
 
     private IPokeBotRunner RunningEnvironment { get; set; }
 
-
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     internal ProgramConfig Config { get; set; } = null!;
+
     public static bool IsUpdating { get; set; } = false;
 
     private bool _isFormLoading = true;
@@ -62,6 +45,7 @@ public sealed partial class Main : Form
 #pragma warning disable CS8618
 
     public Main()
+
 #pragma warning restore CS8618
     {
         InitializeComponent();
@@ -100,9 +84,21 @@ public sealed partial class Main : Form
             Config.Hub.Folder.CreateDefaults(Program.WorkingDirectory);
         }
 
+        // Create default folders if they do not exist even if a config file is present
+        var dump = Config.Hub.Folder.DumpFolder;
+        var distri = Config.Hub.Folder.DistributeFolder;
+        var home = Config.Hub.Folder.HOMEReadyPKMFolder;
+        var events = Config.Hub.Folder.EventsFolder;
+
+        if ((!Directory.Exists(dump)) || (!Directory.Exists(distri)) || (!Directory.Exists(home)) || (!Directory.Exists(events)))
+        {
+            Config.Hub.Folder.CreateDefaults(Program.WorkingDirectory);
+            LogUtil.LogInfo("Required folders created.", "Form");
+        }
+
         RTB_Logs.MaxLength = 32_767; // character length
         LoadControls();
-        Text = $"{(string.IsNullOrEmpty(Config.Hub.BotName) ? "CrabBot.NET" : Config.Hub.BotName)} {CrabBot.Version} ({Config.Mode})";
+        Text = $"{(string.IsNullOrEmpty(Config.Hub.BotName) ? "CrabBot" : Config.Hub.BotName)} {CrabBot.Version} ({Config.Mode})";
         _ = Task.Run(BotMonitor);
         InitUtil.InitializeStubs(Config.Mode);
         _isFormLoading = false;
@@ -279,7 +275,6 @@ public sealed partial class Main : Form
             // Atomic rename operation
             File.Move(tempPath, Program.ConfigPath, true);
 
-
             // Delete backup after successful save
             if (File.Exists(backupPath))
             {
@@ -357,7 +352,7 @@ public sealed partial class Main : Form
             ProgramMode.LGPE => Resources.lgpe_mode_image,
             _ => null,
         };
-        FLP_Bots.BackgroundImageLayout = ImageLayout.Stretch;
+        FLP_Bots.BackgroundImageLayout = ImageLayout.Center;
     }
 
     private void SendAll(BotControlCommand cmd)

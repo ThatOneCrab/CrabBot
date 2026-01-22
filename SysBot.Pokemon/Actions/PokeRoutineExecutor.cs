@@ -178,7 +178,7 @@ public abstract class PokeRoutineExecutor<T>(IConsoleBotManaged<IConsoleConnecti
                 if (delta < TimeSpan.FromMinutes(AbuseSettings.TradeAbuseExpiration))
                 {
                     quit = true;
-                    Log($"Found {user.TrainerName} (<@{user.ID}>) using multiple accounts.\nPreviously traded with {previous.Name} ({previous.RemoteID}) {delta.TotalMinutes:F1} minutes ago on OT: {TrainerName}.");
+                    Log($"Found {user.TrainerName} using multiple accounts.\nPreviously traded with {previous.Name} ({previous.RemoteID}) {delta.TotalMinutes:F1} minutes ago on OT: {TrainerName}.");
                 }
             }
         }

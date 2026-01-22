@@ -1,5 +1,6 @@
 using PKHeX.Core;
 using SysBot.Base;
+using Discord;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -86,6 +87,9 @@ public class TradeSettings : IBotStateSettings, ICountSettings
         [Category(TradeConfig), Description("Dump Trade: If enabled, Dumping routine will output legality check information to the user."), DisplayName("Dump Trade Legality Check")]
         public bool DumpTradeLegalityCheck { get; set; } = true;
 
+        [Category(TradeConfig), Description("When enabled, the bot will automatically cancel a trade if a trade evo is offered."), DisplayName("Disallow Trade Evo Offers")]
+        public bool DisallowTradeEvolve { get; set; } = false;
+
         [Category(TradeConfig), Description("LGPE Setting.")]
         public int TradeAnimationMaxDelaySeconds = 25;
 
@@ -134,6 +138,8 @@ public class TradeSettings : IBotStateSettings, ICountSettings
                 ShowScale = false;
                 ShowTeraType = false;
                 ShowLevel = false;
+                ShowBall = false;
+                ShowMetLevel = false;
                 ShowMetDate = false;
                 ShowAbility = false;
                 ShowNature = false;
@@ -186,6 +192,7 @@ public class TradeSettings : IBotStateSettings, ICountSettings
         [Category(EmbedSettings), Description("The emoji information for displaying Plus Moves to applicable Moves in the Discord embed."), DisplayName("Plus Move Emoji")]
         public EmojiInfo UsePlusMoveEmoji { get; set; } = new EmojiInfo();
 
+
         [Category(EmbedSettings), Description("The emoji information for displaying the mightiest mark."), DisplayName("Mightiest Mark Emoji")]
         public EmojiInfo MightiestMarkEmoji { get; set; } = new EmojiInfo();
 
@@ -219,6 +226,12 @@ public class TradeSettings : IBotStateSettings, ICountSettings
         new(MoveType.Stellar)
     };
 
+        [Category(EmbedSettings), Description("Will show Scale in trade embed (SV & Discord only). Requires user to upload the emojis to their server."), DisplayName("Show Scale")]
+        public bool ShowScale { get; set; } = true;
+
+        [Category(EmbedSettings), Description("Will show Tera Type in trade embed (SV & Discord only)."), DisplayName("Show Tera Type")]
+        public bool ShowTeraType { get; set; } = true;
+
         [Category(EmbedSettings), Description("Will show Level in trade embed (Discord only)."), DisplayName("Show Level")]
         public bool ShowLevel { get; set; } = true;
 
@@ -231,16 +244,13 @@ public class TradeSettings : IBotStateSettings, ICountSettings
         [Category(EmbedSettings), Description("Will show MetDate in trade embed (Discord only)."), DisplayName("Show Met Date")]
         public bool ShowMetDate { get; set; } = true;
 
-        [Category(EmbedSettings), Description("Will show MetLocation in trade embed (Discord only)."), DisplayName("Show Met Location")]
-        public bool ShowMetLocation { get; set; } = true;
-
         [Category(EmbedSettings), Description("Will show Ability in trade embed (Discord only)."), DisplayName("Show Ability")]
         public bool ShowAbility { get; set; } = true;
 
         [Category(EmbedSettings), Description("Will show Nature in trade embed (Discord only)."), DisplayName("Show Nature")]
         public bool ShowNature { get; set; } = true;
 
-        [Category(EmbedSettings), Description("Will show Language in trade embed (Discord only)."), DisplayName("Show Language")]
+        [Category(EmbedSettings), Description("Will show PKM Language in trade embed (Discord only)."), DisplayName("Show Language")]
         public bool ShowLanguage { get; set; } = true;
 
         [Category(EmbedSettings), Description("Will show IVs in trade embed (Discord only)."), DisplayName("Show IVs")]
@@ -248,14 +258,9 @@ public class TradeSettings : IBotStateSettings, ICountSettings
 
         [Category(EmbedSettings), Description("Will show EVs in trade embed (Discord only)."), DisplayName("Show EVs")]
         public bool ShowEVs { get; set; } = true;
-        [Category(EmbedSettings), Description("Will show held items in trade embed (Discord only)."), DisplayName("Show HeldItem")]
-        public bool ShowHeldItme { get; set; } = true;
 
-        [Category(EmbedSettings), Description("Will show Scale in trade embed (SV & Discord only). Requires user to upload the emojis to their server."), DisplayName("Show Scale")]
-        public bool ShowScale { get; set; } = true;
-
-        [Category(EmbedSettings), Description("Will show Tera Type in trade embed (SV & Discord only)."), DisplayName("Show Tera Type")]
-        public bool ShowTeraType { get; set; } = true;
+        [Category(EmbedSettings), Description("Will show Held Item in trade embed (Discord only)."), DisplayName("Show Held Item")]
+        public bool ShowHeldItem { get; set; } = true;
     }
 
     [Category(VGCPastesConfig), TypeConverter(typeof(CategoryConverter<VGCPastesCategory>))]

@@ -1,13 +1,11 @@
-# CrabBot
-
+# DudeBot.NET
 ![License](https://img.shields.io/badge/License-AGPLv3-blue.svg)
-![Cyberklawf](https://github.com/user-attachments/assets/8d0fdac9-116f-4d20-93b9-91d41a660379)
 
 ## Support Discord:
 
-For support on setting up your own instance of CrabBot, feel free to join the discord! Note: this bot is a fork of the original Sysbot.NET, don't bother the devs at PKHEX Development Project for support. 
+For support on setting up your own instance of DudeBot.NET, feel free to join the discord! Note: this bot is a fork of the original Sysbot.NET, don't bother the devs at PKHEX Development Project for support. 
 
-[<img src="https://canary.discordapp.com/api/guilds/946327594276638752/widget.png?style=banner2">](https://discord.gg/KdYf2A2dMv)
+[<img src="https://canary.discordapp.com/api/guilds/836964128341622784/widget.png?style=banner2">](https://discord.gg/wsW8A5mB7q)
 
 [sys-botbase](https://github.com/olliz0r/sys-botbase) client for remote control automation of Nintendo Switch consoles.
 
@@ -20,7 +18,7 @@ For support on setting up your own instance of CrabBot, feel free to join the di
 
 # Example Implementations
 
-The driving force to develop this project is automated bots for Nintendo Switch Pokémon games.
+The driving force to develop this project is automated bots for Nintendo Switch Pokémon games. An example implementation is provided in this repo to demonstrate interesting tasks this framework is capable of performing. Refer to the [Wiki](https://github.com/Havokx89/DudeBot.NET/wiki) for more details on the supported Pokémon features.
 
 ## SysBot.Pokemon:
 - Class library using SysBot.Base to contain logic related to creating & running Sword/Shield bots.

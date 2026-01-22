@@ -1,15 +1,15 @@
 using PKHeX.Core;
-using PKHeX.Core.AutoMod;
 using System;
+using System.Linq;
+using PKHeX.Core.AutoMod;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 
 namespace SysBot.Pokemon;
 
 public class LegalitySettings
 {
-    private string DefaultTrainerName = "CrabBot.Net";
+    private string DefaultTrainerName = "CrabBot";
     private const string Generate = nameof(Generate);
     private const string Misc = nameof(Misc);
     public override string ToString() => "Legality Generating Settings";

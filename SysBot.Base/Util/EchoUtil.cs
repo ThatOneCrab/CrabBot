@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 
 namespace SysBot.Base;
+
 public static class EchoUtil
 {
     public static readonly List<Action<string>> Forwarders = [];
@@ -22,5 +23,4 @@ public static class EchoUtil
         }
         LogUtil.LogInfo(message, "Echo");
     }
-    
 }

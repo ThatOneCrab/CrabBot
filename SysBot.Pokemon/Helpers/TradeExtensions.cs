@@ -1,5 +1,6 @@
 using PKHeX.Core;
 using PKHeX.Core.AutoMod;
+using SysBot.Base;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,6 +10,8 @@ namespace SysBot.Pokemon.Helpers;
 
 public abstract class TradeExtensions<T> where T : PKM, new()
 {
+    
+
     public static readonly string[] MarkTitle =
     [
         " The Peckish",
@@ -175,7 +178,8 @@ public abstract class TradeExtensions<T> where T : PKM, new()
     public static bool HasAdName(T pk, out string ad)
     {
         // List of common TLDs to match
-        const string domainPattern = @"(?<=\w)\.(com|org|net|gg|xyz|io|tv|co|me|us|uk|ca|de|fr|jp|au|eu|ch|it|nl|ru|br|in)\b";
+        const string domainPattern = @"(?<=\w)\.(com|org|net|gg|xyz|io|tv|co|me|us|uk|ca|de|fr|jp|au|eu|ch|it|nl|ru|br|in|fun|info|blog|int|gov|edu|app|art|biz|bot|buzz|dev|eco|fan|fans|forum|free|game|help|host|inc|icu|live|lol|market|media|news|ninja|now|one|ong|online|page|porn|pro|red|sale|sex|sexy|shop|site|store|stream|tech|tel|top|tube|uno|vip|website|wiki|work|world|wtf|xxx|zero|youtube|zone|nyc|onion|bit|crypto|meme)\b";
+
 
         bool ot = Regex.IsMatch(pk.OriginalTrainerName, domainPattern, RegexOptions.IgnoreCase);
         bool nick = Regex.IsMatch(pk.Nickname, domainPattern, RegexOptions.IgnoreCase);
@@ -499,6 +503,8 @@ public abstract class TradeExtensions<T> where T : PKM, new()
         var held = pkm.HeldItem;
         if (held <= 0)
             return false;
+
+        
 
         // Check if item is not allowed to be held in this game context
         if (!ItemRestrictions.IsHeldItemAllowed(held, pkm.Context))

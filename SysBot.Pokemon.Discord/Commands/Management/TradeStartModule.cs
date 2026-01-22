@@ -43,7 +43,7 @@ public class TradeStartModule<T> : ModuleBase<SocketCommandContext> where T : PK
                 AddLogChannel(c, ch.ID);
         }
 
-        LogUtil.LogInfo("Discord", "Added Trade Start Notification to Discord channel(s) on Bot startup.");
+        LogUtil.LogInfo("Added Trade Start Notification to Discord channel(s) on Bot startup.", "Discord");
     }
 
     public static bool IsStartChannel(ulong cid)
@@ -103,11 +103,11 @@ public class TradeStartModule<T> : ModuleBase<SocketCommandContext> where T : PK
                 _ => speciesName
             };
 
-            string embedImageUrl = detail.IsMysteryEgg ? "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/unnamed2.png" : detail.Type switch
+            string embedImageUrl = detail.IsMysteryEgg ? "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/unnamed2.png?raw=true&width=300&height=300" : detail.Type switch
             {
-                PokeTradeType.Clone => "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/7L5CfPt.png",
-                PokeTradeType.Dump => "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/iwCCCAY%20(1).gif",
-                PokeTradeType.FixOT => "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/emote_icon_pose_13s.png",
+                PokeTradeType.Clone => "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/7L5CfPt.png?raw=true&width=300&height=300",
+                PokeTradeType.Dump => "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/iwCCCAY%20(1).gif?raw=true&width=300&height=300",
+                PokeTradeType.FixOT => "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/emote_icon_pose_13s.png?raw=true&width=300&height=300",
                 PokeTradeType.Seed => "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/sHtnqOm.gif",
                 _ => detail.TradeData != null ? TradeExtensions<T>.PokeImg(detail.TradeData, false, true) : ""
             };

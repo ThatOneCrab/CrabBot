@@ -56,6 +56,7 @@ public static class LogUtil
                 MaxArchiveFiles = LogConfig.MaxArchiveFiles,
                 Encoding = Encoding.Unicode,
                 WriteBom = true,
+                Layout = "${date:format=MM-dd-yyyy h\\:mm\\:ss.ffff tt}|${level:uppercase=true}|${logger}|${message}${onexception:inner=${newline}${exception:format=tostring}}"
             };
             config.AddRule(LogLevel.Debug, LogLevel.Fatal, masterLogFile);
         }
@@ -106,7 +107,7 @@ public static class LogUtil
                 MaxArchiveFiles = LogConfig.MaxArchiveFiles,
                 Encoding = Encoding.Unicode,
                 WriteBom = true,
-                Layout = "${longdate}|${level:uppercase=true}|${logger}|${message}${onexception:inner=${newline}${exception:format=tostring}}"
+                Layout = "${date:format=MM-dd-yyyy h\\:mm\\:ss.ffff tt}|${level:uppercase=true}|${logger}|${message}${onexception:inner=${newline}${exception:format=tostring}}"
             };
 
             config.AddTarget(botLogTarget);
@@ -120,7 +121,7 @@ public static class LogUtil
 
     /// <summary>
     /// Sanitizes bot name for use in file paths
-    /// Creates folders like: logs/Hav-483256/, logs/A-Z-734959/, logs/System/
+    /// Creates folders like: logs/HeXbyt3-483256/, logs/A-Z-734959/, logs/System/
     /// </summary>
     private static string SanitizeBotName(string botName)
     {
@@ -141,7 +142,7 @@ public static class LogUtil
             }
         }
 
-        // Keep the full identifier (e.g., "Hav-483256", "USB-1")
+        // Keep the full identifier (e.g., "HeXbyt3-483256", "USB-1")
         // Just sanitize invalid file system characters
         var invalid = Path.GetInvalidFileNameChars();
         var sanitized = string.Join("_", botName.Split(invalid, StringSplitOptions.RemoveEmptyEntries));
@@ -250,6 +251,12 @@ public static class LogUtil
             }
             catch { }
         }
+    }
+
+    public static void LogGeneric(string message, string identity)
+    {
+        Logger.Log(NLog.LogLevel.Info, $"{identity} {message}");
+        Log(message, identity);
     }
 
     public static void LogSuspicious(string identity, string message)

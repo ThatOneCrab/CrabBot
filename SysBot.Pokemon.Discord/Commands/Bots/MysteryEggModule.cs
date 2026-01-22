@@ -1,5 +1,6 @@
 using Discord;
 using Discord.Commands;
+using SysBot.Pokemon.Helpers;
 using PKHeX.Core;
 using PKHeX.Core.AutoMod;
 using SysBot.Base;
@@ -25,7 +26,7 @@ namespace SysBot.Pokemon.Discord
             var context = GetContext();
             if (context == EntityContext.None || typeof(T).Name == "PB7")
             {
-                await ReplyAsync("Mystery Eggs are not available for Let's Go Pikachu/Eevee as the game does not support breeding.").ConfigureAwait(false);
+                await ReplyAsync("Mystery Eggs are not available for Let's Go Pikachu/Eevee or either Legends games as they don't support breeding.").ConfigureAwait(false);
                 return;
             }
 
@@ -59,7 +60,7 @@ namespace SysBot.Pokemon.Discord
             var context = GetContext();
             if (context == EntityContext.None || typeof(T).Name == "PB7")
             {
-                await ReplyAsync("Mystery Eggs are not available for Let's Go Pikachu/Eevee as the game does not support breeding.").ConfigureAwait(false);
+                await ReplyAsync("Mystery Eggs are not available for Let's Go Pikachu/Eevee or either Legends games as they don't support breeding.").ConfigureAwait(false);
                 return;
             }
 
@@ -148,8 +149,20 @@ namespace SysBot.Pokemon.Discord
 
             int uniqueTradeID = GenerateUniqueTradeID();
 
-            var detail = new PokeTradeDetail<T>(firstEgg, trainer, notifier, PokeTradeType.Batch, batchTradeCode,
-                sig == RequestSignificance.Favored, null, 1, batchEggList.Count, true, uniqueTradeID)
+            var detail = new PokeTradeDetail<T>(
+                firstEgg,
+                trainer,
+                notifier,
+                PokeTradeType.Batch,
+                batchTradeCode,
+                sig == RequestSignificance.Favored,
+                null,
+                1,
+                batchEggList.Count,
+                true,               // send code DM
+                true,               // <-- THIS ONE WAS MISSING
+                uniqueTradeID       // now correctly argument 12
+            )
             {
                 BatchTrades = batchEggList
             };
@@ -205,8 +218,8 @@ namespace SysBot.Pokemon.Discord
                 .WithColor(global::Discord.Color.Gold)
                 .WithTitle($"🥚 Mystery Egg {eggNumber} of {totalEggs}")
                 .WithDescription("A mysterious egg containing a random Pokémon!")
-                .WithImageUrl("https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/unnamed2.png")
-                .WithFooter($"Batch Trade {eggNumber} of {totalEggs}" + (eggNumber == 1 ? $" | Position: {queuePosition}" : ""))
+                .WithImageUrl("https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/unnamed2.png?raw=true&width=300&height=300")
+                .WithFooter($"Batch Trade {eggNumber} of {totalEggs}" + (eggNumber == 1 ? $" | Position: {queuePosition}" : $"\nCrabBot.NET {CrabBot.Version}"))
                 .WithAuthor(new EmbedAuthorBuilder()
                     .WithName($"Mystery Egg for {context.User.Username}")
                     .WithIconUrl(context.User.GetAvatarUrl() ?? context.User.GetDefaultAvatarUrl())
@@ -294,8 +307,6 @@ namespace SysBot.Pokemon.Discord
 
         private static string? GetHiddenAbilityName(ushort species, EntityContext context)
         {
-            
-
             var personalTable = GetPersonalTable(context);
             if (personalTable == null)
                 return null;
@@ -306,6 +317,7 @@ namespace SysBot.Pokemon.Discord
                 if (pi is IPersonalAbility12H piH)
                 {
                     var hiddenAbilityID = piH.AbilityH;
+                    // Check if the hidden ability is different from regular abilities and valid
                     if (hiddenAbilityID > 0 && hiddenAbilityID < GameInfo.Strings.Ability.Count)
                         return GameInfo.Strings.Ability[hiddenAbilityID];
                 }
