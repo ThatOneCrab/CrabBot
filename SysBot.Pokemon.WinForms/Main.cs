@@ -352,7 +352,7 @@ public sealed partial class Main : Form
             ProgramMode.LGPE => Resources.lgpe_mode_image,
             _ => null,
         };
-        FLP_Bots.BackgroundImageLayout = ImageLayout.Center;
+        FLP_Bots.BackgroundImageLayout = ImageLayout.Stretch;
     }
 
     private void SendAll(BotControlCommand cmd)
@@ -1164,5 +1164,10 @@ public sealed partial class Main : Form
 
         B_Update.BackColor = Black;
         B_Update.ForeColor = White;
+    }
+
+    private void FLP_Bots_Paint(object sender, PaintEventArgs e)
+    {
+
     }
 }
