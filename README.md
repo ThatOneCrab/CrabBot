@@ -3,7 +3,7 @@
 
 ## Support Discord:
 
-For support on setting up your own instance of DudeBot.NET, feel free to join the discord! Note: this bot is a fork of the original Sysbot.NET, don't bother the devs at PKHEX Development Project for support. 
+For support on setting up your own instance of CrabBot, feel free to join the discord! Note: this bot is a fork of the original Sysbot.NET, don't bother the devs at PKHEX Development Project for support. 
 
 [<img src="https://canary.discordapp.com/api/guilds/1375740071843598466/widget.png?style=banner2">](https://discord.gg/FnAGV4pb2k)
 
