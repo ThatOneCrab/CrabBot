@@ -90,15 +90,17 @@ public static class AutoLegalityWrapper
         if (Directory.Exists(externalSource))
             TrainerSettings.LoadTrainerDatabaseFromPath(externalSource);
 
-        // Seed the Trainer Database with enough fake save files so that we return a generation sensitive format when needed.  
         var fallback = GetDefaultTrainer(cfg);
         for (byte generation = 1; generation <= GameUtil.get_Generation(GameVersion.Gen9); generation++)
         {
-            var versions = GameUtil.GetVersionsInGeneration(generation, GameVersion.Any);
+            // Convert generation -> GameVersion -> EntityContext, then call the API that expects EntityContext
+            var versionForGen = GameUtil.GetVersion(generation);
+            var context = versionForGen.GetContextFromSaved();
+            var versions = GameUtil.GetVersionsInGeneration(context, GameVersion.Any);
             foreach (var version in versions)
                 RegisterIfNoneExist(fallback, generation, version);
         }
-        // Manually register for LGP/E since Gen7 above will only register the 3DS versions.  
+
         RegisterIfNoneExist(fallback, 7, GameVersion.GP);
         RegisterIfNoneExist(fallback, 7, GameVersion.GE);
     }
@@ -129,7 +131,7 @@ public static class AutoLegalityWrapper
             OT = fallback.OT,
             Generation = generation,
         };
-        var exist = TrainerSettings.GetSavedTrainerData(generation, version, fallback);
+        var exist = TrainerSettings.GetSavedTrainerData(version.GetContextFromSaved(), version, fallback);
         if (exist is SimpleTrainerInfo) // not anything from files; this assumes ALM returns SimpleTrainerInfo for non-user-provided fake templates.
             TrainerSettings.Register(fallback);
     }
@@ -188,7 +190,7 @@ public static class AutoLegalityWrapper
         throw new ArgumentException("Type does not have a recognized trainer fetch.", typeof(T).Name);
     }
 
-    public static ITrainerInfo GetTrainerInfo(byte gen) => TrainerSettings.GetSavedTrainerData(gen);
+    public static ITrainerInfo GetTrainerInfo(byte gen) => TrainerSettings.GetSavedTrainerData(GameUtil.GetVersion(gen).GetContextFromSaved());
 
     public static PKM GetLegal(this ITrainerInfo sav, IBattleTemplate set, out string res)
     {
