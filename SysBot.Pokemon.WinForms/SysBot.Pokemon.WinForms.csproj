@@ -28,7 +28,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="PKHeX.Core" Version="26.3.6" />
-    <PackageReference Include="System.Resources.Extensions" Version="9.0.4" />
+    <PackageReference Include="System.Resources.Extensions" Version="10.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SysBot.Base\SysBot.Base.csproj" />
