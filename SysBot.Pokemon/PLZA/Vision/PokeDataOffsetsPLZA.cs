@@ -3,13 +3,13 @@ using System.Collections.Generic;
 namespace SysBot.Pokemon;
 
 /// <summary>
-/// Memory offsets for Pokémon Legends: Z-A (v2.0.1)
+/// Memory offsets for Pokémon Legends: Z-A (v2.0.2)
 /// </summary>
 public class PokeDataOffsetsPLZA
 {
     public const int BoxFormatSlotSize = 0x148;                          // 328 bytes (box/stored format)
     public const string PLZAID = "0100F43008C44000";
-    public const string PLZAGameVersion = "2.0.1";
+    public const string PLZAGameVersion = "2.0.2";
 
     public const uint OverworldOffset = 0x610C858;                        // 1=In Overworld, 0=Not in Overworld
     public const uint MenuOffset = 0x612DA80;                            // 0=Overworld, 1=XMenu, 2=LinkPlay, 3=LinkTrade, 4=InBox

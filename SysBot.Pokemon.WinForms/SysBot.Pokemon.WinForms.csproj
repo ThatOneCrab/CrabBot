@@ -27,7 +27,7 @@
     <Authors>Crab</Authors>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="PKHeX.Core" Version="26.3.6" />
+    <PackageReference Include="PKHeX.Core" Version="26.3.20" />
     <PackageReference Include="System.Resources.Extensions" Version="10.0.0" />
   </ItemGroup>
   <ItemGroup>

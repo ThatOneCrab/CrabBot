@@ -2,7 +2,7 @@ namespace SysBot.Pokemon.Helpers
 {
     public static class CrabBot
     {
-        public const string Version = "v1.3.8";
+        public const string Version = "v1.3.9";
         public const string Attribution = "https://raw.githubusercontent.com/ThatOneCrab/sprites/refs/heads/main/Cyberklawf.png";
         public const string ConfigPath = "config.json";
     }
