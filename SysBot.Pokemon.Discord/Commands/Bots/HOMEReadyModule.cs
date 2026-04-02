@@ -219,6 +219,8 @@ namespace SysBot.Pokemon.Discord.Modules
 
             var files = Directory.GetFiles(HOMEFolder)
                 .Select(Path.GetFileName)
+                .Where(f => f != null)
+                .Select(f => f!)
                 .OrderBy(x => x)
                 .ToList();
 

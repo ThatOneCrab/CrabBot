@@ -26,7 +26,7 @@ public abstract class PokeRoutineExecutor<T>(IConsoleBotManaged<IConsoleConnecti
         var dir = Path.Combine(folder, subfolder);
         Directory.CreateDirectory(dir);
         var fn = Path.Combine(dir, PathUtil.CleanFileName(pk.FileName));
-        File.WriteAllBytes(fn, pk.DecryptedPartyData);
+        File.WriteAllBytes(fn, pk.Data);
         LogUtil.LogInfo("Dump", $"Saved file: {fn}");
     }
 
@@ -193,5 +193,19 @@ public abstract class PokeRoutineExecutor<T>(IConsoleBotManaged<IConsoleConnecti
     {
         var solved = await SwitchConnection.PointerAll(jumps, token).ConfigureAwait(false);
         return (solved != 0, solved);
+    }
+
+    public async Task SetBoxPokemonAbsolute(ulong offset, PB8 pkm, CancellationToken token, ITrainerInfo? sav = null)
+    {
+        if (sav != null)
+        {
+            pkm.UpdateHandler(sav);
+            pkm.RefreshChecksum();
+        }
+
+        pkm.ResetPartyStats();
+        var data = new byte[pkm.SIZE_PARTY];
+        pkm.WriteEncryptedDataParty(data);
+        await SwitchConnection.WriteBytesAbsoluteAsync(data, offset, token).ConfigureAwait(false);
     }
 }

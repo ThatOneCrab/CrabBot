@@ -2,6 +2,7 @@ using PKHeX.Core;
 using SysBot.Base;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static SysBot.Base.SwitchButton;
@@ -252,10 +253,14 @@ public abstract class PokeRoutineExecutor7LGPE : PokeRoutineExecutor<PB7>
     {
         var slotofs = GetSlotOffset(box, slot);
         var StoredLength = SlotSize - 0x1c;
-        await Connection.WriteBytesAsync(pk.EncryptedPartyData.AsSpan(0, StoredLength).ToArray(), (uint)slotofs, token);
-        await Connection.WriteBytesAsync(pk.EncryptedPartyData.AsSpan(StoredLength).ToArray(), (uint)(slotofs + (ulong)StoredLength + 0x70), token);
-    }
 
+        // Create buffer and get encrypted stored data
+        byte[] data = new byte[pk.SIZE_STORED];
+        pk.WriteEncryptedDataStored(data);
+
+        await Connection.WriteBytesAsync(data.Take(StoredLength).ToArray(), (uint)slotofs, token);
+        await Connection.WriteBytesAsync(data.Skip(StoredLength).ToArray(), (uint)(slotofs + (ulong)StoredLength + 0x70), token);
+}
     /// public async Task ActivateCatchCombo(PokeTradeHub<PB7> hub, bool activate, CancellationToken token)
     ///  {
     ///     var msg = activate ? "Activating" : "Deactivating";

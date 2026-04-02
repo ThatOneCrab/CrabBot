@@ -164,7 +164,9 @@ public abstract class PokeRoutineExecutor8LA : PokeRoutineExecutor<PA8>
         }
 
         pkm.ResetPartyStats();
-        return SwitchConnection.WriteBytesAbsoluteAsync(pkm.EncryptedBoxData, offset, token);
+        var encryptedData = new byte[pkm.SIZE_STORED];
+        pkm.WriteEncryptedDataStored(encryptedData);
+        return SwitchConnection.WriteBytesAbsoluteAsync(encryptedData, offset, token);
     }
 
     public Task SetCurrentBox(byte box, CancellationToken token)

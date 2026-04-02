@@ -238,7 +238,23 @@ public abstract class PokeRoutineExecutor8SWSH(PokeBotState Config) : PokeRoutin
         }
         var ofs = GetBoxSlotOffset(box, slot);
         pkm.ResetPartyStats();
-        return Connection.WriteBytesAsync(pkm.EncryptedPartyData, ofs, token);
+        var data = new byte[pkm.SIZE_PARTY];
+        pkm.WriteEncryptedDataParty(data);
+        return Connection.WriteBytesAsync(data, ofs, token);
+    }
+
+    public new Task SetBoxPokemonAbsolute(ulong offset, PB8 pkm, CancellationToken token, ITrainerInfo? sav = null)
+    {
+        if (sav != null)
+        {
+            pkm.UpdateHandler(sav);
+            pkm.RefreshChecksum();
+        }
+
+        pkm.ResetPartyStats();
+        var data = new byte[pkm.SIZE_PARTY];
+        pkm.WriteEncryptedDataParty(data);
+        return SwitchConnection.WriteBytesAbsoluteAsync(data, offset, token);
     }
 
     public Task SetCurrentBox(byte box, CancellationToken token)
