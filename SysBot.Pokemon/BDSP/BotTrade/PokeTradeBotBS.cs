@@ -264,14 +264,20 @@ public class PokeTradeBotBS : PokeRoutineExecutor8BS, ICountBot, ITradeBot, IDis
             // Only set OT-related info for Mystery Gifts without preset OT/TID/SID
             cln.TrainerTID7 = trainerTID7;
             cln.TrainerSID7 = trainerSID7;
-            cln.OriginalTrainerName = tradePartner;
+
+            // Truncate OT name based on language (Asian languages have 6-char limit, others 12-char)
+            string otName = LanguageHelper.TruncateOTName(tradePartner, cln.Language);
+            cln.OriginalTrainerName = otName;
         }
         else
         {
             // Apply all trade partner details for non-Mystery Gift Pokémon
             cln.TrainerTID7 = trainerTID7;
             cln.TrainerSID7 = trainerSID7;
-            cln.OriginalTrainerName = tradePartner;
+
+            // Truncate OT name based on language (Asian languages have 6-char limit, others 12-char)
+            string otName = LanguageHelper.TruncateOTName(tradePartner, cln.Language);
+            cln.OriginalTrainerName = otName;
             // Any additional properties that would normally be set for BDSP
         }
 

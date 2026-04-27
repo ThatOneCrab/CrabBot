@@ -98,34 +98,89 @@ namespace SysBot.Pokemon.Discord.Helpers
             { "LZA", 52 }, { "ZA", 52 }, { "PLZA", 52 }
         };
 
+        // Alcremie topping keywords
+        private static readonly Dictionary<string, int> AlcremieFormArguments = new(StringComparer.OrdinalIgnoreCase)
+    {
+    { "Strawberry", 0 },
+    { "Berry", 1 },
+    { "Love", 2 },
+    { "Star", 3 },
+    { "Clover", 4 },
+    { "Flower", 5 },
+    { "Ribbon", 6 }
+    };
+
         //////////////////////////////////// MAIN ENTRY //////////////////////////////////////
 
-        public static string NormalizeBatchCommands(string content)
+        public static string NormalizeBatchCommands(string input)
         {
-            // Special-case handling for Alcremie toppings
-            content = HandleAlcremieToppings(content);
+            var lines = input.Split('\n');
+            var processed = new List<string>();
 
-            var lines = content.Split('\n');
+            // Check if first line has a nickname in parentheses (e.g., "Pikachu (Nick)")
+            if (lines.Length > 0)
+            {
+                var firstLine = lines[0].Trim();
+
+            }
 
             for (int i = 0; i < lines.Length; i++)
             {
-                if (!TrySplitCommand(lines[i], out var key, out var value))
+                var line = lines[i].Trim();
+                if (string.IsNullOrWhiteSpace(line))
                     continue;
 
-                // Normalize alias
+                if (!line.Contains(":"))
+                {
+                    // Alcremie forms can now add a topping to the flavor without batch command
+                    // For example, it accepts: Alcremie-Caramel-Swirl-Ribbon
+                    // Just affix the topping name to the end of Alcremie's name after its flavor
+                    // This code injects FormArgument/Topping for Alcremie based on Showdown Format nickname
+                    if (line.StartsWith("Alcremie-", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Separate the item suffix (everything from '@' onward) before parsing the form.
+                        var atIndex = line.IndexOf('@');
+                        var speciesPart = atIndex >= 0 ? line[..atIndex].Trim() : line;
+                        var itemSuffix = atIndex >= 0 ? " @ " + line[(atIndex + 1)..].Trim() : string.Empty;
+
+                        var parts = speciesPart.Split('-', StringSplitOptions.RemoveEmptyEntries);
+                        var lastPart = parts.Last();
+
+                        if (AlcremieFormArguments.TryGetValue(lastPart, out int arg))
+                        {
+                            var speciesName = string.Join("-", parts.Take(parts.Length - 1));
+                            processed.Add(speciesName + itemSuffix);
+                            processed.Add($".FormArgument={arg}");
+                            continue;
+                        }
+                    }
+
+                    processed.Add(line);
+                    continue;
+                }
+
+                if (!TrySplitCommand(line, out var key, out var value))
+                    continue;
+
                 if (BatchCommandAliasMap.TryGetValue(key, out var normalizedKey))
                     key = normalizedKey;
 
-                // Process with handler
                 if (CommandProcessors.TryGetValue(key, out var processor))
                 {
-                    lines[i] = processor(value);
+                    var processedLine = processor(value);
+                    if (!string.IsNullOrWhiteSpace(processedLine))
+                        processed.Add(processedLine);
                 }
-            
+                else
+                {
+                    processed.Add($"{key}: {value}");
+                }
             }
 
-            return string.Join('\n', lines.Where(l => !string.IsNullOrWhiteSpace(l)));
+            // Always return at the end
+            return string.Join("\n", processed);
         }
+
 
         //////////////////////////////////// HANDLER METHODS //////////////////////////////////////
 
@@ -317,29 +372,5 @@ namespace SysBot.Pokemon.Discord.Helpers
             return false;
         }
 
-        // Alcremie forms can now add a topping to the flavor without batch command
-        // For example, it accepts: Alcremie-Caramel-Swirl-Ribbon
-        // Just affix the topping name to the end of Alcremie's name after its flavor
-        // This code injects FormArgument/Topping for Alcremie based on Showdown Format nickname
-        private static string HandleAlcremieToppings(string content)
-        {
-            if (!content.Contains("Alcremie", StringComparison.OrdinalIgnoreCase))
-                return content;
-
-            var match = Regex.Match(content, @"Alcremie[-\s]?.*?[-]?(Strawberry|Berry|Love|Star|Clover|Flower|Ribbon)", RegexOptions.IgnoreCase);
-            if (!match.Success) return content;
-
-            var toppingMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
-                {
-                    { "Strawberry", 0 }, { "Berry", 1 }, { "Love", 2 }, { "Star", 3 },
-                    { "Clover", 4 }, { "Flower", 5 }, { "Ribbon", 6 }
-                };
-
-            var topping = match.Groups[1].Value;
-            if (toppingMap.TryGetValue(topping, out int formArg) && !content.Contains(".FormArgument=", StringComparison.OrdinalIgnoreCase))
-                content += $"\n.FormArgument={formArg}";
-
-            return content;
-        }
     }
 }

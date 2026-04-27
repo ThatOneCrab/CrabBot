@@ -1708,7 +1708,10 @@ public class PokeTradeBotSWSH(PokeTradeHub<PK8> hub, PokeBotState config) : Poke
             cln.OriginalTrainerGender = data[6];
             cln.TrainerTID7 = tidsid % 1_000_000;
             cln.TrainerSID7 = tidsid / 1_000_000;
-            cln.OriginalTrainerName = trainerName;
+
+            // Truncate OT name based on language (Asian languages have 6-char limit, others 12-char)
+            string otName = LanguageHelper.TruncateOTName(trainerName, cln.Language);
+            cln.OriginalTrainerName = otName;
         }
         else
         {
@@ -1716,8 +1719,18 @@ public class PokeTradeBotSWSH(PokeTradeHub<PK8> hub, PokeBotState config) : Poke
             cln.OriginalTrainerGender = data[6];
             cln.TrainerTID7 = tidsid % 1_000_000;
             cln.TrainerSID7 = tidsid / 1_000_000;
-            cln.Language = data[5];
-            cln.OriginalTrainerName = trainerName;
+
+            // Preserve the originally requested language from the showdown set
+            // Only use trade partner's language if the original language is invalid
+            int originalLanguage = toSend.Language;
+            if (originalLanguage < 1 || originalLanguage > 12)
+                cln.Language = data[5]; // Use trade partner's language if invalid
+            else
+                cln.Language = originalLanguage; // Preserve user's requested language
+
+            // Truncate OT name based on language (Asian languages have 6-char limit, others 12-char)
+            string otName = LanguageHelper.TruncateOTName(trainerName, cln.Language);
+            cln.OriginalTrainerName = otName;
         }
 
         ClearOTTrash(cln, trainerName);

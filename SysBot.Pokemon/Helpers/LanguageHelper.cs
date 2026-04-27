@@ -136,4 +136,47 @@ public static class LanguageHelper
             _ => "Unknown"
         };
     }
+    /// <summary>
+    /// Determines if a language uses Asian characters (which have a 6-character limit for OT names).
+    /// </summary>
+    public static bool IsAsianLanguage(LanguageID lang)
+    {
+        return lang is LanguageID.Japanese or LanguageID.Korean or LanguageID.ChineseS or LanguageID.ChineseT;
+    }
+
+    /// <summary>
+    /// Determines if a language uses Asian characters based on language code.
+    /// </summary>
+    public static bool IsAsianLanguage(int languageCode)
+    {
+        return languageCode is 1 or 8 or 9 or 10; // Japanese, Korean, ChineseS, ChineseT
+    }
+
+    /// <summary>
+    /// Truncates OT name to the appropriate length based on language.
+    /// Asian languages (Japanese, Korean, Chinese) have a 6-character limit.
+    /// Latin-based languages have a 12-character limit.
+    /// </summary>
+    public static string TruncateOTName(string otName, LanguageID language)
+    {
+        if (string.IsNullOrEmpty(otName))
+            return otName;
+
+        int maxLength = IsAsianLanguage(language) ? 6 : 12;
+        return otName.Length > maxLength ? otName[..maxLength] : otName;
+    }
+
+    /// <summary>
+    /// Truncates OT name to the appropriate length based on language code.
+    /// Asian languages (Japanese, Korean, Chinese) have a 6-character limit.
+    /// Latin-based languages have a 12-character limit.
+    /// </summary>
+    public static string TruncateOTName(string otName, int languageCode)
+    {
+        if (string.IsNullOrEmpty(otName))
+            return otName;
+
+        int maxLength = IsAsianLanguage(languageCode) ? 6 : 12;
+        return otName.Length > maxLength ? otName[..maxLength] : otName;
+    }
 }

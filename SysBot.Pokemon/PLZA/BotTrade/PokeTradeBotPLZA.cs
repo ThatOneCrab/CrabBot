@@ -2,6 +2,7 @@ using PKHeX.Core;
 using PKHeX.Core.Searching;
 using SysBot.Base;
 using SysBot.Base.Util;
+using SysBot.Pokemon.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -288,7 +289,10 @@ public class PokeTradeBotPLZA(PokeTradeHub<PA9> Hub, PokeBotState Config) : Poke
         pokemon.OriginalTrainerGender = (byte)partner.Gender;
         pokemon.TrainerTID7 = (uint)Math.Abs(partner.DisplayTID);
         pokemon.TrainerSID7 = (uint)Math.Abs(partner.DisplaySID);
-        pokemon.OriginalTrainerName = partner.OT;
+
+        // Truncate OT name based on language (Asian languages have 6-char limit, others 12-char)
+        string otName = LanguageHelper.TruncateOTName(partner.OT, pokemon.Language);
+        pokemon.OriginalTrainerName = otName;
     }
 
     private async Task<PA9> ApplyAutoOT(PA9 toSend, TradePartnerStatusPLZA tradePartner, SAV9ZA sav, CancellationToken token)
@@ -332,11 +336,22 @@ public class PokeTradeBotPLZA(PokeTradeHub<PA9> Hub, PokeBotState Config) : Poke
 
         if (!isMysteryGift)
         {
-            // Validate language ID - if invalid, default to English (2)
-            int language = tradePartner.Language;
-            if (language < 1 || language > 12) // Valid language IDs are 1-12
-                language = 2; // English
-            cln.Language = language;
+            // Preserve the originally requested language from the showdown set
+            // Only use trade partner's language if the original language is invalid
+            int originalLanguage = toSend.Language;
+            if (originalLanguage < 1 || originalLanguage > 12)
+            {
+                // Original language is invalid, use trade partner's language
+                int language = tradePartner.Language;
+                if (language < 1 || language > 12) // Valid language IDs are 1-12
+                    language = 2; // English
+                cln.Language = language;
+            }
+            else
+            {
+                // Preserve the user's explicitly requested language
+                cln.Language = originalLanguage;
+            }
         }
 
         ClearOTTrash(cln, tradePartner);
@@ -662,8 +677,8 @@ public class PokeTradeBotPLZA(PokeTradeHub<PA9> Hub, PokeBotState Config) : Poke
 
             // Read gender and language from fallback TID location
             var genderLang = await SwitchConnection.ReadBytesAbsoluteAsync(fallbackTidAddr, 0x08, token).ConfigureAwait(false);
-            trader_info.Data[0x04] = genderLang[0x04]; // Gender at fallback TID + 0x04
-            trader_info.Data[0x05] = genderLang[0x05]; // Language at fallback TID + 0x05
+            trader_info.Data[0x04] = genderLang[0x05]; // Gender at TID base + 0x05
+            trader_info.Data[0x05] = genderLang[0x07]; // Language at TID base + 0x07
         }
 
         return trader_info;

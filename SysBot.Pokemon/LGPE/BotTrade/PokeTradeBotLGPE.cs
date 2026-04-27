@@ -890,7 +890,19 @@ public class PokeTradeBotLGPE(PokeTradeHub<PB7> Hub, PokeBotState Config) : Poke
 #pragma warning restore CS8601 // Possible null reference assignment.
             cln.SetDisplayTID((uint)tradeDetails.TID);
             cln.SetDisplaySID((uint)tradeDetails.SID);
-            cln.Language = (int)LanguageID.English; // Set the appropriate language ID
+
+            // Preserve the originally requested language from the showdown set
+            // Only default to English if the original language is invalid
+            int originalLanguage = toSend.Language;
+            if (originalLanguage < 1 || originalLanguage > 12)
+                cln.Language = (int)LanguageID.English; // Default to English if invalid
+            else
+                cln.Language = originalLanguage; // Preserve user's requested language
+
+            // Truncate OT name based on language (Asian languages have 6-char limit, others 12-char)
+            string otName = LanguageHelper.TruncateOTName(tradeDetails.OT ?? "", cln.Language);
+            cln.OriginalTrainerName = otName;
+
             ClearOTTrash(cln, tradeDetails);
 
             if (!toSend.IsNicknamed)

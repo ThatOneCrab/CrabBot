@@ -1,9 +1,10 @@
 using PKHeX.Core;
-using System;
-using System.Linq;
 using PKHeX.Core.AutoMod;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
 
 namespace SysBot.Pokemon;
 
@@ -99,4 +100,14 @@ public class LegalitySettings
     [Browsable(false)]
     [Category(Misc), Description("Zero out HOME trackers for cloned and user-requested PKM files. It is recommended to leave this disabled to avoid creating invalid HOME data."), DisplayName("Reset HOME Tracker")]
     public bool ResetHOMETracker { get; set; } = false;
+
+    public void CreateDefaults(string path)
+    {
+        var trainer = Path.Combine(path, "trainerData");
+        if (!Directory.Exists(GeneratePathTrainerInfo))
+        {
+            Directory.CreateDirectory(trainer);
+        }
+        GeneratePathTrainerInfo = trainer;
+    }
 }

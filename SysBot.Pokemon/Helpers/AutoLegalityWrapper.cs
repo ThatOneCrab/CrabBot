@@ -90,19 +90,35 @@ public static class AutoLegalityWrapper
         if (Directory.Exists(externalSource))
             TrainerSettings.LoadTrainerDatabaseFromPath(externalSource);
 
-        var fallback = GetDefaultTrainer(cfg);
+        // Seed the Trainer Database with enough fake save files so that we return a generation sensitive format when needed.
+        // Register fallback trainers for each language to prevent reverting to default language
         for (byte generation = 1; generation <= GameUtil.get_Generation(GameVersion.Gen9); generation++)
         {
-            // Convert generation -> GameVersion -> EntityContext, then call the API that expects EntityContext
-            var versionForGen = GameUtil.GetVersion(generation);
-            var context = versionForGen.GetContextFromSaved();
+            // Convert the byte generation into an EntityContext via a representative GameVersion for that generation
+            var representativeVersion = GameUtil.GetVersion(generation);
+            var context = GameUtil.GetContextFromSaved(representativeVersion);
             var versions = GameUtil.GetVersionsInGeneration(context, GameVersion.Any);
-            foreach (var version in versions)
-                RegisterIfNoneExist(fallback, generation, version);
+
+            // Register trainers for all supported languages
+            foreach (LanguageID language in Enum.GetValues(typeof(LanguageID)))
+            {
+                if (language == LanguageID.UNUSED_6) continue; // Skip unused language ID
+
+                var fallback = GetDefaultTrainerForLanguage(cfg, language);
+                foreach (var version in versions)
+                    RegisterIfNoneExist(fallback, generation, version);
+            }
         }
 
-        RegisterIfNoneExist(fallback, 7, GameVersion.GP);
-        RegisterIfNoneExist(fallback, 7, GameVersion.GE);
+        // Manually register for LGP/E since Gen7 above will only register the 3DS versions.
+        foreach (LanguageID language in Enum.GetValues(typeof(LanguageID)))
+        {
+            if (language == LanguageID.UNUSED_6) continue;
+
+            var fallback = GetDefaultTrainerForLanguage(cfg, language);
+            RegisterIfNoneExist(fallback, 7, GameVersion.GP);
+            RegisterIfNoneExist(fallback, 7, GameVersion.GE);
+        }
     }
 
     private static SimpleTrainerInfo GetDefaultTrainer(LegalitySettings cfg)
@@ -121,6 +137,22 @@ public static class AutoLegalityWrapper
         return fallback;
     }
 
+    private static SimpleTrainerInfo GetDefaultTrainerForLanguage(LegalitySettings cfg, LanguageID language)
+    {
+        var OT = cfg.GenerateOT;
+        if (OT.Length == 0)
+            OT = "Blank"; // Will fail if actually left blank.
+        var fallback = new SimpleTrainerInfo(GameVersion.Any)
+        {
+            Language = (byte)language,
+            TID16 = cfg.GenerateTID16,
+            SID16 = cfg.GenerateSID16,
+            OT = OT,
+            Generation = 0,
+        };
+        return fallback;
+    }
+
     private static void RegisterIfNoneExist(SimpleTrainerInfo fallback, byte generation, GameVersion version)
     {
         fallback = new SimpleTrainerInfo(version)
@@ -131,7 +163,8 @@ public static class AutoLegalityWrapper
             OT = fallback.OT,
             Generation = generation,
         };
-        var exist = TrainerSettings.GetSavedTrainerData(version.GetContextFromSaved(), version, fallback);
+        // Pass the version as the second argument and the fallback as the third to match the overload
+        var exist = TrainerSettings.GetSavedTrainerData(GameUtil.GetContextFromSaved(version), version, fallback);
         if (exist is SimpleTrainerInfo) // not anything from files; this assumes ALM returns SimpleTrainerInfo for non-user-provided fake templates.
             TrainerSettings.Register(fallback);
     }
@@ -141,7 +174,7 @@ public static class AutoLegalityWrapper
         var lang = Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName[..2];
         LocalizationUtil.SetLocalization(typeof(LegalityCheckResultCode), lang);
         LocalizationUtil.SetLocalization(typeof(MessageStrings), lang);
-        
+
         // Pre-initialize BattleTemplateLocalization to prevent concurrent dictionary access issues
         // This forces all localizations to be loaded at startup before any concurrent operations
         _ = BattleTemplateLocalization.ForceLoadAll();
@@ -190,7 +223,14 @@ public static class AutoLegalityWrapper
         throw new ArgumentException("Type does not have a recognized trainer fetch.", typeof(T).Name);
     }
 
-    public static ITrainerInfo GetTrainerInfo(byte gen) => TrainerSettings.GetSavedTrainerData(GameUtil.GetVersion(gen).GetContextFromSaved());
+    // Change GetTrainerInfo(byte) to convert generation byte to an EntityContext before calling TrainerSettings
+    public static ITrainerInfo GetTrainerInfo(byte gen)
+    {
+        // Convert the numeric generation into a representative GameVersion, then to an EntityContext
+        var representativeVersion = GameUtil.GetVersion(gen);
+        var context = GameUtil.GetContextFromSaved(representativeVersion);
+        return TrainerSettings.GetSavedTrainerData(context);
+    }
 
     public static PKM GetLegal(this ITrainerInfo sav, IBattleTemplate set, out string res)
     {
