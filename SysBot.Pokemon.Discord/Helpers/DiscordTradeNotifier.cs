@@ -168,7 +168,7 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>, IDisposable
             var initialEmbed = new EmbedBuilder
             {
                 Color = Color.Green,
-                Title = TotalBatchTrades > 1 ? "🎁 Batch Trade Request Queued" : "Trade Request Queued",
+                Title = TotalBatchTrades > 1 ? "Batch Trade Request Queued" : "Trade Request Queued",
                 Description = batchDescription,
                 Footer = new EmbedFooterBuilder
                 {
@@ -307,13 +307,13 @@ public class DiscordTradeNotifier<T> : IPokeTradeNotifier<T>, IDisposable
             if (BatchTradeNumber == TotalBatchTrades)
             {
                 // Final trade in the batch - this is now called only once at the very end
-                message = $"✅ **All {TotalBatchTrades} trades completed successfully!** Thank you for trading!";
+                message = $"**All {TotalBatchTrades} trades completed successfully!** Thank you for trading!";
             }
             else
             {
                 // Mid-batch trade
                 var speciesName = IsMysteryEgg ? "Mystery Egg" : SpeciesName.GetSpeciesName(Data.Species, 2);
-                message = $"✅ Trade {BatchTradeNumber}/{TotalBatchTrades} completed! ({speciesName})\n" +
+                message = $"Trade {BatchTradeNumber}/{TotalBatchTrades} completed! ({speciesName})\n" +
                          $"Preparing trade {BatchTradeNumber + 1}/{TotalBatchTrades}...";
             }
         }
