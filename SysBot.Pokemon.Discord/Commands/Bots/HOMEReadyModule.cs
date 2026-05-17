@@ -496,5 +496,153 @@ namespace SysBot.Pokemon.Discord.Modules
                 try { if (Context.Message is IUserMessage m) await m.DeleteAsync(); } catch { }
             }
         }
+
+        // ============================================================================
+        //  UPLOAD FILE
+        // ============================================================================
+        [Command("homereadyupload")]
+        [Alias("hru")]
+        [Summary("Uploads one or more HOME-ready PKM files (3 max thnks to shitcord) to the configured HOME-Ready folder. Role controlled via config.")]
+        private async Task HOMEReadyUploadAsync()
+        {
+            if (string.IsNullOrWhiteSpace(HOMEFolder))
+            {
+                await ReplyAsync("This bot does not have the HOME-Ready module configured.").ConfigureAwait(false);
+                return;
+            }
+
+            // Permission check using config role setting
+            try
+            {
+                var mgr = SysCordSettings.Manager;
+                // Global sudo users allowed
+                if (!(mgr.Config.AllowGlobalSudo && mgr.CanUseSudo(Context.User.Id)))
+                {
+                    if (Context.User is not SocketGuildUser gUser)
+                    {
+                        await ReplyAsync("This command must be run in a guild channel.").ConfigureAwait(false);
+                        return;
+                    }
+
+                    // Check role-based sudo/roles first (sudo roles remain name-based)
+                    if (mgr.CanUseSudo(gUser.Roles.Select(r => r.Name)))
+                    {
+                        // allowed via sudo role
+                    }
+                    else
+                    {
+                        var cfgList = SysCord<T>.Runner.Config.Discord.RoleCanUploadHOME;
+
+                        // If config allows anyone when empty, allow; otherwise check membership by role ID
+                        if (!(cfgList.AllowIfEmpty && cfgList.List.Count == 0))
+                        {
+                            var hasRoleById = gUser.Roles.Any(r => cfgList.Contains(r.Id));
+                            if (!hasRoleById)
+                            {
+                                await ReplyAsync("You do not have the required role (configured by role ID in Discord settings) to upload HOME-ready files.").ConfigureAwait(false);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // If permission check fails unexpectedly, disallow to be safe.
+                await ReplyAsync("Permission check failed. Contact an administrator.").ConfigureAwait(false);
+                return;
+            }
+
+            var attachments = Context.Message?.Attachments;
+            if (attachments == null || attachments.Count == 0)
+            {
+                await ReplyAsync("Please attach one or more HOME-ready PKM files to upload (3 max).").ConfigureAwait(false);
+                return;
+            }
+
+            // Allowed extensions
+            var allowedExt = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ".pb7", ".pk8", ".pb8", ".pa8", ".pa9", ".pk9"
+            };
+
+            Directory.CreateDirectory(HOMEFolder);
+
+            var successes = new List<string>();
+            var failures = new List<string>();
+
+            try
+            {
+                using var http = new System.Net.Http.HttpClient();
+
+                foreach (var att in attachments)
+                {
+                    var filename = Path.GetFileName(att.Filename) ?? att.Filename;
+                    var ext = Path.GetExtension(filename) ?? "";
+
+                    if (!allowedExt.Contains(ext))
+                    {
+                        failures.Add($"{filename} (invalid extension)");
+                        continue;
+                    }
+
+                    try
+                    {
+                        var data = await http.GetByteArrayAsync(att.Url).ConfigureAwait(false);
+
+                        // Validate file is a PKM
+                        var entity = EntityFormat.GetFromBytes(data);
+                        if (entity == null)
+                        {
+                            failures.Add($"{filename} (not a valid PKM)");
+                            continue;
+                        }
+
+                        // Sanitize filename
+                        var safeName = string.Concat(filename.Split(Path.GetInvalidFileNameChars()));
+                        if (string.IsNullOrWhiteSpace(safeName))
+                            safeName = $"homeready_{Guid.NewGuid():N}{ext}";
+
+                        var dest = Path.Combine(HOMEFolder, safeName);
+                        if (File.Exists(dest))
+                        {
+                            var baseName = Path.GetFileNameWithoutExtension(safeName);
+                            var newName = $"{baseName}_{Guid.NewGuid():N}{ext}";
+                            dest = Path.Combine(HOMEFolder, newName);
+                            safeName = newName;
+                        }
+
+                        await File.WriteAllBytesAsync(dest, data).ConfigureAwait(false);
+                        successes.Add(safeName);
+                    }
+                    catch (Exception ex)
+                    {
+                        failures.Add($"{filename} ({ex.Message})");
+                    }
+                }
+
+                var parts = new List<string>();
+                if (successes.Count > 0)
+                    parts.Add($"Uploaded {successes.Count} file(s): {string.Join(", ", successes)}");
+                if (failures.Count > 0)
+                    parts.Add($"Failed to upload {failures.Count} file(s): {string.Join(", ", failures)}");
+
+                await ReplyAsync(parts.Count > 0 ? string.Join("\n", parts) : "No files were uploaded.").ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                await ReplyAsync($"**Error while uploading files:** {ex.Message}").ConfigureAwait(false);
+            }
+            finally
+            {
+                try
+                {
+                    if (Context.Message is IUserMessage msg)
+                        await msg.DeleteAsync().ConfigureAwait(false);
+                }
+                catch { }
+            }
+        }
     }
 }
+
