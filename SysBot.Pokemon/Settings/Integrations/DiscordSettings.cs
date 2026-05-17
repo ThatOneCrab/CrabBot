@@ -158,7 +158,7 @@ public class DiscordSettings
     [Category(Roles), Description("Users with this role are allowed to enter the Trade queue."), DisplayName("Role can Trade")]
     public RemoteControlAccessList RoleCanTrade { get; set; } = new() { AllowIfEmpty = true };
 
-    [Category(Roles), Description("Users with this role are allowed to upload files to the HOME-Ready folder."), DisplayName("Role can HOME-Ready Upload")]
+    [Category(Roles), Description("Users with this role are allowed to upload files to the HOME-Ready folder (3 max)."), DisplayName("Role can HOME-Ready Upload")]
     public RemoteControlAccessList RoleCanUploadHOME { get; set; } = new() { AllowIfEmpty = false };
 
     [Category(Roles), Description("Users with this role are allowed to join the queue with a better position."), DisplayName("Favored Roles")]
