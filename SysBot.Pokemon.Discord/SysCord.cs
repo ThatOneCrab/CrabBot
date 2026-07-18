@@ -554,18 +554,8 @@ public sealed partial class SysCord<T> where T : PKM, new()
 
         var responses = new List<string>
         {
-        "It is an honor for you to be in my presence.",
-        "You good, homie.",
-        "Always here to help people like you, even if you *are* funny looking.",
-        "It's your pleasure and my burden.",
-        "It was a little annoying, but I liked you enough, so yay you, I guess...",
-        "You should really be showing appreciation to your parents instead.",
-        "Yes... thank me, you bootlicker! :)",
-        "Not a problem, you weak and meager human! :D",
-        "If you were *truly* appreciative, you'd pay me in dance. Now dance, monkey!",
-        "No hablo Espanol or something...",
-        "Did you really just show me appreciation? Lol, I'm a bot, dummy. I don't care.",
-        "No problem. Now give me your dog for the sacrifice."
+        "No problem Enjoy.",
+      
     };
 
         var randomResponse = responses[new Random().Next(responses.Count)];

@@ -42,7 +42,7 @@ namespace SysBot.Pokemon.Discord.Helpers.TradeModule
 
             if (pkm.Nature == desiredNature && (!isShiny || pkm.IsShiny))
             {
-                pkm.StatNature = pkm.Nature;
+                pkm.StatAlignment = pkm.Nature;
                 pkm.RefreshChecksum();
                 return;
             }
@@ -81,7 +81,7 @@ namespace SysBot.Pokemon.Discord.Helpers.TradeModule
             // Apply PID & nature
             pkm.PID = newPid;
             pkm.Nature = (Nature)(newPid % 25u);
-            pkm.StatNature = pkm.Nature;
+            pkm.StatAlignment = pkm.Nature;
 
             // Restore IVs
             pkm.IV_HP = iv_hp;

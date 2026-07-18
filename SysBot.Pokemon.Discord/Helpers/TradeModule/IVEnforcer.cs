@@ -110,7 +110,7 @@ namespace SysBot.Pokemon.Discord.Helpers.TradeModule
 
                 pk.PID = candidate;
                 pk.Nature = (Nature)candNature;
-                pk.StatNature = pk.Nature;
+                pk.StatAlignment = pk.Nature;
 
                 // Reapply IVs after PID change
                 pk.SetIVs(ivs);
@@ -169,7 +169,7 @@ namespace SysBot.Pokemon.Discord.Helpers.TradeModule
             // -----------------------------
             pk.PID = originalPid;
             pk.Nature = originalNature;
-            pk.StatNature = pk.Nature;
+            pk.StatAlignment = pk.Nature;
             pk.SetIVs(ivs);
 
             if (pk is IHyperTrain htRestore)

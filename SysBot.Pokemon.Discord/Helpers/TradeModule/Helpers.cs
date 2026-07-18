@@ -144,6 +144,27 @@ public static class Helpers<T> where T : PKM, new()
             TradeExtensions<T>.DetectShowdownLanguage
         );
 
+        // Rebuild the ShowdownSet with the correct language to ensure PKHeX uses it during generation
+        // Remove any existing Language: line and add the correct one
+        var contentLines = content.Split('\n')
+            .Where(line => !line.TrimStart().StartsWith("Language:", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        // Add the correct language line after the species line (first line)
+        if (contentLines.Count > 0)
+        {
+            var languageName = ((LanguageID)finalLanguage).ToString();
+            contentLines.Insert(1, $"Language: {languageName}");
+        }
+
+        var updatedContent = string.Join("\n", contentLines);
+
+        // Re-parse with the updated language
+        if (ShowdownParsing.TryParseAnyLanguage(updatedContent, out ShowdownSet? updatedSet) && updatedSet != null && updatedSet.Species == set.Species)
+        {
+            set = updatedSet;
+        }
+
         var template = AutoLegalityWrapper.GetTemplate(set);
 
         // Filter out batch commands (.) and filters (~) from invalid lines - these are handled by ALM
