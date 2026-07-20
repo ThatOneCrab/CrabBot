@@ -4,6 +4,7 @@ using SysBot.Base;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 using static SysBot.Pokemon.TradeSettings;
 
 namespace SysBot.Pokemon.Helpers;
@@ -248,6 +249,53 @@ public abstract class TradeExtensions<T> where T : PKM, new()
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Returns all marks/ribbons present on the given PKM along with their display titles.
+    /// </summary>
+    public static List<(RibbonIndex Index, string Title)> GetAllMarks(IRibbonIndex pk)
+    {
+        var results = new List<(RibbonIndex, string)>();
+
+        if (pk is IRibbonSetMark9 ribbonSetMark)
+        {
+            if (ribbonSetMark.RibbonMarkMightiest)
+            {
+                results.Add((RibbonIndex.MarkMightiest, " The Unrivaled"));
+            }
+            if (ribbonSetMark.RibbonMarkAlpha)
+            {
+                // For PA9 (PLZA), determine native vs former alpha
+                if (pk is PA9 pa9)
+                {
+                    var la = new LegalityAnalysis(pa9);
+                    bool isNative = la.EncounterOriginal.Context == pa9.Context;
+                    results.Add((RibbonIndex.MarkAlpha, isNative ? " The Alpha" : " The Former Alpha"));
+                }
+                else
+                {
+                    results.Add((RibbonIndex.MarkAlpha, " The Former Alpha"));
+                }
+            }
+            if (ribbonSetMark.RibbonMarkTitan)
+                results.Add((RibbonIndex.MarkTitan, " The Former Titan"));
+            if (ribbonSetMark.RibbonMarkJumbo)
+                results.Add((RibbonIndex.MarkJumbo, " The Great"));
+            if (ribbonSetMark.RibbonMarkMini)
+                results.Add((RibbonIndex.MarkMini, " The Teeny"));
+        }
+
+        for (var mark = RibbonIndex.MarkLunchtime; mark <= RibbonIndex.MarkSlump; mark++)
+        {
+            if (pk.GetRibbon((int)mark))
+            {
+                string title = MarkTitle[(int)mark - (int)RibbonIndex.MarkLunchtime];
+                results.Add((mark, title));
+            }
+        }
+
+        return results;
     }
 
     public static string PokeImg(PKM pkm, bool canGmax, bool fullSize, ImageSize? preferredImageSize = null)

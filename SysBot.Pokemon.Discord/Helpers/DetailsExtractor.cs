@@ -57,6 +57,22 @@ public static class DetailsExtractor<T> where T : PKM, new()
         embedBuilder.AddField($"**{embedData.SpeciesName}{(string.IsNullOrEmpty(embedData.FormName) ? "" : $"-{embedData.FormName}")} {embedData.SpecialSymbols}**", leftSideContent, inline: true);
         embedBuilder.AddField("\u200B", "\u200B", inline: true);
         embedBuilder.AddField("**__MOVES__**", embedData.MovesDisplay, inline: false);
+
+        // Add a dedicated Marks/Ribbons field for clarity when configured
+        if (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowMarks && !string.IsNullOrEmpty(embedData.MarkSymbols))
+        {
+            // Trim possible trailing spaces
+            var marks = embedData.MarkSymbols.Trim();
+            if (!string.IsNullOrEmpty(marks))
+                embedBuilder.AddField("**Marks / Ribbons**", marks, inline: false);
+        }
+
+        // Add a Held Item label field (no item text) only if the pokemon actually has a held item
+        if (SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.ShowHeldItem && pk.HeldItem > 0 && !string.IsNullOrEmpty(embedData.HeldItem) && !string.Equals(embedData.HeldItem, "None", StringComparison.OrdinalIgnoreCase))
+        {
+            // Use a zero-width space as the field value so the field renders without showing the item name
+            embedBuilder.AddField("Held Item", "\u200B", inline: false);
+        }
     }
 
 
@@ -142,7 +158,8 @@ public static class DetailsExtractor<T> where T : PKM, new()
         }
 
         embedData.SpeciesName = strings.Species[pk.Species];
-        embedData.SpecialSymbols = GetSpecialSymbols(pk);
+        embedData.SpecialSymbols = GetSpeciesSymbols(pk);
+        embedData.MarkSymbols = GetMarkSymbols(pk);
         embedData.FormName = ShowdownParsing.GetStringFromForm(pk.Form, strings, pk.Species, pk.Context);
         embedData.HeldItem = strings.itemlist[pk.HeldItem];
         embedData.Ball = strings.balllist[pk.Ball];
@@ -363,21 +380,99 @@ public static class DetailsExtractor<T> where T : PKM, new()
         return (scaleText, scaleNumber);
     }
 
-    private static string GetSpecialSymbols(T pk)
+    private static string GetMarkSymbols(T pk)
     {
         string alphaMarkSymbol = string.Empty;
         string mightyMarkSymbol = string.Empty;
-        string markTitle = string.Empty;
+        RibbonIndex markResult = default;
+
         if (pk is IRibbonSetMark9 ribbonSetMark)
         {
             alphaMarkSymbol = ribbonSetMark.RibbonMarkAlpha ? SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.AlphaMarkEmoji.EmojiString : string.Empty;
             mightyMarkSymbol = ribbonSetMark.RibbonMarkMightiest ? SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.MightiestMarkEmoji.EmojiString : string.Empty;
         }
+
         if (pk is IRibbonIndex ribbonIndex)
         {
-            TradeExtensions<T>.HasMark(ribbonIndex, out RibbonIndex result, out markTitle);
+            TradeExtensions<T>.HasMark(ribbonIndex, out markResult, out _);
         }
-        string alphaSymbol = (pk is IAlpha alpha && alpha.IsAlpha) ? SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.AlphaPLAEmoji.EmojiString : string.Empty;
+
+        var embedSettings = SysCord<T>.Runner.Config.Trade.TradeEmbedSettings;
+        string alphaPLAEmoji = (pk is IAlpha alpha && alpha.IsAlpha) ? embedSettings.AlphaPLAEmoji.EmojiString : string.Empty;
+        string mysteryGiftEmoji = pk.FatefulEncounter ? embedSettings.MysteryGiftEmoji.EmojiString : string.Empty;
+
+        // Build mark display allowing multiple marks
+        string markDisplay = string.Empty;
+        if (pk is IRibbonIndex ribbonIndex2)
+        {
+            var allMarks = TradeExtensions<T>.GetAllMarks(ribbonIndex2);
+            var parts = new List<string>();
+            foreach (var (index, title) in allMarks)
+            {
+                string emojiPart = string.Empty;
+                if (embedSettings.UseMarkEmojis && embedSettings.MarkEmojis != null)
+                {
+                    var mi = embedSettings.MarkEmojis.Find(m => (m.MarkIndex.HasValue && m.MarkIndex.Value == index) || (!string.IsNullOrEmpty(m.MarkName) && m.MarkName == index.ToString()));
+                    if (mi != null && !string.IsNullOrEmpty(mi.EmojiCode))
+                        emojiPart = mi.EmojiCode.Trim();
+                }
+
+                // If emoji is configured for this mark, display only the emoji. Otherwise show the textual title.
+                var part = !string.IsNullOrEmpty(emojiPart) ? emojiPart : title.Trim();
+                if (!string.IsNullOrEmpty(part))
+                    parts.Add(part);
+            }
+
+            if (parts.Count == 0)
+            {
+                try
+                {
+                    var enumVals = Enum.GetValues(typeof(RibbonIndex)).Cast<RibbonIndex>();
+                    foreach (var rv in enumVals)
+                    {
+                        try
+                        {
+                            if (ribbonIndex2.GetRibbon((int)rv))
+                            {
+                                string title = rv.ToString();
+                                if (rv >= RibbonIndex.MarkLunchtime && rv <= RibbonIndex.MarkSlump)
+                                {
+                                    int idx = (int)rv - (int)RibbonIndex.MarkLunchtime;
+                                    if (idx >= 0 && idx < TradeExtensions<T>.MarkTitle.Length)
+                                        title = TradeExtensions<T>.MarkTitle[idx];
+                                }
+
+                                string emojiPart = string.Empty;
+                                if (embedSettings.UseMarkEmojis && embedSettings.MarkEmojis != null)
+                                {
+                                    var mi = embedSettings.MarkEmojis.Find(m =>
+                                        (m.MarkIndex.HasValue && m.MarkIndex.Value == rv) ||
+                                        (!string.IsNullOrEmpty(m.MarkName) && m.MarkName == rv.ToString()) ||
+                                        (!string.IsNullOrEmpty(m.DisplayName) && m.DisplayName == rv.ToString())
+                                    );
+                                    if (mi != null && !string.IsNullOrEmpty(mi.EmojiCode))
+                                        emojiPart = mi.EmojiCode.Trim();
+                                }
+
+                                var part = !string.IsNullOrEmpty(emojiPart) ? emojiPart : title.Trim();
+                                parts.Add(part);
+                            }
+                        }
+                        catch { }
+                    }
+                }
+                catch { }
+            }
+
+            if (parts.Count > 0)
+                markDisplay = string.Join(" ", parts) + " ";
+        }
+
+        return alphaPLAEmoji + mightyMarkSymbol + alphaMarkSymbol + mysteryGiftEmoji + markDisplay;
+    }
+
+    private static string GetSpeciesSymbols(T pk)
+    {
         string shinySymbol = pk.ShinyXor == 0 ? "◼ " : pk.IsShiny ? "★ " : string.Empty;
         string genderSymbol = GameInfo.GenderSymbolASCII[pk.Gender];
         string maleEmojiString = SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.MaleEmoji.EmojiString;
@@ -388,9 +483,8 @@ public static class DetailsExtractor<T> where T : PKM, new()
             "F" => !string.IsNullOrEmpty(femaleEmojiString) ? femaleEmojiString : "(F) ",
             _ => ""
         };
-        string mysteryGiftEmoji = pk.FatefulEncounter ? SysCord<T>.Runner.Config.Trade.TradeEmbedSettings.MysteryGiftEmoji.EmojiString : "";
 
-        return shinySymbol + alphaSymbol + mightyMarkSymbol + alphaMarkSymbol + mysteryGiftEmoji + displayGender + (!string.IsNullOrEmpty(markTitle) ? $"{markTitle} " : "");
+        return shinySymbol + displayGender;
     }
 
     private static string GetTeraTypeString(PK9 pk9)
@@ -490,6 +584,12 @@ public class EmbedData
 
     /// <summary>Special symbol indicators (shiny, gender, etc.).</summary>
     public string? SpecialSymbols { get; set; }
+
+    /// <summary>Concatenated marks / ribbons display (emojis and/or titles).</summary>
+    public string? MarkSymbols { get; set; }
+
+    /// <summary>Whether the original request explicitly requested a held item.</summary>
+    public bool RequestedHeldItem { get; set; }
 
     /// <summary>Species name.</summary>
     public string? SpeciesName { get; set; }

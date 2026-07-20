@@ -1,8 +1,12 @@
 using PKHeX.Core;
+using SysBot.Pokemon.Helpers;
 using SysBot.Base;
+using PKHeX.Core;
 using Discord;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.ComponentModel;
 using System.Threading;
 
@@ -226,7 +230,7 @@ public class TradeSettings : IBotStateSettings, ICountSettings
         new(MoveType.Stellar)
     };
 
-        [Category(EmbedSettings), Description("Will show Scale in trade embed (SV & Discord only). Requires user to upload the emojis to their server."), DisplayName("Show Scale")]
+        [Category(EmbedSettings), Description("Will show the Scale of a pokemon in trade embed."), DisplayName("Show Scale")]
         public bool ShowScale { get; set; } = true;
 
         [Category(EmbedSettings), Description("Will show Tera Type in trade embed (SV & Discord only)."), DisplayName("Show Tera Type")]
@@ -261,6 +265,64 @@ public class TradeSettings : IBotStateSettings, ICountSettings
 
         [Category(EmbedSettings), Description("Will show Held Item in trade embed (Discord only)."), DisplayName("Show Held Item")]
         public bool ShowHeldItem { get; set; } = true;
+
+        [Category(EmbedSettings), Description("Will show Marks / Ribbons in trade embed (Discord only)."), DisplayName("Show Marks / Ribbons")]
+        public bool ShowMarks { get; set; } = true;
+
+        [Category(EmbedSettings), Description("Will use custom emojis for marks/ribbons if configured."), DisplayName("Use Mark Emojis?")]
+        public bool UseMarkEmojis { get; set; } = true;
+
+        [Category(EmbedSettings), Description("Custom Mark / Ribbon emoji mappings."), DisplayName("Custom Mark Emojis")]
+        public List<MarkEmojiInfo> MarkEmojis
+        {
+            get
+            {
+                if (_markEmojis == null || _markEmojis.Count == 0)
+                    PopulateMarkEmojis();
+                return _markEmojis!;
+            }
+            set => _markEmojis = value;
+        }
+
+        private List<MarkEmojiInfo>? _markEmojis;
+
+        private void PopulateMarkEmojis()
+        {
+            try
+            {
+                // Create one entry per RibbonIndex with empty emoji code
+                var list = Enum.GetValues(typeof(RibbonIndex)).Cast<RibbonIndex>()
+                    .Select(r => new MarkEmojiInfo(r) as MarkEmojiInfo)
+                    .ToList();
+
+                // Also include RibbonMark/ribbon flag names found in the Showdown translator dictionary
+                try
+                {
+                    var seen = new HashSet<string>(list.Select(x => x.MarkIndex.HasValue ? x.MarkIndex.Value.ToString() : (x.MarkName ?? "")));
+                    foreach (var val in ShowdownTranslatorDictionary.ribbonMarks.Values)
+                    {
+                        // val looks like "\n.RibbonMarkMightiest=True" - extract the RibbonMark name
+                        var m = Regex.Match(val, @"\.([A-Za-z0-9_]+)\=");
+                        if (m.Success)
+                        {
+                            var name = m.Groups[1].Value;
+                            if (!seen.Contains(name))
+                            {
+                                list.Add(new MarkEmojiInfo(name));
+                                seen.Add(name);
+                            }
+                        }
+                    }
+                }
+                catch { }
+
+                _markEmojis = list;
+            }
+            catch
+            {
+                _markEmojis = new List<MarkEmojiInfo>();
+            }
+        }
     }
 
     [Category(VGCPastesConfig), TypeConverter(typeof(CategoryConverter<VGCPastesCategory>))]
@@ -273,6 +335,148 @@ public class TradeSettings : IBotStateSettings, ICountSettings
 
         [Category(VGCPastesConfig), Description("GID of Spreadsheet tab you would like to pull from. Hint: https://docs.google.com/spreadsheets/d/ID/gid=1837599752"), DisplayName("GID of Spreadsheet Tab")]
         public int GID { get; set; } = 1837599752; // Reg F Tab
+    }
+
+    // Titles for contiguous ribbon marks (matching TradeExtensions.MarkTitle)
+    private static readonly string[] RibbonMarkTitles =
+    {
+        " The Peckish",
+        " The Sleepy",
+        " The Dozy",
+        " The Early Riser",
+        " The Cloud Watcher",
+        " The Sodden",
+        " The Thunderstruck",
+        " The Snow Frolicker",
+        " The Shivering",
+        " The Parched",
+        " The Sandswept",
+        " The Mist Drifter",
+        " The Chosen One",
+        " The Catch of The Day",
+        " The Curry Connoisseur",
+        " The Sociable",
+        " The Recluse",
+        " The Rowdy",
+        " The Spacey",
+        " The Anxious",
+        " The Giddy",
+        " The Radiant",
+        " The Serene",
+        " The Feisty",
+        " The Daydreamer",
+        " The Joyful",
+        " The Furious",
+        " The Beaming",
+        " The Teary-Eyed",
+        " The Chipper",
+        " The Grumpy",
+        " The Scholar",
+        " The Rampaging",
+        " The Opportunist",
+        " The Stern",
+        " The Kindhearted",
+        " The Easily Flustered",
+        " The Driven",
+        " The Apathetic",
+        " The Arrogant",
+        " The Reluctant",
+        " The Humble",
+        " The Pompous",
+        " The Lively",
+        " The Worn-Out",
+        " Of The Distant Past",
+        " The Twinkling Star",
+        " The Paldea Champion",
+        " The Great",
+        " The Teeny",
+        " The Treasure Hunter",
+        " The Reliable Partner",
+        " The Gourmet",
+        " The One-in-a-Million",
+        " The Former Alpha",
+        " The Unrivaled",
+        " The Former Titan",
+        " The Great",
+        " The Teeny",
+        " The Former Titan",
+    };
+
+    public class MarkEmojiInfo
+    {
+        [Description("The mark/ribbon index (RibbonIndex from PKHeX).")]
+        public RibbonIndex? MarkIndex { get; set; }
+
+        [Description("The mark/ribbon name (for Ribbon flags not represented by RibbonIndex).")]
+        public string? MarkName { get; set; }
+
+        [Description("Friendly display name for the mark/ribbon used in UI.")]
+        public string DisplayName { get; set; } = string.Empty;
+
+        [Description("The Discord emoji string for this mark/ribbon.")]
+        public string EmojiCode { get; set; } = "";
+
+        public MarkEmojiInfo() { }
+
+        public MarkEmojiInfo(RibbonIndex mark)
+        {
+            MarkIndex = mark;
+            EmojiCode = string.Empty;
+            DisplayName = GenerateDisplayNameFromIndex(mark);
+        }
+
+        public MarkEmojiInfo(string markName)
+        {
+            MarkName = markName;
+            EmojiCode = string.Empty;
+            DisplayName = GenerateDisplayNameFromName(markName);
+        }
+
+        private static string GenerateDisplayNameFromIndex(RibbonIndex idx)
+        {
+            // If it's one of the contiguous mark titles, use the human-friendly title from TradeExtensions
+            if (idx >= RibbonIndex.MarkLunchtime && idx <= RibbonIndex.MarkSlump)
+            {
+                int baseIdx = (int)idx - (int)RibbonIndex.MarkLunchtime;
+                if (baseIdx >= 0 && baseIdx < RibbonMarkTitles.Length)
+                    return RibbonMarkTitles[baseIdx].Trim();
+            }
+
+            // Fallback to enum name with spacing
+            return SplitCamelCase(idx.ToString());
+        }
+
+        private static string GenerateDisplayNameFromName(string name)
+        {
+            // Remove common prefixes like RibbonMark or Ribbon
+            var cleaned = name.Replace("RibbonMark", "").Replace("Ribbon", "");
+            return SplitCamelCase(cleaned).Trim();
+        }
+
+        private static string SplitCamelCase(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+            return Regex.Replace(input, "([a-z])([A-Z])", "$1 $2").Replace("_", " ");
+        }
+
+        public override string ToString()
+        {
+            // Show emoji if configured, otherwise show friendly display name
+            if (!string.IsNullOrEmpty(EmojiCode))
+                return EmojiCode;
+
+            if (!string.IsNullOrEmpty(DisplayName))
+                return DisplayName;
+
+            if (!string.IsNullOrEmpty(MarkName))
+                return MarkName;
+
+            if (MarkIndex.HasValue)
+                return MarkIndex.Value.ToString();
+
+            return "Unknown";
+        }
     }
 
     [Category(RequestFolders), TypeConverter(typeof(CategoryConverter<RequestFolderSettingsCategory>))]
