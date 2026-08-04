@@ -33,7 +33,8 @@ public class SeedSearchResult(Z3SearchResult Type, ulong Seed, int FlawlessIVCou
 
         SeedSearchUtil.GetShinyFrames(Seed, out int[] frames, out uint[] type, out List<uint[,]> IVs, Mode);
 
-        for (int i = 0; i < 3 && frames[i] != 0; i++)
+        // Use the number of IVs entries to determine how many frames were found
+        for (int i = 0; i < IVs.Count && i < 3; i++)
         {
             var shinytype = type[i] == 1 ? "Star" : "Square";
             yield return $"\nFrame: {frames[i]} - {shinytype}";

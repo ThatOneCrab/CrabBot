@@ -10,7 +10,7 @@ public static class SeedSearchUtil
         int shinyindex = 0;
         frames = new int[3];
         type = new uint[3];
-        IVs = [];
+        IVs = new List<uint[,]>();
         bool foundStar = false;
         bool foundSquare = false;
 
@@ -25,23 +25,51 @@ public static class SeedSearchUtil
             // If we found a shiny, record it and return if we got everything we wanted.
             if (shinytype != 0)
             {
-                if (shinytype == 1)
-                    foundStar = true;
-                else if (shinytype == 2)
-                    foundSquare = true;
-
-                if (shinyindex == 0 || mode == SeedCheckResults.FirstThree || (foundStar && foundSquare))
+                if (mode == SeedCheckResults.ClosestOnly)
                 {
-                    frames[shinyindex] = i;
-                    type[shinyindex] = shinytype;
-                    GetShinyIVs(rng, out uint[,] frameIVs);
-                    IVs.Add(frameIVs);
+                    // In ClosestOnly mode, collect the closest Star and the closest Square (both if present).
+                    if (shinytype == 1 && !foundStar)
+                    {
+                        frames[shinyindex] = i;
+                        type[shinyindex] = shinytype;
+                        GetShinyIVs(rng, out uint[,] frameIVs);
+                        IVs.Add(frameIVs);
+                        foundStar = true;
+                        shinyindex++;
+                    }
+                    else if (shinytype == 2 && !foundSquare)
+                    {
+                        frames[shinyindex] = i;
+                        type[shinyindex] = shinytype;
+                        GetShinyIVs(rng, out uint[,] frameIVs);
+                        IVs.Add(frameIVs);
+                        foundSquare = true;
+                        shinyindex++;
+                    }
 
-                    shinyindex++;
+                    if (foundStar && foundSquare)
+                        return;
                 }
+                else
+                {
+                    if (shinytype == 1)
+                        foundStar = true;
+                    else if (shinytype == 2)
+                        foundSquare = true;
 
-                if (mode == SeedCheckResults.ClosestOnly || (mode == SeedCheckResults.FirstStarAndSquare && foundStar && foundSquare) || shinyindex >= 3)
-                    return;
+                    if (shinyindex == 0 || mode == SeedCheckResults.FirstThree || (foundStar && foundSquare))
+                    {
+                        frames[shinyindex] = i;
+                        type[shinyindex] = shinytype;
+                        GetShinyIVs(rng, out uint[,] frameIVs);
+                        IVs.Add(frameIVs);
+
+                        shinyindex++;
+                    }
+
+                    if (mode == SeedCheckResults.ClosestOnly || (mode == SeedCheckResults.FirstStarAndSquare && foundStar && foundSquare) || shinyindex >= 3)
+                        return;
+                }
             }
 
             // Get the next seed, and reset for the next iteration
@@ -59,7 +87,7 @@ public static class SeedSearchUtil
         for (int ivcount = 0; ivcount < 5; ivcount++)
         {
             int i = 0;
-            int[] ivs = [-1, -1, -1, -1, -1, -1];
+            int[] ivs = new int[] { -1, -1, -1, -1, -1, -1 };
 
             while (i < ivcount + 1)
             {

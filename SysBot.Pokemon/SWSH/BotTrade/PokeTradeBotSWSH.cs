@@ -586,7 +586,7 @@ public class PokeTradeBotSWSH(PokeTradeHub<PK8> hub, PokeBotState config) : Poke
             if (detail.Type == PokeTradeType.Batch)
                 result = await PerformBatchTrade(sav, detail, token).ConfigureAwait(false);
             else
-                result = await PerformLinkCodeTrade(sav, detail, token).ConfigureAwait(false);
+                result = await PerformLinkCodeTrade(sav, detail, type, token).ConfigureAwait(false);
 
             if (result != PokeTradeResult.Success)
             {
@@ -679,7 +679,7 @@ public class PokeTradeBotSWSH(PokeTradeHub<PK8> hub, PokeBotState config) : Poke
         }
     }
 
-    private async Task<PokeTradeResult> PerformLinkCodeTrade(SAV8SWSH sav, PokeTradeDetail<PK8> poke, CancellationToken token)
+    private async Task<PokeTradeResult> PerformLinkCodeTrade(SAV8SWSH sav, PokeTradeDetail<PK8> poke, PokeRoutineType routineType, CancellationToken token)
     {
         // Update Barrier Settings
         UpdateBarrier(poke.IsSynchronized);
@@ -851,12 +851,9 @@ public class PokeTradeBotSWSH(PokeTradeHub<PK8> hub, PokeBotState config) : Poke
 
         if (poke.Type == PokeTradeType.Seed && itemReq == SpecialTradeType.None)
         {
-            // Immediately exit, we aren't trading anything.
-            poke.SendNotification(this, "No held item or valid request! Cancelling this trade.");
+            // Treat any Seed trade with no special request as a SeedCheck trade.
             TradeProgressChanged?.Invoke(0);
-
-            await ExitTrade(false, token).ConfigureAwait(false);
-            return PokeTradeResult.TrainerRequestBad;
+            return await EndSeedCheckTradeAsync(poke, offered, token).ConfigureAwait(false);
         }
 
         var trainer = new PartnerDataHolder(trainerNID, trainerName, trainerTID);
