@@ -107,7 +107,10 @@ namespace SysBot.Pokemon.Discord
 
             var footerText = $"Page {page}/{pageCount}";
             if (page < pageCount)
-                footerText += $" | Type `help {page + 1}` for the next page.";
+            {
+                var mention = Context.Client.CurrentUser.Mention;
+                footerText += $" | In guilds mention the bot: {mention} help {page + 1} | In DMs type `help {page + 1}` for the next page.";
+            }
 
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("Available Commands")

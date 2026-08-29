@@ -59,7 +59,9 @@ public static class ListHelpers<T> where T : PKM, new()
         foreach (var item in pageItems)
         {
             var index = allFiles.IndexOf(item) + 1;
-            embed.AddField($"{index}. {item}", $"Use `{botPrefix}{commandPrefix} {index}` to request this {itemType.TrimEnd('s')}.");
+            // Prefer mentioning the bot in guild channels; show mention-based invocation using the current client
+            var mentionExample = $"{context.Client.CurrentUser.Mention} {commandPrefix} {index}";
+            embed.AddField($"{index}. {item}", $"Use `{mentionExample}` to request this {itemType.TrimEnd('s')}.");
         }
 
         await SendDMOrReplyAsync(context, embed.Build());
@@ -117,8 +119,9 @@ public static class ListHelpers<T> where T : PKM, new()
 
             if (index < 1 || index > files.Count)
             {
+                var mentionExample = $"{context.Client.CurrentUser.Mention} {listCommand}";
                 await Helpers<T>.ReplyAndDeleteAsync(context,
-                    $"Invalid {itemType} index. Please use a valid number from the `.{listCommand}` command.", 2);
+                    $"Invalid {itemType} index. Please use a valid number from the `{mentionExample}` command.", 2);
                 return;
             }
 

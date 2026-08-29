@@ -28,6 +28,10 @@ For support on setting up your own instance of CrabBot, feel free to join the di
 - Provide a discord login token and the Roles that are allowed to interact with your bots.
 - Commands are provided to manage & join the distribution queue.
 
+Note about Discord invocation:
+- In server (guild) channels this build prefers mention-based invocation (e.g. `@YourBot command args`) so it works without the Message Content privileged intent.
+- In direct messages (DMs) the bot still supports traditional prefix-based commands (configured via the CommandPrefix setting).
+
 ## SysBot.Pokemon.Twitch:
 - Twitch.tv interface for remotely announcing when the distribution starts.
 - Provide a Twitch login token, username, and channel for login.

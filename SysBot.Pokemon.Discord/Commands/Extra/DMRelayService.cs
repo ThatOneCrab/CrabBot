@@ -32,7 +32,11 @@ namespace SysBot.Pokemon.Discord.Helpers
                 return;
 
             // Build the base forward message
-            string forwardContent = $"📩 **DM from {umsg.Author} ({umsg.Author.Id})**:\n{umsg.Content}";
+            var forwardBody = !string.IsNullOrWhiteSpace(umsg.Content)
+                ? umsg.Content
+                : "<content unavailable: Message Content intent not enabled>";
+
+            string forwardContent = $"📩 **DM from {umsg.Author} ({umsg.Author.Id})**:\n{forwardBody}";
 
             // Include attachments in the log if they exist
             if (umsg.Attachments.Count > 0)
