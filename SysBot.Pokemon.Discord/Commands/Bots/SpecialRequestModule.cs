@@ -134,7 +134,8 @@ namespace SysBot.Pokemon.Discord
                 var entityEvents = eventData.Where(gift => gift.IsEntity && !gift.IsItem).ToArray();
                 if (index < 1 || index > entityEvents.Length)
                 {
-                    await ReplyAsync($"Invalid event index. Please use a valid event number from the `{SysCord<T>.Runner.Config.Discord.CommandPrefix}srp {generationOrGame}` command.").ConfigureAwait(false);
+                    var mentionExample = $"{Context.Client.CurrentUser.Mention} srp {generationOrGame}";
+                    await ReplyAsync($"Invalid event index. Please use a valid event number from the `{mentionExample}` command.").ConfigureAwait(false);
                     return;
                 }
 
@@ -208,12 +209,12 @@ namespace SysBot.Pokemon.Discord
         {
             var embed = new EmbedBuilder()
                 .WithTitle($"Available Events - {generationOrGame.ToUpperInvariant()}")
-                .WithDescription($"Page {page}/{pageCount} | Use `{botPrefix}srp {generationOrGame} page{page + 1}` for the next page.")
+                .WithDescription($"Page {page}/{pageCount} | In guilds mention the bot to navigate pages; in DMs use `{botPrefix}srp {generationOrGame} page{page + 1}` for the next page.")
                 .WithColor(DiscordColor.Blue);
 
             foreach (var item in allEvents.Skip((page - 1) * itemsPerPage).Take(itemsPerPage))
             {
-                embed.AddField($"{item.Index}. {item.EventInfo}", $"Use `{botPrefix}srp {generationOrGame} {item.Index}` to request this event.");
+                embed.AddField($"{item.Index}. {item.EventInfo}", $"Use `{botPrefix}srp {generationOrGame} {item.Index}` in DMs, or mention the bot in a server to request this event.");
             }
 
             return embed;
@@ -343,7 +344,8 @@ namespace SysBot.Pokemon.Discord
                 var entityEvents = eventData.Where(gift => gift.IsEntity && !gift.IsItem).ToArray();
                 if (eventIndex < 1 || eventIndex > entityEvents.Length)
                 {
-                    await ReplyAsync($"Invalid event index. Please use a valid event number from the `{SysCord<T>.Runner.Config.Discord.CommandPrefix}gep {generationOrGame}` command.").ConfigureAwait(false);
+                    var mentionExample = $"{Context.Client.CurrentUser.Mention} gep {generationOrGame}";
+                    await ReplyAsync($"Invalid event index. Please use a valid event number from the `{mentionExample}` command.").ConfigureAwait(false);
                     return;
                 }
 

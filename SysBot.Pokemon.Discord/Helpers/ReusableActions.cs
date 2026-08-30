@@ -41,7 +41,18 @@ public static class ReusableActions
         if (mgr.CanUseSudo(user.Id))
             return RequestSignificance.Favored;
         if (user is SocketGuildUser g)
-            return mgr.GetSignificance(g.Roles.Select(z => z.Name));
+        {
+            try
+            {
+                var roleNames = g.Roles?.Select(z => z.Name) ?? Enumerable.Empty<string>();
+                return mgr.GetSignificance(roleNames);
+            }
+            catch
+            {
+                // If roles are unavailable due to missing member cache/intents, fall back to none
+                return RequestSignificance.None;
+            }
+        }
         return RequestSignificance.None;
     }
 

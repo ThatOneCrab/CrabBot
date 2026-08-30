@@ -63,19 +63,22 @@ namespace SysBot.Pokemon.Discord.Modules
                 "Everything you need to know for the HOME-Ready commands."
             );
 
+            var mention = Context.Client.CurrentUser.Mention;
+
+
             var m1 = await SendBreak(
-                $"GET LIST — `{Prefix}hrl <Pokemon>`",
-                $"- Searches the entire HOME-Ready module.\n**Example:** `{Prefix}hrl Mewtwo`"
+                $"GET LIST — `{mention} hrl <Pokemon>`",
+                $"- Searches the entire HOME-Ready module.\n**Example:** `{mention} hrl Mewtwo`"
             );
 
             var m2 = await SendBreak(
-                $"CHANGE PAGES — `{Prefix}hrl <page>`",
-                $"- Switch between pages, with or without filters.\n**Example:** `{Prefix}hrl 5 Charmander`"
+                $"CHANGE PAGES — `{mention} hrl <page>`",
+                $"- Switch between pages, with or without filters.\n**Example:** `{mention} hrl 5 Charmander`"
             );
 
             var m3 = await SendBreak(
-                $"TRADE A FILE — `{Prefix}hrr <number>`",
-                $"- Trades the Pokémon by its number in the list.\n**Example:** `{Prefix}hrr 682`"
+                $"TRADE A FILE — `{mention} hrr <number>`",
+                $"- Trades the Pokémon by its number in the list.\n**Example:** `{mention} hrr 682`"
             );
 
             _ = Task.Run(async () =>
@@ -283,6 +286,8 @@ namespace SysBot.Pokemon.Discord.Modules
                  { ".pk9", "SV" }
             };
 
+            var mention = Context.Client.CurrentUser.Mention;
+
             foreach (var item in pageItems)
             {
                 var index = files.IndexOf(item) + 1;
@@ -293,12 +298,12 @@ namespace SysBot.Pokemon.Discord.Modules
                 // Lookup in dictionary
                 string game = extensionToGame.TryGetValue(ext, out var g) ? g : "Unknown";
 
-                // Add embed field
+                // Add embed field with mention-based examples for guilds
                 embed.AddField(
                     $"{index}. {item}",
-                    $"Use `{Prefix}hrr {index}` to request this Pokémon.\n" +
-                    $"Use `{Prefix}hrv {index}` to view Pokémon details.\n" +
-                    $"Use `{Prefix}hrd {index}` to download this PKM file.\n" +
+                    $"Use `{mention} hrr {index}` to request this Pokémon.\n" +
+                    $"Use `{mention} hrv {index}` to view Pokémon details.\n" +
+                    $"Use `{mention} hrd {index}` to download this PKM file.\n" +
                     $"This file is for **{game}**."
                 );
             }

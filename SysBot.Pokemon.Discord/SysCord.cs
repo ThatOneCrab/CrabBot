@@ -117,7 +117,7 @@ public sealed partial class SysCord<T> where T : PKM, new()
         {
             // How much logging do you want to see?
             LogLevel = LogSeverity.Info,
-            GatewayIntents = Guilds | GuildMessages | DirectMessages | GuildMembers | GuildPresences | MessageContent,
+            GatewayIntents = Guilds | GuildMessages | DirectMessages,
 
             // If you or another service needs to do anything with messages
             // (ex. checking Reactions, checking the content of edited/deleted messages),
@@ -128,7 +128,7 @@ public sealed partial class SysCord<T> where T : PKM, new()
         _client = new DiscordSocketClient(new DiscordSocketConfig
         {
             LogLevel = LogSeverity.Info,
-            GatewayIntents = Guilds | GuildMessages | DirectMessages | GuildMembers | GuildPresences | MessageContent,
+            GatewayIntents = Guilds | GuildMessages | DirectMessages,
         });
 
         // ===== DM Relay Setup =====
@@ -167,7 +167,7 @@ public sealed partial class SysCord<T> where T : PKM, new()
         // Setup your DI container.
         _services = ConfigureServices();
 
-        _client.PresenceUpdated += Client_PresenceUpdated;
+        // Presence updates are not used when privileged PRESENCES intent is disabled.
 
         _client.Disconnected += (exception) =>
         {
@@ -582,10 +582,7 @@ public sealed partial class SysCord<T> where T : PKM, new()
         return channelName.Trim();
     }
 
-    private Task Client_PresenceUpdated(SocketUser user, SocketPresence before, SocketPresence after)
-    {
-        return Task.CompletedTask;
-    }
+    // Presence update handler removed to avoid relying on PRESENCES privileged intent.
 
     private async Task HandleMessageAsync(SocketMessage arg)
     {
@@ -607,19 +604,19 @@ public sealed partial class SysCord<T> where T : PKM, new()
             if (msg.Author.Id == _client.CurrentUser.Id || msg.Author.IsBot)
                 return;
 
-            string thanksText = msg.Content.ToLower();
-            if (SysCordSettings.Settings.ReplyToThanks &&
-                (thanksText.Contains("thank") ||
-                (thanksText.Contains("arigato") ||
-                (thanksText.Contains("amazing") ||
-                (thanksText.Contains("incredible") ||
-                (thanksText.Contains("i love you") ||
-                (thanksText.Contains("awesome") ||
-                (thanksText.Contains("thanx")
-                ))))))))
+            string content = msg.Content ?? string.Empty;
+            bool contentAvailable = !string.IsNullOrWhiteSpace(content);
+
+            if (contentAvailable && SysCordSettings.Settings.ReplyToThanks)
             {
-                await SysCord<T>.RespondToThanksMessage(msg).ConfigureAwait(false);
-                return;
+                var thanksText = content.ToLowerInvariant();
+                if (thanksText.Contains("thank") || thanksText.Contains("arigato") || thanksText.Contains("amazing") ||
+                    thanksText.Contains("incredible") || thanksText.Contains("i love you") || thanksText.Contains("awesome") ||
+                    thanksText.Contains("thanx"))
+                {
+                    await SysCord<T>.RespondToThanksMessage(msg).ConfigureAwait(false);
+                    return;
+                }
             }
             if (msg.Attachments.Count > 0)
             {
@@ -634,58 +631,87 @@ public sealed partial class SysCord<T> where T : PKM, new()
 
             var correctPrefix = SysCordSettings.Settings.CommandPrefix;
             bool allowAnyPrefix = SysCordSettings.HubConfig.Discord.AllowAnyPrefix;
-            string content = msg.Content;
+
             int argPos = 0;
 
-            // --- STRICT MODE (AllowAnyPrefix = false) ---
+            bool isDm = msg.Channel is SocketDMChannel;
 
-            if (!allowAnyPrefix)
+            if (isDm)
             {
-                // If message doesn't start with ANY allowed prefix → it's just normal chat
-                if (content.Length == 0 || !allowedPrefixes.Contains(content[0]))
-                    return;
-
-                // Now we know it STARTS with a prefix-like symbol.
-                // If it's NOT the correct prefix → show the error.
-                if (!content.StartsWith(correctPrefix))
+                // In DMs, keep supporting prefix behavior (and mention when present).
+                if (msg.MentionedUsers.Any(u => u.Id == _client.CurrentUser.Id))
                 {
-                    await SafeSendMessageAsync(msg.Channel,
-                        $"Incorrect prefix! The correct prefix is `{correctPrefix}`");
-                    return;
+                    var mentionForms = new[] { _client.CurrentUser.Mention, $"<@!{_client.CurrentUser.Id}>", $"<@{_client.CurrentUser.Id}>" };
+                    foreach (var form in mentionForms)
+                    {
+                        if (contentAvailable && content.StartsWith(form, StringComparison.Ordinal))
+                        {
+                            argPos = form.Length;
+                            if (content.Length > argPos && content[argPos] == ' ') argPos++;
+                            break;
+                        }
+                    }
                 }
 
-                // Valid strict prefix
-                argPos = correctPrefix.Length;
+                if (argPos == 0)
+                {
+                    if (!contentAvailable)
+                        return;
+
+                    if (!allowAnyPrefix)
+                    {
+                        if (!allowedPrefixes.Contains(content[0]))
+                            return;
+
+                        if (!content.StartsWith(correctPrefix))
+                        {
+                            await SafeSendMessageAsync(msg.Channel,
+                                $"Incorrect prefix! The correct prefix is `{correctPrefix}`. In servers you can mention the bot instead of using a prefix.");
+                            return;
+                        }
+
+                        argPos = correctPrefix.Length;
+                    }
+                    else
+                    {
+                        if (allowedPrefixes.Contains(content[0]))
+                            argPos = 1;
+                        else if (content.StartsWith(correctPrefix))
+                            argPos = correctPrefix.Length;
+                        else
+                            return;
+                    }
+                }
             }
             else
             {
-                // AllowAnyPrefix = true → accept ANY allowed prefix OR the correct one.
-
-                if (content.Length > 0 && allowedPrefixes.Contains(content[0]))
-                {
-                    argPos = 1;
-                }
-                else if (content.StartsWith(correctPrefix))
-                {
-                    argPos = correctPrefix.Length;
-                }
-                else
-                {
-                    // normal chatting → ignore
+                // In guilds, require mention-based invocation.
+                if (!msg.MentionedUsers.Any(u => u.Id == _client.CurrentUser.Id))
                     return;
+
+                var mentionForms = new[] { _client.CurrentUser.Mention, $"<@!{_client.CurrentUser.Id}>", $"<@{_client.CurrentUser.Id}>" };
+                foreach (var form in mentionForms)
+                {
+                    if (contentAvailable && content.StartsWith(form, StringComparison.Ordinal))
+                    {
+                        argPos = form.Length;
+                        if (content.Length > argPos && content[argPos] == ' ') argPos++;
+                        break;
+                    }
+                    // If content is unavailable, keep argPos at 0 and let command execution fail safely.
                 }
-            }
 
-            // --- HANDLE COMMAND ---
-            var context = new SocketCommandContext(_client, msg);
-            var handled = await TryHandleCommandAsync(msg, context, argPos);
-            if (handled)
-                return;
+                // --- HANDLE COMMAND ---
+                var context = new SocketCommandContext(_client, msg);
+                var handled = await TryHandleCommandAsync(msg, context, argPos);
+                if (handled)
+                    return;
 
 
-            if (msg.Attachments.Count > 0)
-            {
-                await TryHandleAttachmentAsync(msg).ConfigureAwait(false);
+                if (msg.Attachments.Count > 0)
+                {
+                    await TryHandleAttachmentAsync(msg).ConfigureAwait(false);
+                }
             }
         }
         catch (HttpException ex) when (ex.DiscordCode == DiscordErrorCode.InsufficientPermissions) // Missing Permissions
@@ -701,10 +727,12 @@ public sealed partial class SysCord<T> where T : PKM, new()
             stopwatch.Stop();
             if (stopwatch.ElapsedMilliseconds > 1000) // Log if processing takes more than 1 second
             {
+                var logContent = arg.Content ?? "<content unavailable: Message Content intent not enabled>";
+                var preview = logContent.Length <= 100 ? logContent : logContent[..100] + "...";
                 await Log(new LogMessage(LogSeverity.Warning, "Gateway",
                     $"A MessageReceived handler is blocking the gateway task. " +
                     $"Method: HandleMessageAsync, Execution Time: {stopwatch.ElapsedMilliseconds}ms, " +
-                    $"Message Content: {arg.Content[..Math.Min(arg.Content.Length, 100)]}...")).ConfigureAwait(false);
+                    $"Message Content: {preview}")).ConfigureAwait(false);
             }
         }
     }
@@ -799,8 +827,8 @@ public sealed partial class SysCord<T> where T : PKM, new()
         try
         {
             var AbuseSettings = Hub.Config.TradeAbuse;
-            // Check if the user is in the bannedIDs list
-            if (msg.Author is SocketGuildUser user && AbuseSettings.BannedIDs.List.Any(z => z.ID == user.Id))
+            // Check if the user is in the bannedIDs list (use the author ID directly to avoid relying on guild member cache)
+            if (AbuseSettings.BannedIDs.List.Any(z => z.ID == msg.Author.Id))
             {
                 await SysCord<T>.SafeSendMessageAsync(msg.Channel, "You are banned from using this bot.").ConfigureAwait(false);
                 return true;
